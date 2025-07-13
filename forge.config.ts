@@ -58,19 +58,19 @@ const config: ForgeConfig = {
       },
     ],
     icon: "./assets/icon/logo",
-
-    osxSign: isEndToEndTestBuild
-      ? undefined
-      : {
-          identity: process.env.APPLE_TEAM_ID,
-        },
-    osxNotarize: isEndToEndTestBuild
-      ? undefined
-      : {
-          appleId: process.env.APPLE_ID!,
-          appleIdPassword: process.env.APPLE_PASSWORD!,
-          teamId: process.env.APPLE_TEAM_ID!,
-        },
+    // Disabled code signing and notarization for all platforms
+    // osxSign: isEndToEndTestBuild
+    //   ? undefined
+    //   : {
+    //       identity: process.env.APPLE_TEAM_ID,
+    //     },
+    // osxNotarize: isEndToEndTestBuild
+    //   ? undefined
+    //   : {
+    //       appleId: process.env.APPLE_ID!,
+    //       appleIdPassword: process.env.APPLE_PASSWORD!,
+    //       teamId: process.env.APPLE_TEAM_ID!,
+    //     },
     asar: true,
     ignore,
     // ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
@@ -81,7 +81,8 @@ const config: ForgeConfig = {
   },
   makers: [
     new MakerSquirrel({
-      signWithParams: `/sha1 ${process.env.SM_CODE_SIGNING_CERT_SHA1_HASH} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256`,
+      // Disabled signing for Squirrel.Windows
+      // signWithParams: `/sha1 ${process.env.SM_CODE_SIGNING_CERT_SHA1_HASH} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256`,
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
