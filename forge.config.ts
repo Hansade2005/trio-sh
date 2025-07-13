@@ -53,8 +53,8 @@ const config: ForgeConfig = {
   packagerConfig: {
     protocols: [
       {
-        name: "Dyad",
-        schemes: ["dyad"],
+        name: "Trio",
+        schemes: ["trio"],
       },
     ],
     icon: "./assets/icon/logo",
@@ -87,7 +87,7 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     new MakerDeb({
       options: {
-        mimeType: ["x-scheme-handler/dyad"],
+        mimeType: ["x-scheme-handler/trio"],
       },
     }),
   ],
@@ -96,8 +96,8 @@ const config: ForgeConfig = {
       name: "@electron-forge/publisher-github",
       config: {
         repository: {
-          owner: "dyad-sh",
-          name: "dyad",
+          owner: "Hansade2005",
+          name: "trio-sh",
         },
         draft: true,
         force: true,
