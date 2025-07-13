@@ -1,0 +1,19 @@
+{
+  "selectedModel": {
+    "name": "test-model",
+    "provider": "custom::testing",
+    "customModelId": 1
+  },
+  "providerSettings": {},
+  "telemetryConsent": "unset",
+  "telemetryUserId": "[UUID]",
+  "hasRunBefore": true,
+  "experiments": {},
+  "lastShownReleaseNotesVersion": "[scrubbed]",
+  "maxChatTurnsInContext": 5,
+  "enableProLazyEditsMode": true,
+  "enableProSmartFilesContextMode": true,
+  "selectedChatMode": "build",
+  "enableAutoFixProblems": true,
+  "isTestMode": true
+}
