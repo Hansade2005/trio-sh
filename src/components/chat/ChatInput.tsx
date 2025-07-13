@@ -269,8 +269,8 @@ export function ChatInput({ chatId }: { chatId?: number }) {
       )}
       <div className="p-4" data-testid="chat-input-container">
         <div
-          className={`relative flex flex-col border border-border rounded-lg bg-(--background-lighter) shadow-sm ${
-            isDraggingOver ? "ring-2 ring-blue-500 border-blue-500" : ""
+          className={`relative flex flex-col rounded-2xl bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 transition-all ${
+            isDraggingOver ? "ring-2 ring-pink-400 border-pink-400" : ""
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -308,7 +308,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
           {/* Use the DragDropOverlay component */}
           <DragDropOverlay isDraggingOver={isDraggingOver} />
 
-          <div className="flex items-start space-x-2 ">
+          <div className="flex items-end gap-3 px-4 pt-3 pb-2">
             <textarea
               ref={textareaRef}
               value={inputValue}
@@ -316,31 +316,35 @@ export function ChatInput({ chatId }: { chatId?: number }) {
               onKeyPress={handleKeyPress}
               onPaste={handlePaste}
               placeholder="Ask Dyad to build..."
-              className="flex-1 p-2 focus:outline-none overflow-y-auto min-h-[40px] max-h-[200px]"
+              className="flex-1 rounded-xl bg-white/60 dark:bg-zinc-800/60 border-none shadow-inner px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-pink-400/60 transition-all min-h-[48px] max-h-[200px] resize-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
               style={{ resize: "none" }}
+              disabled={isStreaming}
             />
 
             {isStreaming ? (
               <button
                 onClick={handleCancel}
-                className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg"
+                className="flex items-center justify-center w-11 h-11 rounded-xl bg-pink-200/60 text-pink-400 opacity-60 cursor-not-allowed mt-1"
                 title="Cancel generation"
+                type="button"
+                disabled
               >
-                <StopCircleIcon size={20} />
+                <StopCircleIcon size={22} />
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
                 disabled={!inputValue.trim() && attachments.length === 0}
-                className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg disabled:opacity-50"
+                className="flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg hover:from-pink-500 hover:to-pink-700 hover:shadow-xl transition-all mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Send message"
+                type="button"
               >
-                <SendHorizontalIcon size={20} />
+                <SendHorizontalIcon size={22} />
               </button>
             )}
           </div>
-          <div className="pl-2 pr-1 flex items-center justify-between pb-2">
-            <div className="flex items-center">
+          <div className="pl-4 pr-3 flex items-center justify-between pb-3">
+            <div className="flex items-center gap-2">
               <ChatInputControls showContextFilesPicker={true} />
               {/* File attachment button */}
               <TooltipProvider>
@@ -351,6 +355,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
                       onClick={handleAttachmentClick}
                       title="Attach files"
                       size="sm"
+                      className="flex items-center justify-center w-10 h-10 rounded-xl bg-pink-50 dark:bg-pink-900/30 text-pink-500 hover:bg-pink-100 dark:hover:bg-pink-800/60 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Paperclip size={20} />
                     </Button>

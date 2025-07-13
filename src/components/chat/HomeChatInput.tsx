@@ -82,8 +82,8 @@ export function HomeChatInput({
     <>
       <div className="p-4" data-testid="home-chat-input-container">
         <div
-          className={`relative flex flex-col space-y-2 border border-border rounded-lg bg-(--background-lighter) shadow-sm ${
-            isDraggingOver ? "ring-2 ring-blue-500 border-blue-500" : ""
+          className={`relative flex flex-col space-y-2 rounded-2xl bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 transition-all ${
+            isDraggingOver ? "ring-2 ring-pink-400 border-pink-400" : ""
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -98,7 +98,7 @@ export function HomeChatInput({
           {/* Drag and drop overlay */}
           <DragDropOverlay isDraggingOver={isDraggingOver} />
 
-          <div className="flex items-start space-x-2 ">
+          <div className="flex items-end gap-3 px-4 pt-3 pb-2">
             <textarea
               ref={textareaRef}
               value={inputValue}
@@ -106,19 +106,20 @@ export function HomeChatInput({
               onKeyPress={handleKeyPress}
               onPaste={handlePaste}
               placeholder="Ask Dyad to build..."
-              className="flex-1 p-2 focus:outline-none overflow-y-auto min-h-[40px] max-h-[200px]"
+              className="flex-1 rounded-xl bg-white/60 dark:bg-zinc-800/60 border-none shadow-inner px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-pink-400/60 transition-all min-h-[48px] max-h-[200px] resize-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+              disabled={isStreaming}
               style={{ resize: "none" }}
-              disabled={isStreaming} // Should ideally reflect if *any* stream is happening
             />
 
             {/* File attachment button */}
             <button
               onClick={handleAttachmentClick}
-              className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg disabled:opacity-50"
+              className="flex items-center justify-center w-11 h-11 rounded-xl bg-pink-50 dark:bg-pink-900/30 text-pink-500 hover:bg-pink-100 dark:hover:bg-pink-800/60 shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1"
               disabled={isStreaming}
               title="Attach files"
+              type="button"
             >
-              <Paperclip size={20} />
+              <Paperclip size={22} />
             </button>
             <input
               type="file"
@@ -131,23 +132,26 @@ export function HomeChatInput({
 
             {isStreaming ? (
               <button
-                className="px-2 py-2 mt-1 mr-2 text-(--sidebar-accent-fg) rounded-lg opacity-50 cursor-not-allowed" // Indicate disabled state
+                className="flex items-center justify-center w-11 h-11 rounded-xl bg-pink-200/60 text-pink-400 opacity-60 cursor-not-allowed mt-1"
                 title="Cancel generation (unavailable here)"
+                type="button"
+                disabled
               >
-                <StopCircleIcon size={20} />
+                <StopCircleIcon size={22} />
               </button>
             ) : (
               <button
                 onClick={handleCustomSubmit}
                 disabled={!inputValue.trim() && attachments.length === 0}
-                className="px-2 py-2 mt-1 mr-2 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg disabled:opacity-50"
+                className="flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg hover:from-pink-500 hover:to-pink-700 hover:shadow-xl transition-all mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Send message"
+                type="button"
               >
-                <SendIcon size={20} />
+                <SendIcon size={22} />
               </button>
             )}
           </div>
-          <div className="px-2 pb-2">
+          <div className="px-4 pb-3">
             <ChatInputControls />
           </div>
         </div>
