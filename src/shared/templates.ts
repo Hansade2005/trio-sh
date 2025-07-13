@@ -17,6 +17,7 @@ export const templatesData: Template[] = [
       "An empty project. Add any files, frameworks, or tools you want. No boilerplate included.",
     imageUrl:
       "https://ps.w.org/super-blank/assets/banner-1544x500.png?rev=3179041",
+    githubUrl: "https://github.com/Hansade2005/vercelplatform",
     isOfficial: true,
   },
   {
