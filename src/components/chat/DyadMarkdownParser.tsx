@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 import { DyadWrite } from "./DyadWrite";
@@ -122,6 +122,8 @@ function preprocessUnclosedTags(content: string): {
     "triobuilder-chat-summary",
     "triobuilder-edit",
     "triobuilder-codebase-context",
+    "triobuilder-read-file",
+    "triobuilder-read-files",
     "think",
   ];
 
@@ -188,6 +190,8 @@ function parseCustomTags(content: string): ContentPiece[] {
     "triobuilder-chat-summary",
     "triobuilder-edit",
     "triobuilder-codebase-context",
+    "triobuilder-read-file",
+    "triobuilder-read-files",
     "think",
   ];
 
@@ -418,7 +422,56 @@ function renderCustomTag(
       // Don't render anything for triobuilder-chat-summary
       return null;
 
+    case "triobuilder-read-file":
+      return <ReadFileTag path={attributes.path} />;
+    case "triobuilder-read-files":
+      return <ReadFilesTag paths={attributes.paths} />;
+
     default:
       return null;
   }
+}
+
+function ReadFileTag({ path }: { path: string }) {
+  const [content, setContent] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!path) return;
+    IpcClient.getInstance()
+      .invoke("read-file", { path })
+      .then((res: any) => setContent(res.content))
+      .catch((err: any) => setError(err.message || String(err)));
+  }, [path]);
+  if (error) return <div className="text-red-500">Error: {error}</div>;
+  if (content === null) return <div>Loading file...</div>;
+  return <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{content}</pre>;
+}
+
+function ReadFilesTag({ paths }: { paths: string }) {
+  const [contents, setContents] = useState<Record<string, string> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!paths) return;
+    const pathArr = paths.split(",").map((p) => p.trim()).filter(Boolean);
+    if (pathArr.length === 0 || pathArr.length > 3) {
+      setError("You must provide 1-3 file paths");
+      return;
+    }
+    IpcClient.getInstance()
+      .invoke("read-files", { paths: pathArr })
+      .then((res: any) => setContents(res))
+      .catch((err: any) => setError(err.message || String(err)));
+  }, [paths]);
+  if (error) return <div className="text-red-500">Error: {error}</div>;
+  if (!contents) return <div>Loading files...</div>;
+  return (
+    <div className="space-y-4">
+      {Object.entries(contents).map(([path, content]) => (
+        <div key={path}>
+          <div className="font-mono text-xs text-gray-500 mb-1">{path}</div>
+          <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{content}</pre>
+        </div>
+      ))}
+    </div>
+  );
 }

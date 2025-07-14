@@ -23,7 +23,6 @@ import { readSettings } from "../../main/settings";
 import type { ChatResponseEnd, ChatStreamParams } from "../ipc_types";
 import { extractCodebase, readFileWithCache } from "../../utils/codebase";
 import {
-  getDyadAddDependencyTags,
   processFullResponseActions,
 } from "../processors/response_processor";
 import { streamTestResponse } from "./testing_chat_handlers";
@@ -53,6 +52,7 @@ import { generateProblemReport } from "../processors/tsc";
 import { createProblemFixPrompt } from "@/shared/problem_prompt";
 import { AsyncVirtualFileSystem } from "@/utils/VirtualFilesystem";
 import { fileExists } from "../utils/file_utils";
+import { buildStructuredContext } from "../../utils/codebase";
 
 type AsyncIterableStream<T> = AsyncIterable<T> & ReadableStream<T>;
 
@@ -477,18 +477,50 @@ This conversation includes one or more image attachments. When the user uploads 
               },
             ] as const);
 
+        // Prepare tool tags
+        const toolTags = [
+          { tag: "triobuilder-write", description: "Create or update a file." },
+          { tag: "triobuilder-rename", description: "Rename a file." },
+          { tag: "triobuilder-delete", description: "Delete a file." },
+          { tag: "triobuilder-add-dependency", description: "Install npm packages." },
+          { tag: "triobuilder-read-file", description: "Read a single file." },
+          { tag: "triobuilder-read-files", description: "Read up to three files at once." },
+          // Add more as needed
+        ];
+        // Prepare file list (relative paths)
+        const fileList = files
+          .map(f => typeof f === 'string' ? f : f?.path)
+          .filter(Boolean)
+          .map(f => path.relative(appPath, f));
+        // Get model name as string
+        const modelName = typeof settings.selectedModel === 'string'
+          ? settings.selectedModel
+          : settings.selectedModel?.name || '';
+        // Get current time
+        const currentTime = new Date().toLocaleString("en-US", { timeZoneName: "short" });
+        // Build structured context
+        const structuredPrompt = buildStructuredContext({
+          userMessage: req.prompt,
+          appPath,
+          files: fileList,
+          model: modelName,
+          toolTags,
+          currentTime,
+        });
+        // Use structuredPrompt as the user message
         let chatMessages: CoreMessage[] = [
           ...codebasePrefix,
-          ...limitedMessageHistory.map((msg) => ({
-            role: msg.role as "user" | "assistant" | "system",
-            // Why remove thinking tags?
-            // Thinking tags are generally not critical for the context
-            // and eats up extra tokens.
-            content:
-              settings.selectedChatMode === "ask"
-                ? removeTriobuilderTags(removeNonEssentialTags(msg.content))
-                : removeNonEssentialTags(msg.content),
-          })),
+          ...limitedMessageHistory.map((msg, idx) =>
+            idx === limitedMessageHistory.length - 1 && msg.role === "user"
+              ? { ...msg, content: structuredPrompt }
+              : {
+                  ...msg,
+                  content:
+                    settings.selectedChatMode === "ask"
+                      ? removeTriobuilderTags(removeNonEssentialTags(msg.content))
+                      : removeNonEssentialTags(msg.content),
+                }
+          ),
         ];
 
         // Check if the last message should include attachments
@@ -661,7 +693,7 @@ This conversation includes one or more image attachments. When the user uploads 
               }
             }
           }
-          const addDependencies = getDyadAddDependencyTags(fullResponse);
+          const addDependencies = [];
           if (
             !abortController.signal.aborted &&
             // If there are dependencies, we don't want to auto-fix problems

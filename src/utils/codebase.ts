@@ -567,3 +567,51 @@ function createFullGlobPath({
   // We want the path to use forward slash for all platforms.
   return `${appPath.replace(/\\/g, "/")}/${globPath}`;
 }
+
+/**
+ * Build a structured context for the LLM, including <task> and <environment_details> sections.
+ * @param userMessage - The user's message/task
+ * @param appPath - The workspace directory
+ * @param files - Array of file paths (relative to appPath)
+ * @param model - The current model name
+ * @param toolTags - Array of { tag, description }
+ * @returns XML-like string for the LLM context
+ */
+export function buildStructuredContext({
+  userMessage,
+  appPath,
+  files,
+  model,
+  toolTags,
+  currentTime,
+}: {
+  userMessage: string;
+  appPath: string;
+  files: string[];
+  model: string;
+  toolTags: { tag: string; description: string }[];
+  currentTime: string;
+}): string {
+  return `
+<task>
+${userMessage}
+</task>
+
+<environment_details>
+# Available Tools/Tags
+${toolTags.map(t => `<${t.tag}> - ${t.description}`).join("\n")}
+
+# Current Time
+${currentTime}
+
+# Current Model
+${model}
+
+# Current Workspace Directory
+${appPath}
+
+# Files
+${files.join("\n")}
+</environment_details>
+`;
+}
