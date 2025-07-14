@@ -23,7 +23,10 @@ export function registerProHandlers() {
 
     const settings = readSettings();
 
-    const apiKeyValue = settings.auto && 'apiKey' in settings.auto ? settings.auto.apiKey?.value : undefined;
+    const apiKeyValue =
+      settings.auto && "apiKey" in settings.auto
+        ? settings.auto.apiKey?.value
+        : undefined;
 
     if (!apiKeyValue) {
       logger.error("LLM Gateway API key (Dyad Pro) is not configured.");

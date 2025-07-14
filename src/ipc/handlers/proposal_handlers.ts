@@ -155,7 +155,8 @@ const getProposalHandler = async (
         const proposalWriteFiles = getTriobuilderWriteTags(messageContent);
         const proposalRenameFiles = getTriobuilderRenameTags(messageContent);
         const proposalDeleteFiles = getTriobuilderDeleteTags(messageContent);
-        const proposalExecuteSqlQueries = getTriobuilderExecuteSqlTags(messageContent);
+        const proposalExecuteSqlQueries =
+          getTriobuilderExecuteSqlTags(messageContent);
         const packagesAdded = getTriobuilderAddDependencyTags(messageContent);
 
         const filesChanged = [
@@ -221,7 +222,9 @@ const getProposalHandler = async (
       }
       const actions: ActionProposal["actions"] = [];
       if (latestAssistantMessage?.content) {
-        const writeTags = getTriobuilderWriteTags(latestAssistantMessage.content);
+        const writeTags = getTriobuilderWriteTags(
+          latestAssistantMessage.content,
+        );
         const refactorTarget = writeTags.reduce(
           (largest, tag) => {
             const lineCount = tag.content.split("\n").length;
@@ -248,7 +251,9 @@ const getProposalHandler = async (
         }
 
         // Check for command tags and add corresponding actions
-        const commandTags = getTriobuilderCommandTags(latestAssistantMessage.content);
+        const commandTags = getTriobuilderCommandTags(
+          latestAssistantMessage.content,
+        );
         if (commandTags.includes("rebuild")) {
           actions.push({
             id: "rebuild",

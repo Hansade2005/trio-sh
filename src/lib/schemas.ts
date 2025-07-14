@@ -187,7 +187,11 @@ export function isDyadProEnabled(settings: UserSettings): boolean {
 }
 
 export function hasDyadProKey(settings: UserSettings): boolean {
-  const apiKeyValue = settings.providerSettings?.auto && 'apiKey' in settings.providerSettings.auto ? settings.providerSettings.auto.apiKey?.value : undefined;
+  const apiKeyValue =
+    settings.providerSettings?.auto &&
+    "apiKey" in settings.providerSettings.auto
+      ? settings.providerSettings.auto.apiKey?.value
+      : undefined;
   return !!apiKeyValue;
 }
 

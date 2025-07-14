@@ -21,7 +21,10 @@ export function useLanguageModelProviders() {
     if (queryResult.isLoading) {
       return false;
     }
-    const apiKeyValue = providerSettings.auto && 'apiKey' in providerSettings.auto ? providerSettings.auto.apiKey?.value : undefined;
+    const apiKeyValue =
+      providerSettings.auto && "apiKey" in providerSettings.auto
+        ? providerSettings.auto.apiKey?.value
+        : undefined;
     if (apiKeyValue) {
       return true;
     }
