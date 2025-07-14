@@ -73,7 +73,7 @@ export function TabsTrigger({
       onClick={() => ctx.setValue(triggerValue)}
       {...props}
       style={{
-        ...(props.style || {}),
+        ...props.style,
         borderBottom: selected ? "2px solid #0078d4" : "2px solid transparent",
         fontWeight: selected ? "bold" : undefined,
         outline: selected ? "auto" : undefined,

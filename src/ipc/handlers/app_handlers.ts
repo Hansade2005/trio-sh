@@ -895,10 +895,10 @@ export function registerAppHandlers() {
       let command: string;
       if (platform === "darwin") {
         // Try open -a first, fallback to code
-        command = `open -a \"Visual Studio Code\" \"${appPath}\" || code \"${appPath}\"`;
+        command = `open -a "Visual Studio Code" "${appPath}" || code "${appPath}"`;
       } else {
         // Windows or Linux
-        command = `code \"${appPath}\"`;
+        command = `code "${appPath}"`;
       }
       try {
         const { exec } = require("child_process");
