@@ -113,8 +113,21 @@ function preprocessUnclosedTags(content: string): {
   const customTagNames = [
     "triobuilder-write",
     "triobuilder-rename",
+    "triobuilder-move",
+    "triobuilder-copy",
+    "triobuilder-mkdir",
+    "triobuilder-search",
+    "triobuilder-replace",
+    "triobuilder-run-script",
+    "triobuilder-format",
+    "triobuilder-lint",
+    "triobuilder-test",
+    "triobuilder-git",
+    "triobuilder-download",
     "triobuilder-delete",
     "triobuilder-add-dependency",
+    "triobuilder-read-file",
+    "triobuilder-read-files",
     "triobuilder-execute-sql",
     "triobuilder-add-integration",
     "triobuilder-output",
@@ -122,8 +135,6 @@ function preprocessUnclosedTags(content: string): {
     "triobuilder-chat-summary",
     "triobuilder-edit",
     "triobuilder-codebase-context",
-    "triobuilder-read-file",
-    "triobuilder-read-files",
     "think",
   ];
 
@@ -181,8 +192,21 @@ function parseCustomTags(content: string): ContentPiece[] {
   const customTagNames = [
     "triobuilder-write",
     "triobuilder-rename",
+    "triobuilder-move",
+    "triobuilder-copy",
+    "triobuilder-mkdir",
+    "triobuilder-search",
+    "triobuilder-replace",
+    "triobuilder-run-script",
+    "triobuilder-format",
+    "triobuilder-lint",
+    "triobuilder-test",
+    "triobuilder-git",
+    "triobuilder-download",
     "triobuilder-delete",
     "triobuilder-add-dependency",
+    "triobuilder-read-file",
+    "triobuilder-read-files",
     "triobuilder-execute-sql",
     "triobuilder-add-integration",
     "triobuilder-output",
@@ -190,8 +214,6 @@ function parseCustomTags(content: string): ContentPiece[] {
     "triobuilder-chat-summary",
     "triobuilder-edit",
     "triobuilder-codebase-context",
-    "triobuilder-read-file",
-    "triobuilder-read-files",
     "think",
   ];
 
@@ -426,6 +448,74 @@ function renderCustomTag(
       return <ReadFileTag path={attributes.path} />;
     case "triobuilder-read-files":
       return <ReadFilesTag paths={attributes.paths} />;
+
+    case "triobuilder-move":
+      return (
+        <div style={{ color: '#b8860b', fontStyle: 'italic' }}>
+          Move file from <b>{attributes.from}</b> to <b>{attributes.to}</b>
+        </div>
+      );
+
+    case "triobuilder-copy":
+      return (
+        <div style={{ color: '#4682b4', fontStyle: 'italic' }}>
+          Copy file or directory from <b>{attributes.from}</b> to <b>{attributes.to}</b>
+        </div>
+      );
+    case "triobuilder-mkdir":
+      return (
+        <div style={{ color: '#228b22', fontStyle: 'italic' }}>
+          Create directory <b>{attributes.path}</b>
+        </div>
+      );
+    case "triobuilder-search":
+      return (
+        <div style={{ color: '#8b008b', fontStyle: 'italic' }}>
+          Search for <b>{attributes.query}</b> in the codebase
+        </div>
+      );
+    case "triobuilder-replace":
+      return (
+        <div style={{ color: '#b22222', fontStyle: 'italic' }}>
+          Replace <b>{attributes.query}</b> with <b>{attributes.replace}</b> in <b>{attributes.files}</b>
+        </div>
+      );
+    case "triobuilder-run-script":
+      return (
+        <div style={{ color: '#ff8c00', fontStyle: 'italic' }}>
+          Run script <b>{attributes.script}</b>
+        </div>
+      );
+    case "triobuilder-format":
+      return (
+        <div style={{ color: '#20b2aa', fontStyle: 'italic' }}>
+          Format code at <b>{attributes.path}</b>
+        </div>
+      );
+    case "triobuilder-lint":
+      return (
+        <div style={{ color: '#a0522d', fontStyle: 'italic' }}>
+          Lint code at <b>{attributes.path}</b>
+        </div>
+      );
+    case "triobuilder-test":
+      return (
+        <div style={{ color: '#6a5acd', fontStyle: 'italic' }}>
+          Run tests {attributes.path ? `at <b>${attributes.path}</b>` : "in the codebase"}
+        </div>
+      );
+    case "triobuilder-git":
+      return (
+        <div style={{ color: '#708090', fontStyle: 'italic' }}>
+          Run git command <b>{attributes.command}</b>
+        </div>
+      );
+    case "triobuilder-download":
+      return (
+        <div style={{ color: '#2e8b57', fontStyle: 'italic' }}>
+          Download file from <b>{attributes.url}</b> to <b>{attributes.to}</b>
+        </div>
+      );
 
     default:
       return null;
