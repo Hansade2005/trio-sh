@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { searchMCPServers, checkForMCPServerUpdates } from "@/utils/mcpRegistryApi";
 import { addOrUpdateMCPServer } from "@/utils/mcpConfigManager";
 import { MCPEnvEditor } from "./MCPEnvEditor";
@@ -13,6 +13,26 @@ function highlight(text: string, query: string) {
   return text.split(regex).map((part, i) =>
     regex.test(part) ? <mark key={i} style={{ background: '#fde68a', color: '#b45309', padding: 0 }}>{part}</mark> : part
   );
+}
+
+const INSTALL_STEPS = [
+  { key: "downloading", label: "Downloading" },
+  { key: "extracting", label: "Extracting" },
+  { key: "installing", label: "Installing" },
+  { key: "postinstall", label: "Postinstall" },
+  { key: "success", label: "Success" },
+  { key: "error", label: "Error" },
+];
+
+function parseStepFromLog(line: string): string | null {
+  const l = line.toLowerCase();
+  if (l.includes("downloading")) return "downloading";
+  if (l.includes("extracting")) return "extracting";
+  if (l.includes("installing")) return "installing";
+  if (l.includes("postinstall")) return "postinstall";
+  if (l.includes("success") || l.includes("completed")) return "success";
+  if (l.includes("error") || l.includes("failed")) return "error";
+  return null;
 }
 
 export function MCPHubPage() {
@@ -36,6 +56,29 @@ export function MCPHubPage() {
   const PAGE_SIZE = 8;
   const [page, setPage] = useState(0);
   const pagedResults = results.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const [installLog, setInstallLog] = useState<{ type: string, message: string }[]>([]);
+  const [installStep, setInstallStep] = useState<'idle'|'running'|'done'|'error'>('idle');
+  const [stepChecklist, setStepChecklist] = useState<Record<string, boolean>>({});
+  const logEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (installStep === 'running') {
+      // Listen for log events
+      const handler = (_event: any, { type, message }: { type: string, message: string }) => {
+        setInstallLog(log => [...log, { type, message }]);
+        const step = parseStepFromLog(message);
+        if (step) setStepChecklist(prev => ({ ...prev, [step]: true }));
+        if (type === "done") setInstallStep("done");
+        if (type === "error") setInstallStep("error");
+      };
+      window.electron.ipcRenderer.on("mcp:install-server-log", handler);
+      return () => window.electron.ipcRenderer.removeAllListeners("mcp:install-server-log");
+    }
+  }, [installStep]);
+
+  useEffect(() => {
+    if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [installLog]);
 
   async function handleSearch() {
     setLoading(true);
@@ -73,21 +116,21 @@ export function MCPHubPage() {
       return;
     }
     setInstalling(true);
+    setInstallLog([]);
+    setStepChecklist({});
+    setInstallStep('running');
     try {
-      addOrUpdateMCPServer({
-        id: selected.id,
-        transportType: "stdio",
-        stdioCommand: selected.command,
-        stdioArgs: selected.args,
-        env,
-        version: selected.version,
-      });
-      setToast({ message: "MCP server installed and activated!", type: "success" });
-      setInstalled(prev => [...prev.filter(s => s.id !== selected.id), { ...selected, env, active: true }]);
+      // Run the install command via backend IPC (streaming)
+      const command = selected.command;
+      const args = selected.args;
+      window.electron.ipcRenderer.send("mcp:install-server-stream", { command, args });
+      // Wait for done/error in log handler
     } catch (e: any) {
       setToast({ message: e.message || "Failed to install MCP server", type: "error" });
+      setInstallStep('error');
+      setInstalling(false);
+      return;
     }
-    setInstalling(false);
   }
 
   return (
@@ -141,9 +184,38 @@ export function MCPHubPage() {
               </div>
             )}
             <MCPEnvEditor env={env} onChange={setEnv} />
-            <button onClick={handleInstall} disabled={installing} style={{ marginTop: 16, padding: '8px 16px', fontSize: 16, background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8 }}>
-              {installing ? "Installing..." : "Install & Activate"}
+            {/* Step Checklist */}
+            {installStep === 'running' && (
+              <div style={{ marginBottom: 16 }}>
+                <strong>Progress:</strong>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {INSTALL_STEPS.map(step => (
+                    <li key={step.key} style={{ color: stepChecklist[step.key] ? '#22c55e' : '#aaa', fontWeight: stepChecklist[step.key] ? 700 : 400 }}>
+                      {stepChecklist[step.key] ? '✔️' : '⬜'} {step.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* Log Output */}
+            {installStep === 'running' && (
+              <div style={{ background: '#222', color: '#0f0', padding: 8, maxHeight: 200, overflow: 'auto', marginBottom: 16, borderRadius: 8 }}>
+                {installLog.map((log, i) => {
+                  let color = '#0f0';
+                  if (log.type === 'stderr' || /error|failed/i.test(log.message)) color = '#f87171';
+                  if (/warning/i.test(log.message)) color = '#fbbf24';
+                  if (parseStepFromLog(log.message)) color = '#38bdf8';
+                  return <div key={i} style={{ color }}>{log.message}</div>;
+                })}
+                <div ref={logEndRef} />
+              </div>
+            )}
+            <button onClick={handleInstall} disabled={installing || installStep === 'running'} style={{ marginTop: 16, padding: '8px 16px', fontSize: 16, background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8 }}>
+              {installing || installStep === 'running' ? "Installing..." : "Install & Activate"}
             </button>
+            {(installStep === 'done' || installStep === 'error') && (
+              <button onClick={() => { setInstallStep('idle'); setInstallLog([]); setStepChecklist({}); setSelected(null); }} style={{ marginLeft: 16, padding: '8px 16px' }}>Close</button>
+            )}
           </div>
         </div>
       )}
