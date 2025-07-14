@@ -94,6 +94,9 @@ const validInvokeChannels = [
   // We can't detect with IS_TEST_BUILD in the preload script because
   // it's a separate process from the main process.
   "supabase:fake-connect-and-set-project",
+  "terminal:start",
+  "terminal:input",
+  "terminal:stop",
 ];
 
 // Add valid receive channels
@@ -106,6 +109,7 @@ const validReceiveChannels = [
   "github:flow-success",
   "github:flow-error",
   "deep-link-received",
+  "terminal:onData",
 ] as const;
 
 type ValidInvokeChannel = (typeof validInvokeChannels)[number];

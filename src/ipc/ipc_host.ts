@@ -37,6 +37,7 @@ import {
   registerGitHandler,
   registerDownloadHandler,
 } from "./handlers/read_file_handlers";
+import { registerTerminalHandlers } from "./handlers/terminal_handlers";
 
 export function registerIpcHandlers() {
   // Register all IPC handlers by category
@@ -77,4 +78,5 @@ export function registerIpcHandlers() {
   registerTestHandler();
   registerGitHandler();
   registerDownloadHandler();
+  registerTerminalHandlers();
 }

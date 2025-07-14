@@ -36,6 +36,7 @@ import {
 import { showError, showSuccess } from "@/lib/toast";
 import { useMutation } from "@tanstack/react-query";
 import { useCheckProblems } from "@/hooks/useCheckProblems";
+import { BottomBar } from "./BottomBar";
 
 type PreviewMode = "preview" | "code" | "problems";
 
@@ -347,30 +348,12 @@ export function PreviewPanel() {
               )}
             </div>
           </Panel>
-          {isConsoleOpen && (
-            <>
-              <PanelResizeHandle className="h-1 bg-border hover:bg-gray-400 transition-colors cursor-row-resize" />
-              <Panel id="console" minSize={10} defaultSize={30}>
-                <div className="flex flex-col h-full">
-                  <ConsoleHeader
-                    isOpen={true}
-                    onToggle={() => setIsConsoleOpen(false)}
-                    latestMessage={latestMessage}
-                  />
-                  <Console />
-                </div>
-              </Panel>
-            </>
-          )}
+          <PanelResizeHandle className="h-1 bg-border hover:bg-gray-400 transition-colors cursor-row-resize" />
+          <Panel id="bottom-bar" minSize={10} defaultSize={30}>
+            <BottomBar />
+          </Panel>
         </PanelGroup>
       </div>
-      {!isConsoleOpen && (
-        <ConsoleHeader
-          isOpen={false}
-          onToggle={() => setIsConsoleOpen(true)}
-          latestMessage={latestMessage}
-        />
-      )}
     </div>
   );
 }
