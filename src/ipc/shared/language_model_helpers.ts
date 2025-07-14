@@ -213,14 +213,6 @@ const LOCAL_PROVIDERS: Record<
   },
 };
 
-const MCP_PROVIDER = {
-  id: "mcp",
-  name: "MCP Server",
-  type: "custom",
-  websiteUrl: "https://mcp.so",
-  apiBaseUrl: "", // User-configurable
-};
-
 /**
  * Fetches language model providers from both the database (custom) and hardcoded constants (cloud),
  * merging them with custom providers taking precedence.
@@ -247,8 +239,8 @@ export async function getLanguageModelProviders(): Promise<
     });
   }
 
-  // Add MCP provider to hardcodedProviders
-  const hardcodedProviders: LanguageModelProvider[] = [MCP_PROVIDER];
+  // Get hardcoded cloud providers
+  const hardcodedProviders: LanguageModelProvider[] = [];
   for (const providerKey in CLOUD_PROVIDERS) {
     if (Object.prototype.hasOwnProperty.call(CLOUD_PROVIDERS, providerKey)) {
       // Ensure providerKey is a key of PROVIDERS

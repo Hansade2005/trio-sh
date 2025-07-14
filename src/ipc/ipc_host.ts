@@ -38,7 +38,6 @@ import {
   registerDownloadHandler,
 } from "./handlers/read_file_handlers";
 import { registerTerminalHandlers } from "./handlers/terminal_handlers";
-import { registerMCPInstallHandlers } from "./handlers/mcp_install_handlers";
 
 export function registerIpcHandlers() {
   // Register all IPC handlers by category
@@ -80,5 +79,4 @@ export function registerIpcHandlers() {
   registerGitHandler();
   registerDownloadHandler();
   registerTerminalHandlers();
-  registerMCPInstallHandlers();
 }

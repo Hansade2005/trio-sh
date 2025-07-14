@@ -4,8 +4,6 @@ import { getUserDataPath } from "../paths/paths";
 import { UserSettingsSchema, type UserSettings, Secret } from "../lib/schemas";
 import { safeStorage } from "electron";
 import { v4 as uuidv4 } from "uuid";
-import { decrypt, encrypt } from "../lib/crypto";
-import { getProviderApiKey } from "@/ipc/utils/get_model_client";
 
 // IF YOU NEED TO UPDATE THIS, YOU'RE PROBABLY DOING SOMETHING WRONG!
 // Need to maintain backwards compatibility!
@@ -72,10 +70,12 @@ export function readSettings(): UserSettings {
       };
     }
     for (const provider in combinedSettings.providerSettings) {
-      const apiKey = getProviderApiKey(combinedSettings, provider);
-      if (apiKey) {
-        (combinedSettings.providerSettings[provider] as { apiKey?: { value: string } }).apiKey = {
-          value: decrypt(apiKey),
+      if (combinedSettings.providerSettings[provider].apiKey) {
+        const encryptionType =
+          combinedSettings.providerSettings[provider].apiKey.encryptionType;
+        combinedSettings.providerSettings[provider].apiKey = {
+          value: decrypt(combinedSettings.providerSettings[provider].apiKey),
+          encryptionType,
         };
       }
     }
@@ -113,9 +113,10 @@ export function writeSettings(settings: Partial<UserSettings>): void {
       }
     }
     for (const provider in newSettings.providerSettings) {
-      const apiKey = getProviderApiKey(newSettings, provider);
-      if (apiKey) {
-        (newSettings.providerSettings[provider] as { apiKey?: { value: string } }).apiKey = { value: encrypt(apiKey) };
+      if (newSettings.providerSettings[provider].apiKey) {
+        newSettings.providerSettings[provider].apiKey = encrypt(
+          newSettings.providerSettings[provider].apiKey.value,
+        );
       }
     }
     const validatedSettings = UserSettingsSchema.parse(newSettings);

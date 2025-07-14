@@ -59,9 +59,7 @@ export default function HomePage() {
       setReleaseLoading(true);
       setReleaseError(null);
       try {
-        const res = await fetch(
-          "https://api.github.com/repos/trio-sh/trio/releases",
-        );
+        const res = await fetch("https://api.github.com/repos/trio-sh/trio/releases");
         if (!res.ok) throw new Error("Failed to fetch release notes");
         const releases = await res.json();
         if (Array.isArray(releases) && releases.length > 0) {
@@ -87,9 +85,7 @@ export default function HomePage() {
         settings.lastShownReleaseNotesVersion !== appVersion
       ) {
         try {
-          const res = await fetch(
-            "https://api.github.com/repos/trio-sh/trio/releases",
-          );
+          const res = await fetch("https://api.github.com/repos/trio-sh/trio/releases");
           if (!res.ok) return;
           const releases = await res.json();
           if (Array.isArray(releases) && releases.length > 0 && releases[0]) {
@@ -101,9 +97,7 @@ export default function HomePage() {
             ) {
               setReleaseData(latest);
               setReleaseNotesOpen(true);
-              await updateSettings({
-                lastShownReleaseNotesVersion: appVersion,
-              });
+              await updateSettings({ lastShownReleaseNotesVersion: appVersion });
             }
           }
         } catch (err) {
@@ -220,7 +214,9 @@ export default function HomePage() {
                 <span className="text-pink-500 dark:text-pink-400">
                   {item.icon}
                 </span>
-                <span className="text-base font-semibold">{item.label}</span>
+                <span className="text-base font-semibold">
+                  {item.label}
+                </span>
               </button>
             ))}
           </div>
@@ -243,7 +239,9 @@ export default function HomePage() {
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            <span className="text-base font-semibold">More ideas</span>
+            <span className="text-base font-semibold">
+              More ideas
+            </span>
           </button>
         </div>
       </div>
@@ -254,47 +252,27 @@ export default function HomePage() {
         <DialogContent className="max-w-4xl bg-(--docs-bg) pr-0 pt-4 pl-4 gap-1">
           <DialogHeader>
             <DialogTitle>
-              {releaseData
-                ? `What's new: ${releaseData.name || releaseData.tag_name}`
-                : "Release Notes"}
+              {releaseData ? `What's new: ${releaseData.name || releaseData.tag_name}` : "Release Notes"}
             </DialogTitle>
             <Button
               variant="ghost"
               size="sm"
               className="absolute right-10 top-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-              onClick={() =>
-                window.open(
-                  "https://github.com/trio-sh/trio/releases",
-                  "_blank",
-                )
-              }
+              onClick={() => window.open("https://github.com/trio-sh/trio/releases", "_blank")}
             >
               <ExternalLink className="w-4 h-4" />
             </Button>
           </DialogHeader>
           <div className="overflow-auto h-[70vh] flex flex-col ">
-            {releaseLoading && (
-              <div className="p-8 text-center">Loading release notes…</div>
-            )}
-            {releaseError && (
-              <div className="p-8 text-center text-red-500">{releaseError}</div>
-            )}
+            {releaseLoading && <div className="p-8 text-center">Loading release notes…</div>}
+            {releaseError && <div className="p-8 text-center text-red-500">{releaseError}</div>}
             {releaseData && (
               <div className="flex-1 px-2 pb-4">
-                <div className="mb-2 text-sm text-gray-500">
-                  Published:{" "}
-                  {new Date(releaseData.published_at).toLocaleDateString()}
-                </div>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {releaseData.body}
-                </ReactMarkdown>
+                <div className="mb-2 text-sm text-gray-500">Published: {new Date(releaseData.published_at).toLocaleDateString()}</div>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{releaseData.body}</ReactMarkdown>
                 <div className="mt-4">
                   <Button asChild variant="outline">
-                    <a
-                      href="https://github.com/trio-sh/trio/releases"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href="https://github.com/trio-sh/trio/releases" target="_blank" rel="noopener noreferrer">
                       View all releases on GitHub
                     </a>
                   </Button>

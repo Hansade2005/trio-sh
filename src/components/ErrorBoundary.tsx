@@ -95,11 +95,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
         )}
 
         <div className="flex flex-col gap-2">
-          <Button
-            onClick={handleReportBug}
-            disabled={isLoading}
-            className="bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg hover:from-pink-500 hover:to-pink-700 hover:shadow-xl rounded-2xl border-none"
-          >
+          <Button onClick={handleReportBug} disabled={isLoading} className="bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg hover:from-pink-500 hover:to-pink-700 hover:shadow-xl rounded-2xl border-none">
             {isLoading ? "Preparing report..." : "Report Bug to Trio"}
           </Button>
         </div>
@@ -107,8 +103,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
         <div className="mt-4 p-3 bg-pink-50 dark:bg-pink-950 border border-pink-200 dark:border-pink-800 rounded-md flex items-center gap-2">
           <LightbulbIcon className="h-4 w-4 text-pink-700 dark:text-pink-400 flex-shrink-0" />
           <p className="text-sm text-pink-700 dark:text-pink-400">
-            <strong>Tip:</strong> Try closing and re-opening{" "}
-            <span className="font-bold">Trio</span> as a temporary workaround.
+            <strong>Tip:</strong> Try closing and re-opening <span className="font-bold">Trio</span> as a temporary workaround.
           </p>
         </div>
       </div>

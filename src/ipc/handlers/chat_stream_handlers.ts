@@ -22,7 +22,9 @@ import { getDyadAppPath } from "../../paths/paths";
 import { readSettings } from "../../main/settings";
 import type { ChatResponseEnd, ChatStreamParams } from "../ipc_types";
 import { extractCodebase, readFileWithCache } from "../../utils/codebase";
-import { processFullResponseActions } from "../processors/response_processor";
+import {
+  processFullResponseActions,
+} from "../processors/response_processor";
 import { streamTestResponse } from "./testing_chat_handlers";
 import { getTestResponse } from "./testing_chat_handlers";
 import { getModelClient, ModelClient } from "../utils/get_model_client";
@@ -43,7 +45,6 @@ import { validateChatContext } from "../utils/context_paths_utils";
 import { GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 
 import { getExtraProviderOptions } from "../utils/thinking_utils";
-import { createMCPModel } from "../utils/mcp_provider";
 
 import { safeSend } from "../utils/safe_sender";
 import { cleanFullResponse } from "../utils/cleanFullResponse";
@@ -56,7 +57,6 @@ import { buildStructuredContext } from "../../utils/codebase";
 type AsyncIterableStream<T> = AsyncIterable<T> & ReadableStream<T>;
 
 const logger = log.scope("chat_stream_handlers");
-const payloadLogger = log.scope("llm_payload");
 
 // Track active streams for cancellation
 const activeStreams = new Map<number, AbortController>();
@@ -105,7 +105,7 @@ async function processStreamChunks({
   chatId,
   processResponseChunkUpdate,
 }: {
-  fullStream: AsyncIterableStream<TextStreamPart<any>>;
+  fullStream: AsyncIterableStream<TextStreamPart<ToolSet>>;
   fullResponse: string;
   abortController: AbortController;
   chatId: number;
@@ -156,8 +156,6 @@ async function processStreamChunks({
 
 export function registerChatStreamHandlers() {
   ipcMain.handle("chat:stream", async (event, req: ChatStreamParams) => {
-    let mcpClients: any[] = [];
-    let mcpTools: any[] = [];
     try {
       // Create an AbortController for this stream
       const abortController = new AbortController();
@@ -484,31 +482,22 @@ This conversation includes one or more image attachments. When the user uploads 
           { tag: "triobuilder-write", description: "Create or update a file." },
           { tag: "triobuilder-rename", description: "Rename a file." },
           { tag: "triobuilder-delete", description: "Delete a file." },
-          {
-            tag: "triobuilder-add-dependency",
-            description: "Install npm packages.",
-          },
+          { tag: "triobuilder-add-dependency", description: "Install npm packages." },
           { tag: "triobuilder-read-file", description: "Read a single file." },
-          {
-            tag: "triobuilder-read-files",
-            description: "Read up to three files at once.",
-          },
+          { tag: "triobuilder-read-files", description: "Read up to three files at once." },
           // Add more as needed
         ];
         // Prepare file list (relative paths)
         const fileList = files
-          .map((f) => (typeof f === "string" ? f : f?.path))
+          .map(f => typeof f === 'string' ? f : f?.path)
           .filter(Boolean)
-          .map((f) => path.relative(appPath, f));
+          .map(f => path.relative(appPath, f));
         // Get model name as string
-        const modelName =
-          typeof settings.selectedModel === "string"
-            ? settings.selectedModel
-            : settings.selectedModel?.name || "";
+        const modelName = typeof settings.selectedModel === 'string'
+          ? settings.selectedModel
+          : settings.selectedModel?.name || '';
         // Get current time
-        const currentTime = new Date().toLocaleString("en-US", {
-          timeZoneName: "short",
-        });
+        const currentTime = new Date().toLocaleString("en-US", { timeZoneName: "short" });
         // Build structured context
         const structuredPrompt = buildStructuredContext({
           userMessage: req.prompt,
@@ -528,11 +517,9 @@ This conversation includes one or more image attachments. When the user uploads 
                   ...msg,
                   content:
                     settings.selectedChatMode === "ask"
-                      ? removeTriobuilderTags(
-                          removeNonEssentialTags(msg.content),
-                        )
+                      ? removeTriobuilderTags(removeNonEssentialTags(msg.content))
                       : removeNonEssentialTags(msg.content),
-                },
+                }
           ),
         ];
 
@@ -569,33 +556,6 @@ This conversation includes one or more image attachments. When the user uploads 
           ];
         }
 
-        try {
-          const settings = readSettings();
-          const mcpServers = Array.isArray(
-            settings.providerSettings?.mcpServers,
-          )
-            ? settings.providerSettings.mcpServers.filter((s: any) => s.active)
-            : [];
-          for (const cfg of mcpServers) {
-            try {
-              const clientObj = await createMCPModel(cfg);
-              mcpClients.push(clientObj);
-              const tools = await clientObj.tools();
-              if (Array.isArray(tools)) mcpTools.push(...tools);
-              else if (tools) mcpTools.push(tools);
-            } catch (err) {
-              logger.error("Failed to load MCP client/tools:", err);
-            }
-          }
-        } catch (err) {
-          logger.error("Error aggregating MCP tools:", err);
-        }
-        // Merge all tool objects into a single ToolSet object
-        const mergedMcpTools = mcpTools.reduce(
-          (acc, tool) => ({ ...acc, ...tool }),
-          {},
-        );
-
         const simpleStreamText = async ({
           chatMessages,
           modelClient,
@@ -603,64 +563,41 @@ This conversation includes one or more image attachments. When the user uploads 
           chatMessages: CoreMessage[];
           modelClient: ModelClient;
         }) => {
-          try {
-            // Prepare the payload (redact functions)
-            const llmPayload = {
-              maxTokens: await getMaxTokens(settings.selectedModel),
-              temperature: 0,
-              maxRetries: 2,
-              model: modelClient.model,
-              providerOptions: {
-                "dyad-gateway": getExtraProviderOptions(
-                  modelClient.builtinProviderId,
-                  settings,
-                ),
-                google: {
-                  thinkingConfig: {
-                    includeThoughts: true,
-                  },
-                } satisfies GoogleGenerativeAIProviderOptions,
-              },
-              system: systemPrompt,
-              messages: chatMessages.filter((m) => m.content),
-              tools:
-                Object.keys(mergedMcpTools).length > 0
-                  ? mergedMcpTools
-                  : undefined,
-              // onError and abortSignal are not serializable
-            };
-            // Log the payload (redact model and functions for safety)
-            const safePayload = {
-              ...llmPayload,
-              model:
-                typeof llmPayload.model === "string"
-                  ? llmPayload.model
-                  : "[ModelInstance]",
-            };
-            payloadLogger.log(JSON.stringify(safePayload, null, 2));
-            return await streamText({
-              ...llmPayload,
-              onError: (error: any) => {
-                logger.error("Error streaming text:", error);
-                let errorMessage = (error as any)?.error?.message;
-                const responseBody = error?.error?.responseBody;
-                if (errorMessage && responseBody) {
-                  errorMessage += "\n\nDetails: " + responseBody;
-                }
-                const message = errorMessage || JSON.stringify(error);
-                event.sender.send(
-                  "chat:response:error",
-                  `Sorry, there was an error from the AI: ${message}`,
-                );
-                // Clean up the abort controller
-                activeStreams.delete(req.chatId);
-              },
-              abortSignal: abortController.signal,
-            });
-          } catch (err) {
-            logger.error("Error in simpleStreamText:", err);
-            throw err;
-          }
+          return streamText({
+            maxTokens: await getMaxTokens(settings.selectedModel),
+            temperature: 0,
+            maxRetries: 2,
+            model: modelClient.model,
+            providerOptions: {
+              "dyad-gateway": getExtraProviderOptions(
+                modelClient.builtinProviderId,
+                settings,
+              ),
+              google: {
+                thinkingConfig: {
+                  includeThoughts: true,
+                },
+              } satisfies GoogleGenerativeAIProviderOptions,
+            },
+            system: systemPrompt,
+            messages: chatMessages.filter((m) => m.content),
+            onError: (error: any) => {
+              logger.error("Error streaming text:", error);
+              let errorMessage = (error as any)?.error?.message;
+              const responseBody = error?.error?.responseBody;
+              if (errorMessage && responseBody) {
+                errorMessage += "\n\nDetails: " + responseBody;
+              }
+              const message = errorMessage || JSON.stringify(error);
+              event.sender.send(
+                "chat:response:error",
+                `Sorry, there was an error from the AI: ${message}`,
+              );
+              // Clean up the abort controller
+              activeStreams.delete(req.chatId);
+            },
+            abortSignal: abortController.signal,
+          });
         };
 
         const processResponseChunkUpdate = async ({
@@ -709,7 +646,7 @@ This conversation includes one or more image attachments. When the user uploads 
         // Process the stream as before
         try {
           const result = await processStreamChunks({
-            fullStream: fullStream as AsyncIterableStream<TextStreamPart<any>>,
+            fullStream,
             fullResponse,
             abortController,
             chatId: req.chatId,
@@ -995,17 +932,6 @@ ${problemReport.problems
         }
       }
 
-      // After all streaming and continuations:
-      try {
-        for (const client of mcpClients) {
-          if (client && typeof client.close === "function") {
-            await client.close();
-          }
-        }
-      } catch (err) {
-        logger.error("Error closing MCP clients:", err);
-      }
-
       // Return the chat ID for backwards compatibility
       return req.chatId;
     } catch (error) {
@@ -1218,9 +1144,7 @@ function escapeTriobuilderTags(text: string): string {
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text
-    .replace(/<triobuilder/g, "＜triobuilder")
-    .replace(/<\/triobuilder/g, "＜/triobuilder");
+  return text.replace(/<triobuilder/g, "＜triobuilder").replace(/<\/triobuilder/g, "＜/triobuilder");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

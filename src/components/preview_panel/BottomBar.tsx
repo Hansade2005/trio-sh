@@ -21,4 +21,4 @@ export function BottomBar() {
       </Tabs>
     </div>
   );
-}
+} 

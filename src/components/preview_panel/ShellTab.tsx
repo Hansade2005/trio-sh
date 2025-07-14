@@ -15,8 +15,8 @@ export function ShellTab() {
     const term = new Terminal({
       fontSize: 13,
       theme: {
-        background: "#18181b",
-        foreground: "#e5e7eb",
+        background: '#18181b',
+        foreground: '#e5e7eb',
       },
       cursorBlink: true,
       rows: 20,
@@ -28,22 +28,20 @@ export function ShellTab() {
     let unsub: (() => void) | undefined;
     let started = false;
     const cwd = currentApp?.path;
-    IpcClient.getInstance()
-      .startTerminal(cwd)
-      .then((res) => {
-        if (!res.success) {
-          setError(res.error || "Failed to start terminal");
-          return;
+    IpcClient.getInstance().startTerminal(cwd).then((res) => {
+      if (!res.success) {
+        setError(res.error || "Failed to start terminal");
+        return;
+      }
+      started = true;
+      unsub = IpcClient.getInstance().onTerminalData((data) => {
+        if (data.type === "stdout" || data.type === "stderr") {
+          term.write(data.data || "");
+        } else if (data.type === "exit") {
+          term.write(`\r\n[Process exited with code ${data.code}]\r\n`);
         }
-        started = true;
-        unsub = IpcClient.getInstance().onTerminalData((data) => {
-          if (data.type === "stdout" || data.type === "stderr") {
-            term.write(data.data || "");
-          } else if (data.type === "exit") {
-            term.write(`\r\n[Process exited with code ${data.code}]\r\n`);
-          }
-        });
       });
+    });
     // Send user input to backend
     term.onData((input) => {
       IpcClient.getInstance().sendTerminalInput(input);
@@ -58,15 +56,11 @@ export function ShellTab() {
   }, [currentApp]);
 
   if (error) {
-    return (
-      <div className="flex flex-col h-full items-center justify-center text-red-500">
-        {error}
-      </div>
-    );
+    return <div className="flex flex-col h-full items-center justify-center text-red-500">{error}</div>;
   }
   return (
     <div className="flex flex-col h-full bg-black">
       <div ref={xtermRef} className="flex-1 w-full h-full" />
     </div>
   );
-}
+} 

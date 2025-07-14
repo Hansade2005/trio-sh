@@ -451,71 +451,68 @@ function renderCustomTag(
 
     case "triobuilder-move":
       return (
-        <div style={{ color: "#b8860b", fontStyle: "italic" }}>
+        <div style={{ color: '#b8860b', fontStyle: 'italic' }}>
           Move file from <b>{attributes.from}</b> to <b>{attributes.to}</b>
         </div>
       );
 
     case "triobuilder-copy":
       return (
-        <div style={{ color: "#4682b4", fontStyle: "italic" }}>
-          Copy file or directory from <b>{attributes.from}</b> to{" "}
-          <b>{attributes.to}</b>
+        <div style={{ color: '#4682b4', fontStyle: 'italic' }}>
+          Copy file or directory from <b>{attributes.from}</b> to <b>{attributes.to}</b>
         </div>
       );
     case "triobuilder-mkdir":
       return (
-        <div style={{ color: "#228b22", fontStyle: "italic" }}>
+        <div style={{ color: '#228b22', fontStyle: 'italic' }}>
           Create directory <b>{attributes.path}</b>
         </div>
       );
     case "triobuilder-search":
       return (
-        <div style={{ color: "#8b008b", fontStyle: "italic" }}>
+        <div style={{ color: '#8b008b', fontStyle: 'italic' }}>
           Search for <b>{attributes.query}</b> in the codebase
         </div>
       );
     case "triobuilder-replace":
       return (
-        <div style={{ color: "#b22222", fontStyle: "italic" }}>
-          Replace <b>{attributes.query}</b> with <b>{attributes.replace}</b> in{" "}
-          <b>{attributes.files}</b>
+        <div style={{ color: '#b22222', fontStyle: 'italic' }}>
+          Replace <b>{attributes.query}</b> with <b>{attributes.replace}</b> in <b>{attributes.files}</b>
         </div>
       );
     case "triobuilder-run-script":
       return (
-        <div style={{ color: "#ff8c00", fontStyle: "italic" }}>
+        <div style={{ color: '#ff8c00', fontStyle: 'italic' }}>
           Run script <b>{attributes.script}</b>
         </div>
       );
     case "triobuilder-format":
       return (
-        <div style={{ color: "#20b2aa", fontStyle: "italic" }}>
+        <div style={{ color: '#20b2aa', fontStyle: 'italic' }}>
           Format code at <b>{attributes.path}</b>
         </div>
       );
     case "triobuilder-lint":
       return (
-        <div style={{ color: "#a0522d", fontStyle: "italic" }}>
+        <div style={{ color: '#a0522d', fontStyle: 'italic' }}>
           Lint code at <b>{attributes.path}</b>
         </div>
       );
     case "triobuilder-test":
       return (
-        <div style={{ color: "#6a5acd", fontStyle: "italic" }}>
-          Run tests{" "}
-          {attributes.path ? `at <b>${attributes.path}</b>` : "in the codebase"}
+        <div style={{ color: '#6a5acd', fontStyle: 'italic' }}>
+          Run tests {attributes.path ? `at <b>${attributes.path}</b>` : "in the codebase"}
         </div>
       );
     case "triobuilder-git":
       return (
-        <div style={{ color: "#708090", fontStyle: "italic" }}>
+        <div style={{ color: '#708090', fontStyle: 'italic' }}>
           Run git command <b>{attributes.command}</b>
         </div>
       );
     case "triobuilder-download":
       return (
-        <div style={{ color: "#2e8b57", fontStyle: "italic" }}>
+        <div style={{ color: '#2e8b57', fontStyle: 'italic' }}>
           Download file from <b>{attributes.url}</b> to <b>{attributes.to}</b>
         </div>
       );
@@ -537,11 +534,7 @@ function ReadFileTag({ path }: { path: string }) {
   }, [path]);
   if (error) return <div className="text-red-500">Error: {error}</div>;
   if (content === null) return <div>Loading file...</div>;
-  return (
-    <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
-      {content}
-    </pre>
-  );
+  return <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{content}</pre>;
 }
 
 function ReadFilesTag({ paths }: { paths: string }) {
@@ -549,10 +542,7 @@ function ReadFilesTag({ paths }: { paths: string }) {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     if (!paths) return;
-    const pathArr = paths
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const pathArr = paths.split(",").map((p) => p.trim()).filter(Boolean);
     if (pathArr.length === 0 || pathArr.length > 3) {
       setError("You must provide 1-3 file paths");
       return;
@@ -569,9 +559,7 @@ function ReadFilesTag({ paths }: { paths: string }) {
       {Object.entries(contents).map(([path, content]) => (
         <div key={path}>
           <div className="font-mono text-xs text-gray-500 mb-1">{path}</div>
-          <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
-            {content}
-          </pre>
+          <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{content}</pre>
         </div>
       ))}
     </div>

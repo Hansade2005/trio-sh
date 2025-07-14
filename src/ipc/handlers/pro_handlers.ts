@@ -2,7 +2,6 @@ import fetch from "node-fetch"; // Electron main process might need node-fetch
 import log from "electron-log";
 import { createLoggedHandler } from "./safe_handle";
 import { readSettings } from "../../main/settings"; // Assuming settings are read this way
-import { getProviderApiKey } from "@/ipc/utils/get_model_client";
 import { UserBudgetInfo, UserBudgetInfoSchema } from "../ipc_types";
 import { IS_TEST_BUILD } from "../utils/test_utils";
 
@@ -23,15 +22,9 @@ export function registerProHandlers() {
 
     const settings = readSettings();
 
-    // Use type guards before accessing .apiKey or .auto on providerSettings.
-    // Example:
-    // if (providerSettings && 'auto' in providerSettings && providerSettings.auto && 'apiKey' in providerSettings.auto) { ... }
-    const autoSettings = settings.providerSettings?.['auto'];
-    const apiKeyValue = (autoSettings && typeof autoSettings === 'object' && 'apiKey' in autoSettings)
-      ? (autoSettings as { apiKey?: { value: string } }).apiKey?.value
-      : undefined;
+    const apiKey = settings.providerSettings?.auto?.apiKey?.value;
 
-    if (!apiKeyValue) {
+    if (!apiKey) {
       logger.error("LLM Gateway API key (Dyad Pro) is not configured.");
       return null;
     }
@@ -39,7 +32,7 @@ export function registerProHandlers() {
     const url = "https://llm-gateway.dyad.sh/user/info";
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKeyValue}`,
+      Authorization: `Bearer ${apiKey}`,
     };
 
     try {

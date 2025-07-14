@@ -97,8 +97,6 @@ const validInvokeChannels = [
   "terminal:start",
   "terminal:input",
   "terminal:stop",
-  "mcp:install-server",
-  "mcp:install-server-stream",
 ];
 
 // Add valid receive channels
@@ -112,7 +110,6 @@ const validReceiveChannels = [
   "github:flow-error",
   "deep-link-received",
   "terminal:onData",
-  "mcp:install-server-log",
 ] as const;
 
 type ValidInvokeChannel = (typeof validInvokeChannels)[number];

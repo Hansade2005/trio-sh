@@ -599,7 +599,7 @@ ${userMessage}
 
 <environment_details>
 # Available Tools/Tags
-${toolTags.map((t) => `<${t.tag}> - ${t.description}`).join("\n")}
+${toolTags.map(t => `<${t.tag}> - ${t.description}`).join("\n")}
 
 # Current Time
 ${currentTime}

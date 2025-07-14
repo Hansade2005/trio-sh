@@ -944,15 +944,11 @@ export class IpcClient {
     return this.ipcRenderer.invoke("check-problems", params);
   }
 
-  public async startTerminal(
-    cwd?: string,
-  ): Promise<{ success: boolean; error?: string }> {
+  public async startTerminal(cwd?: string): Promise<{ success: boolean; error?: string }> {
     return this.ipcRenderer.invoke("terminal:start", { cwd });
   }
 
-  public async sendTerminalInput(
-    input: string,
-  ): Promise<{ success: boolean; error?: string }> {
+  public async sendTerminalInput(input: string): Promise<{ success: boolean; error?: string }> {
     return this.ipcRenderer.invoke("terminal:input", { input });
   }
 
@@ -960,14 +956,7 @@ export class IpcClient {
     return this.ipcRenderer.invoke("terminal:stop");
   }
 
-  public onTerminalData(
-    callback: (data: {
-      type: string;
-      data?: string;
-      code?: number;
-      signal?: string;
-    }) => void,
-  ) {
+  public onTerminalData(callback: (data: { type: string; data?: string; code?: number; signal?: string }) => void) {
     this.ipcRenderer.on("terminal:onData", (_event: any, data: any) => {
       callback(data);
     });

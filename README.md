@@ -1,6 +1,6 @@
 # trio
 
-Trio is a AI app builder. It's fast, private and fully under your control — like Lovable, v0, or Bolt, but running right on your machine.
+Trio is a  AI app builder. It's fast, private and fully under your control — like Lovable, v0, or Bolt, but running right on your machine.
 
 ![Image](https://github.com/user-attachments/assets/f6c83dfc-6ffd-4d32-93dd-4b9c46d17790)
 

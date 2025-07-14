@@ -1,17 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  getTriobuilderWriteTags,
-  getTriobuilderRenameTags,
-  getTriobuilderDeleteTags,
+  getDyadWriteTags,
+  getDyadRenameTags,
+  getDyadDeleteTags,
   processFullResponseActions,
-  getTriobuilderAddDependencyTags,
-  getTriobuilderChatSummaryTag,
-  getTriobuilderExecuteSqlTags,
-  getTriobuilderCommandTags,
+  getDyadAddDependencyTags,
 } from "../ipc/processors/response_processor";
 import {
-  removeTriobuilderTags,
-  hasUnclosedTriobuilderWrite,
+  removeDyadTags,
+  hasUnclosedDyadWrite,
 } from "../ipc/handlers/chat_stream_handlers";
 import fs from "node:fs";
 import git from "isomorphic-git";
@@ -81,37 +78,35 @@ vi.mock("../db", () => ({
   },
 }));
 
-describe("getTriobuilderAddDependencyTags", () => {
+describe("getDyadAddDependencyTags", () => {
   it("should return an empty array when no triobuilder-add-dependency tags are found", () => {
-    const result = getTriobuilderAddDependencyTags(
-      "No triobuilder-add-dependency tags here",
-    );
+    const result = getDyadAddDependencyTags("No triobuilder-add-dependency tags here");
     expect(result).toEqual([]);
   });
 
   it("should return an array of triobuilder-add-dependency tags", () => {
-    const result = getTriobuilderAddDependencyTags(
+    const result = getDyadAddDependencyTags(
       `<triobuilder-add-dependency packages="uuid"></triobuilder-add-dependency>`,
     );
     expect(result).toEqual(["uuid"]);
   });
 
   it("should return all the packages in the triobuilder-add-dependency tags", () => {
-    const result = getTriobuilderAddDependencyTags(
+    const result = getDyadAddDependencyTags(
       `<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>`,
     );
     expect(result).toEqual(["pkg1", "pkg2"]);
   });
 
   it("should return all the packages in the triobuilder-add-dependency tags", () => {
-    const result = getTriobuilderAddDependencyTags(
+    const result = getDyadAddDependencyTags(
       `txt before<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>text after`,
     );
     expect(result).toEqual(["pkg1", "pkg2"]);
   });
 
   it("should return all the packages in multiple triobuilder-add-dependency tags", () => {
-    const result = getTriobuilderAddDependencyTags(
+    const result = getDyadAddDependencyTags(
       `txt before<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>txt between<triobuilder-add-dependency packages="pkg3"></triobuilder-add-dependency>text after`,
     );
     expect(result).toEqual(["pkg1", "pkg2", "pkg3"]);
@@ -961,39 +956,39 @@ describe("processFullResponse", () => {
   });
 });
 
-describe("removeTriobuilderTags", () => {
+describe("removeDyadTags", () => {
   it("should return empty string when input is empty", () => {
-    const result = removeTriobuilderTags("");
+    const result = removeDyadTags("");
     expect(result).toBe("");
   });
 
-  it("should return the same text when no triobuilder tags are present", () => {
-    const text = "This is a regular text without any triobuilder tags.";
-    const result = removeTriobuilderTags(text);
+  it("should return the same text when no dyad tags are present", () => {
+    const text = "This is a regular text without any dyad tags.";
+    const result = removeDyadTags(text);
     expect(result).toBe(text);
   });
 
   it("should remove a single triobuilder-write tag", () => {
     const text = `Before text <triobuilder-write path="src/file.js">console.log('hello');</triobuilder-write> After text`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Before text  After text");
   });
 
   it("should remove a single triobuilder-delete tag", () => {
     const text = `Before text <triobuilder-delete path="src/file.js"></triobuilder-delete> After text`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Before text  After text");
   });
 
   it("should remove a single triobuilder-rename tag", () => {
     const text = `Before text <triobuilder-rename from="old.js" to="new.js"></triobuilder-rename> After text`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Before text  After text");
   });
 
   it("should remove multiple different triobuilder tags", () => {
     const text = `Start <triobuilder-write path="file1.js">code here</triobuilder-write> middle <triobuilder-delete path="file2.js"></triobuilder-delete> end <triobuilder-rename from="old.js" to="new.js"></triobuilder-rename> finish`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Start  middle  end  finish");
   });
 
@@ -1009,19 +1004,19 @@ const Component = () => {
 export default Component;
 </triobuilder-write>
 After`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Before\n\nAfter");
   });
 
   it("should handle triobuilder tags with complex attributes", () => {
     const text = `Text <triobuilder-write path="src/file.js" description="Complex component with quotes" version="1.0">const x = "hello world";</triobuilder-write> more text`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Text  more text");
   });
 
   it("should remove triobuilder tags and trim whitespace", () => {
     const text = `  <triobuilder-write path="file.js">code</triobuilder-write>  `;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("");
   });
 
@@ -1030,22 +1025,20 @@ After`;
 const html = '<div>Hello</div>';
 const component = <Component />;
 </triobuilder-write>`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("");
   });
 
   it("should handle self-closing triobuilder tags", () => {
     const text = `Before <triobuilder-delete path="file.js" /> After`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe('Before <triobuilder-delete path="file.js" /> After');
   });
 
   it("should handle malformed triobuilder tags gracefully", () => {
     const text = `Before <triobuilder-write path="file.js">unclosed tag After`;
-    const result = removeTriobuilderTags(text);
-    expect(result).toBe(
-      'Before <triobuilder-write path="file.js">unclosed tag After',
-    );
+    const result = removeDyadTags(text);
+    expect(result).toBe('Before <triobuilder-write path="file.js">unclosed tag After');
   });
 
   it("should handle triobuilder tags with special characters in content", () => {
@@ -1053,51 +1046,51 @@ const component = <Component />;
 const regex = /<div[^>]*>.*?</div>/g;
 const special = "Special chars: @#$%^&*()[]{}|\\";
 </triobuilder-write>`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("");
   });
 
   it("should handle multiple triobuilder tags of the same type", () => {
     const text = `<triobuilder-write path="file1.js">code1</triobuilder-write> between <triobuilder-write path="file2.js">code2</triobuilder-write>`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("between");
   });
 
   it("should handle triobuilder tags with custom tag names", () => {
     const text = `Before <triobuilder-custom-action param="value">content</triobuilder-custom-action> After`;
-    const result = removeTriobuilderTags(text);
+    const result = removeDyadTags(text);
     expect(result).toBe("Before  After");
   });
 });
 
-describe("hasUnclosedTriobuilderWrite", () => {
+describe("hasUnclosedDyadWrite", () => {
   it("should return false when there are no triobuilder-write tags", () => {
-    const text = "This is just regular text without any triobuilder tags.";
-    const result = hasUnclosedTriobuilderWrite(text);
+    const text = "This is just regular text without any dyad tags.";
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should return false when triobuilder-write tag is properly closed", () => {
     const text = `<triobuilder-write path="src/file.js">console.log('hello');</triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should return true when triobuilder-write tag is not closed", () => {
     const text = `<triobuilder-write path="src/file.js">console.log('hello');`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
   it("should return false when triobuilder-write tag with attributes is properly closed", () => {
     const text = `<triobuilder-write path="src/file.js" description="A test file">console.log('hello');</triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should return true when triobuilder-write tag with attributes is not closed", () => {
     const text = `<triobuilder-write path="src/file.js" description="A test file">console.log('hello');`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
@@ -1105,7 +1098,7 @@ describe("hasUnclosedTriobuilderWrite", () => {
     const text = `<triobuilder-write path="src/file1.js">code1</triobuilder-write>
     Some text in between
     <triobuilder-write path="src/file2.js">code2</triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
@@ -1113,7 +1106,7 @@ describe("hasUnclosedTriobuilderWrite", () => {
     const text = `<triobuilder-write path="src/file1.js">code1</triobuilder-write>
     Some text in between
     <triobuilder-write path="src/file2.js">code2`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
@@ -1121,7 +1114,7 @@ describe("hasUnclosedTriobuilderWrite", () => {
     const text = `<triobuilder-write path="src/file1.js">code1
     Some text in between
     <triobuilder-write path="src/file2.js">code2</triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
@@ -1139,7 +1132,7 @@ const Component = () => {
 
 export default Component;
 </triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
@@ -1156,7 +1149,7 @@ const Component = () => {
 };
 
 export default Component;`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
@@ -1165,7 +1158,7 @@ export default Component;`;
 const message = "Hello 'world'";
 const regex = /<div[^>]*>/g;
 </triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
@@ -1173,7 +1166,7 @@ const regex = /<div[^>]*>/g;
     const text = `Some text before the tag
 <triobuilder-write path="src/file.js">console.log('hello');</triobuilder-write>
 Some text after the tag`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
@@ -1181,19 +1174,19 @@ Some text after the tag`;
     const text = `Some text before the tag
 <triobuilder-write path="src/file.js">console.log('hello');
 Some text after the unclosed tag`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
   it("should handle empty triobuilder-write tags", () => {
     const text = `<triobuilder-write path="src/file.js"></triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should handle unclosed empty triobuilder-write tags", () => {
     const text = `<triobuilder-write path="src/file.js">`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
@@ -1201,13 +1194,13 @@ Some text after the unclosed tag`;
     const text = `<triobuilder-write path="src/file1.js">completed content</triobuilder-write>
     <triobuilder-write path="src/file2.js">unclosed content
     <triobuilder-write path="src/file3.js">final content</triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should handle tags with special characters in attributes", () => {
     const text = `<triobuilder-write path="src/file-name_with.special@chars.js" description="File with special chars in path">content</triobuilder-write>`;
-    const result = hasUnclosedTriobuilderWrite(text);
+    const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 });

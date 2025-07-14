@@ -66,15 +66,6 @@ export const ProviderSettingSchema = z.object({
  */
 export type ProviderSetting = z.infer<typeof ProviderSettingSchema>;
 
-export const MCPProviderSettingSchema = z.object({
-  transportType: z.enum(["sse", "stdio"]).default("sse"),
-  sseUrl: z.string().optional(),
-  stdioCommand: z.string().optional(),
-  stdioArgs: z.array(z.string()).optional(),
-  apiBaseUrl: z.object({ value: z.string() }).optional(), // legacy, for backward compatibility
-  env: z.record(z.string(), z.string()).optional(),
-});
-
 export const RuntimeModeSchema = z.enum(["web-sandbox", "local-node", "unset"]);
 export type RuntimeMode = z.infer<typeof RuntimeModeSchema>;
 
@@ -139,10 +130,7 @@ export type ContextPathResults = {
  */
 export const UserSettingsSchema = z.object({
   selectedModel: LargeLanguageModelSchema,
-  providerSettings: z.record(
-    z.string(),
-    z.union([ProviderSettingSchema, MCPProviderSettingSchema]),
-  ),
+  providerSettings: z.record(z.string(), ProviderSettingSchema),
   githubUser: GithubUserSchema.optional(),
   githubAccessToken: SecretSchema.optional(),
   supabase: SupabaseSchema.optional(),
@@ -187,12 +175,7 @@ export function isDyadProEnabled(settings: UserSettings): boolean {
 }
 
 export function hasDyadProKey(settings: UserSettings): boolean {
-  const apiKeyValue =
-    settings.providerSettings?.auto &&
-    "apiKey" in settings.providerSettings.auto
-      ? settings.providerSettings.auto.apiKey?.value
-      : undefined;
-  return !!apiKeyValue;
+  return !!settings.providerSettings?.auto?.apiKey?.value;
 }
 
 // Define interfaces for the props
