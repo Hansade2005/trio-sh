@@ -182,10 +182,13 @@ export function MCPHubPage() {
       // Run the install command via backend IPC (streaming)
       const command = selected.command;
       const args = selected.args;
-      window.electron.ipcRenderer.send("mcp:install-server-stream", {
-        command,
-        args,
-      });
+      const result = await window.electron.ipcRenderer.invoke(
+        "mcp:install-server-stream",
+        {
+          command,
+          args,
+        },
+      );
       // Wait for done/error in log handler
     } catch (e: any) {
       setToast({

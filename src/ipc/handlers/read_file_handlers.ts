@@ -21,7 +21,7 @@ export function registerReadFileHandlers() {
     if (!Array.isArray(paths) || paths.length === 0 || paths.length > 3) {
       throw new Error("You must provide 1-3 file paths");
     }
-    const results = {};
+    const results: Record<string, string> = {};
     for (const p of paths) {
       results[p] = await fs.readFile(p, "utf8");
     }
@@ -62,8 +62,8 @@ export function registerSearchHandler() {
   handle("search", async (_event, { query, dir }) => {
     if (!query) throw new Error("'query' is required");
     const searchDir = dir || process.cwd();
-    const results = [];
-    const walk = async (dir) => {
+    const results: any[] = [];
+    const walk = async (dir: string) => {
       const entries = await fs.readdir(dir, { withFileTypes: true });
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
@@ -89,7 +89,7 @@ export function registerReplaceHandler() {
   handle("replace", async (_event, { query, replace, files }) => {
     if (!query || !replace || !files)
       throw new Error("'query', 'replace', and 'files' are required");
-    const fileList = files.split(",").map((f) => f.trim());
+    const fileList = files.split(",").map((f: string) => f.trim());
     for (const file of fileList) {
       let content = await fs.readFile(file, "utf8");
       content = content.split(query).join(replace);

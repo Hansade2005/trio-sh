@@ -333,3 +333,5 @@ async function getRegularModelClient(
     }
   }
 }
+
+export { getProviderApiKey };

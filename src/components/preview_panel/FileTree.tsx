@@ -288,7 +288,7 @@ const TreeNode = ({
       : newName.trim();
     try {
       if (creating === "file") {
-        await IpcClient.getInstance().editAppFile(appId, fullPath, "");
+        await IpcClient.getInstance().editAppFile(appId !== undefined ? String(appId) : "", fullPath, "");
         showSuccess(`File '${fullPath}' created`);
       } else if (creating === "folder") {
         await IpcClient.getInstance().invoke("mkdir", { path: fullPath });
@@ -460,7 +460,7 @@ const TreeNodeCreationButton = ({
       : newName.trim();
     try {
       if (type === "file") {
-        await IpcClient.getInstance().editAppFile(appId, fullPath, "");
+        await IpcClient.getInstance().editAppFile(appId !== undefined ? String(appId) : "", fullPath, "");
         showSuccess(`File '${fullPath}' created`);
       } else if (type === "folder") {
         await IpcClient.getInstance().invoke("mkdir", { path: fullPath });

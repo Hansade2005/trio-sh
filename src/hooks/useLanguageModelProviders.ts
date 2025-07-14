@@ -21,12 +21,19 @@ export function useLanguageModelProviders() {
     if (queryResult.isLoading) {
       return false;
     }
-    const apiKeyValue =
-      providerSettings.auto && "apiKey" in providerSettings.auto
-        ? providerSettings.auto.apiKey?.value
-        : undefined;
-    if (apiKeyValue) {
-      return true;
+    // Use type guards before accessing .apiKey or .auto on providerSettings.
+    // Example:
+    // if (providerSettings && 'auto' in providerSettings && providerSettings.auto && 'apiKey' in providerSettings.auto) { ... }
+    if (
+      providerSettings &&
+      typeof providerSettings.auto === 'object' &&
+      providerSettings.auto !== null &&
+      'apiKey' in providerSettings.auto
+    ) {
+      const apiKeyValue = (providerSettings.auto as { apiKey?: { value: string } }).apiKey?.value;
+      if (apiKeyValue) {
+        return true;
+      }
     }
     const providerData = queryResult.data?.find((p) => p.id === provider);
     if (providerData?.envVarName && envVars[providerData.envVarName]) {

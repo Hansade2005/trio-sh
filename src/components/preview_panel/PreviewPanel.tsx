@@ -236,6 +236,8 @@ const ConsoleHeader = ({
   </div>
 );
 
+export { ConsoleHeader };
+
 // Main PreviewPanel component
 export function PreviewPanel() {
   const [previewMode, setPreviewMode] = useAtom(previewModeAtom);

@@ -74,9 +74,8 @@ export function readSettings(): UserSettings {
     for (const provider in combinedSettings.providerSettings) {
       const apiKey = getProviderApiKey(combinedSettings, provider);
       if (apiKey) {
-        combinedSettings.providerSettings[provider].apiKey = {
+        (combinedSettings.providerSettings[provider] as { apiKey?: { value: string } }).apiKey = {
           value: decrypt(apiKey),
-          encryptionType: "electron-safe-storage",
         };
       }
     }
@@ -116,7 +115,7 @@ export function writeSettings(settings: Partial<UserSettings>): void {
     for (const provider in newSettings.providerSettings) {
       const apiKey = getProviderApiKey(newSettings, provider);
       if (apiKey) {
-        newSettings.providerSettings[provider].apiKey = encrypt(apiKey);
+        (newSettings.providerSettings[provider] as { apiKey?: { value: string } }).apiKey = { value: encrypt(apiKey) };
       }
     }
     const validatedSettings = UserSettingsSchema.parse(newSettings);

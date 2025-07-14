@@ -1,6 +1,5 @@
 import {
   experimental_createMCPClient,
-  Experimental_StdioMCPTransport,
 } from "ai";
 import type { LanguageModelV1 } from "ai";
 
@@ -22,11 +21,12 @@ export async function createMCPModel(
   if (config.transportType === "stdio") {
     if (!config.stdioCommand)
       throw new Error("Missing stdioCommand for MCP stdio transport");
-    transport = new Experimental_StdioMCPTransport({
+    transport = {
+      type: "stdio",
       command: config.stdioCommand,
       args: config.stdioArgs || [],
       env: config.env || {},
-    });
+    };
   } else {
     if (!config.sseUrl) throw new Error("Missing sseUrl for MCP SSE transport");
     transport = { type: "sse", url: config.sseUrl };
