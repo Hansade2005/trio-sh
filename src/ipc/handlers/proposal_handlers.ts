@@ -10,13 +10,13 @@ import { desc, eq, and } from "drizzle-orm";
 import path from "node:path"; // Import path for basename
 // Import tag parsers
 import {
-  getDyadAddDependencyTags,
-  getDyadChatSummaryTag,
-  getDyadDeleteTags,
-  getDyadExecuteSqlTags,
-  getDyadRenameTags,
-  getDyadWriteTags,
-  getDyadCommandTags,
+  getTriobuilderAddDependencyTags,
+  getTriobuilderChatSummaryTag,
+  getTriobuilderDeleteTags,
+  getTriobuilderExecuteSqlTags,
+  getTriobuilderRenameTags,
+  getTriobuilderWriteTags,
+  getTriobuilderCommandTags,
   processFullResponseActions,
 } from "../processors/response_processor";
 import log from "electron-log";
@@ -150,13 +150,13 @@ const getProposalHandler = async (
         );
         const messageContent = latestAssistantMessage.content;
 
-        const proposalTitle = getDyadChatSummaryTag(messageContent);
+        const proposalTitle = getTriobuilderChatSummaryTag(messageContent);
 
-        const proposalWriteFiles = getDyadWriteTags(messageContent);
-        const proposalRenameFiles = getDyadRenameTags(messageContent);
-        const proposalDeleteFiles = getDyadDeleteTags(messageContent);
-        const proposalExecuteSqlQueries = getDyadExecuteSqlTags(messageContent);
-        const packagesAdded = getDyadAddDependencyTags(messageContent);
+        const proposalWriteFiles = getTriobuilderWriteTags(messageContent);
+        const proposalRenameFiles = getTriobuilderRenameTags(messageContent);
+        const proposalDeleteFiles = getTriobuilderDeleteTags(messageContent);
+        const proposalExecuteSqlQueries = getTriobuilderExecuteSqlTags(messageContent);
+        const packagesAdded = getTriobuilderAddDependencyTags(messageContent);
 
         const filesChanged = [
           ...proposalWriteFiles.map((tag) => ({
@@ -221,7 +221,7 @@ const getProposalHandler = async (
       }
       const actions: ActionProposal["actions"] = [];
       if (latestAssistantMessage?.content) {
-        const writeTags = getDyadWriteTags(latestAssistantMessage.content);
+        const writeTags = getTriobuilderWriteTags(latestAssistantMessage.content);
         const refactorTarget = writeTags.reduce(
           (largest, tag) => {
             const lineCount = tag.content.split("\n").length;
@@ -248,7 +248,7 @@ const getProposalHandler = async (
         }
 
         // Check for command tags and add corresponding actions
-        const commandTags = getDyadCommandTags(latestAssistantMessage.content);
+        const commandTags = getTriobuilderCommandTags(latestAssistantMessage.content);
         if (commandTags.includes("rebuild")) {
           actions.push({
             id: "rebuild",
@@ -359,7 +359,7 @@ const approveProposalHandler = async (
   }
 
   // 2. Process the actions defined in the message content
-  const chatSummary = getDyadChatSummaryTag(messageToApprove.content);
+  const chatSummary = getTriobuilderChatSummaryTag(messageToApprove.content);
   const processResult = await processFullResponseActions(
     messageToApprove.content,
     chatId,

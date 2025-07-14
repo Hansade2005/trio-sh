@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  getDyadWriteTags,
-  getDyadRenameTags,
-  getDyadDeleteTags,
+  getTriobuilderWriteTags,
+  getTriobuilderRenameTags,
+  getTriobuilderDeleteTags,
   processFullResponseActions,
-  getDyadAddDependencyTags,
+  getTriobuilderAddDependencyTags,
+  getTriobuilderChatSummaryTag,
+  getTriobuilderExecuteSqlTags,
+  getTriobuilderCommandTags,
 } from "../ipc/processors/response_processor";
 import {
   removeDyadTags,
@@ -78,37 +81,37 @@ vi.mock("../db", () => ({
   },
 }));
 
-describe("getDyadAddDependencyTags", () => {
+describe("getTriobuilderAddDependencyTags", () => {
   it("should return an empty array when no triobuilder-add-dependency tags are found", () => {
-    const result = getDyadAddDependencyTags(
+    const result = getTriobuilderAddDependencyTags(
       "No triobuilder-add-dependency tags here",
     );
     expect(result).toEqual([]);
   });
 
   it("should return an array of triobuilder-add-dependency tags", () => {
-    const result = getDyadAddDependencyTags(
+    const result = getTriobuilderAddDependencyTags(
       `<triobuilder-add-dependency packages="uuid"></triobuilder-add-dependency>`,
     );
     expect(result).toEqual(["uuid"]);
   });
 
   it("should return all the packages in the triobuilder-add-dependency tags", () => {
-    const result = getDyadAddDependencyTags(
+    const result = getTriobuilderAddDependencyTags(
       `<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>`,
     );
     expect(result).toEqual(["pkg1", "pkg2"]);
   });
 
   it("should return all the packages in the triobuilder-add-dependency tags", () => {
-    const result = getDyadAddDependencyTags(
+    const result = getTriobuilderAddDependencyTags(
       `txt before<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>text after`,
     );
     expect(result).toEqual(["pkg1", "pkg2"]);
   });
 
   it("should return all the packages in multiple triobuilder-add-dependency tags", () => {
-    const result = getDyadAddDependencyTags(
+    const result = getTriobuilderAddDependencyTags(
       `txt before<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>txt between<triobuilder-add-dependency packages="pkg3"></triobuilder-add-dependency>text after`,
     );
     expect(result).toEqual(["pkg1", "pkg2", "pkg3"]);
