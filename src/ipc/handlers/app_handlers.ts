@@ -1055,4 +1055,44 @@ export function registerAppHandlers() {
       }
     }
   );
+
+  ipcMain.handle(
+    "open-in-vscode",
+    async () => {
+      const workspaceRoot = process.cwd();
+      let command, args;
+      if (process.platform === "win32") {
+        command = "cmd";
+        args = ["/c", "code", "."];
+      } else if (process.platform === "darwin") {
+        // Try CLI first, fallback to open -a
+        command = "code";
+        args = ["."];
+      } else {
+        command = "code";
+        args = ["."];
+      }
+      try {
+        const child = spawn(command, args, {
+          cwd: workspaceRoot,
+          detached: true,
+          stdio: "ignore",
+        });
+        child.unref();
+        return;
+      } catch (err) {
+        // Try fallback for macOS if CLI fails
+        if (process.platform === "darwin") {
+          try {
+            spawn("open", ["-a", "Visual Studio Code", workspaceRoot], {
+              detached: true,
+              stdio: "ignore",
+            }).unref();
+            return;
+          } catch (e) {}
+        }
+        throw new Error("Failed to open VSCode. Is it installed and on your PATH?");
+      }
+    }
+  );
 }

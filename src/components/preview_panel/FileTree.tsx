@@ -2,6 +2,7 @@ import React from "react";
 import { Folder, FolderOpen } from "lucide-react";
 import { selectedFileAtom } from "@/atoms/viewAtoms";
 import { useSetAtom } from "jotai";
+import { useCallback } from "react";
 
 interface FileTreeProps {
   files: string[];
@@ -50,12 +51,35 @@ const buildFileTree = (files: string[]): TreeNode[] => {
   return root;
 };
 
+const VSCodeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 32 32" width={20} height={20} {...props}>
+    <g>
+      <path fill="#22a6f2" d="M29.726 6.273c-0.001-0.001-0.002-0.002-0.003-0.003-0.396-0.396-1.037-0.396-1.433 0l-5.726 5.726-7.726-7.726c-0.396-0.396-1.037-0.396-1.433 0-0.396 0.396-0.396 1.037 0 1.433l7.726 7.726-5.726 5.726c-0.396 0.396-0.396 1.037 0 1.433 0.396 0.396 1.037 0.396 1.433 0l5.726-5.726 7.726 7.726c0.396 0.396 1.037 0.396 1.433 0 0.396-0.396 0.396-1.037 0-1.433l-7.726-7.726 5.726-5.726c0.396-0.396 0.396-1.037 0-1.433z"></path>
+    </g>
+  </svg>
+);
+
 // File tree component
 export const FileTree = ({ files }: FileTreeProps) => {
   const treeData = buildFileTree(files);
 
+  const handleOpenVSCode = useCallback(() => {
+    // Call IPC to open in VSCode
+    window.electron?.ipcRenderer?.invoke("open-in-vscode");
+  }, []);
+
   return (
     <div className="file-tree mt-2">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-semibold text-base">Files</span>
+        <button
+          title="Open in VSCode"
+          className="hover:bg-blue-100 rounded p-1"
+          onClick={handleOpenVSCode}
+        >
+          <VSCodeIcon />
+        </button>
+      </div>
       <TreeNodes nodes={treeData} level={0} />
     </div>
   );
