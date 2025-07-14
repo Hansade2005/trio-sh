@@ -11,6 +11,7 @@ import log from "electron-log";
 import { getLanguageModelProviders } from "../shared/language_model_helpers";
 import { LanguageModelProvider } from "../ipc_types";
 import { createDyadEngine } from "./llm_engine_provider";
+import { createMCPModel } from "./mcp_provider";
 
 import { LM_STUDIO_BASE_URL } from "./lm_studio_utils";
 
@@ -43,6 +44,18 @@ interface File {
 }
 
 const logger = log.scope("getModelClient");
+// Helper to safely get apiKey for providers that use it
+function hasApiKey(setting: any): setting is { apiKey: { value: string } } {
+  return !!setting && typeof setting === 'object' && 'apiKey' in setting && setting.apiKey && typeof setting.apiKey.value === 'string';
+}
+function getProviderApiKey(settings: any, provider: string): string | undefined {
+  const setting = settings.providerSettings?.[provider];
+  if (hasApiKey(setting)) {
+    return setting.apiKey.value;
+  }
+  return undefined;
+}
+
 export async function getModelClient(
   model: LargeLanguageModel,
   settings: UserSettings,
@@ -53,7 +66,7 @@ export async function getModelClient(
 }> {
   const allProviders = await getLanguageModelProviders();
 
-  const dyadApiKey = settings.providerSettings?.auto?.apiKey?.value;
+  const dyadApiKey = getProviderApiKey(settings, 'auto');
 
   // --- Handle specific provider ---
   const providerConfig = allProviders.find((p) => p.id === model.provider);
@@ -137,8 +150,7 @@ export async function getModelClient(
       );
       const envVarName = providerInfo?.envVarName;
 
-      const apiKey =
-        settings.providerSettings?.[autoModel.provider]?.apiKey?.value ||
+      const apiKey = getProviderApiKey(settings, autoModel.provider) ||
         (envVarName ? getEnvVar(envVarName) : undefined);
 
       if (apiKey) {
@@ -161,20 +173,22 @@ export async function getModelClient(
       "No API keys available for any model supported by the 'auto' provider.",
     );
   }
-  return getRegularModelClient(model, settings, providerConfig);
+  return await getRegularModelClient(model, settings, providerConfig);
 }
 
-function getRegularModelClient(
+async function getRegularModelClient(
   model: LargeLanguageModel,
   settings: UserSettings,
   providerConfig: LanguageModelProvider,
 ) {
-  // Get API key for the specific provider
-  const apiKey =
-    settings.providerSettings?.[model.provider]?.apiKey?.value ||
-    (providerConfig.envVarName
-      ? getEnvVar(providerConfig.envVarName)
-      : undefined);
+  // Get API key for the specific provider (skip for MCP)
+  let apiKey: string | undefined = undefined;
+  if (providerConfig.id !== "mcp") {
+    apiKey = getProviderApiKey(settings, model.provider) ||
+      (providerConfig.envVarName
+        ? getEnvVar(providerConfig.envVarName)
+        : undefined);
+  }
 
   const providerId = providerConfig.id;
   // Create client based on provider ID or type
@@ -241,6 +255,41 @@ function getRegularModelClient(
       return {
         modelClient: {
           model: provider(model.name),
+        },
+        backupModelClients: [],
+      };
+    }
+    case "mcp": {
+      // Read MCP settings for transport type and options
+      const mcpSettings = settings.providerSettings?.mcp as {
+        transportType?: "sse" | "stdio";
+        sseUrl?: string;
+        stdioCommand?: string;
+        stdioArgs?: string[];
+        apiBaseUrl?: { value: string };
+      };
+      const transportType = mcpSettings?.transportType || "sse";
+      let sseUrl = mcpSettings?.sseUrl;
+      let stdioCommand = mcpSettings?.stdioCommand;
+      let stdioArgs = mcpSettings?.stdioArgs;
+      // Fallback for legacy config
+      if (transportType === "sse" && !sseUrl) {
+        sseUrl = providerConfig.apiBaseUrl || mcpSettings?.apiBaseUrl?.value;
+      }
+      if (transportType === "sse" && !sseUrl) throw new Error("MCP SSE server URL not configured.");
+      if (transportType === "stdio" && !stdioCommand) throw new Error("MCP stdio command not configured.");
+      const mcpClient = await createMCPModel({
+        transportType,
+        sseUrl,
+        stdioCommand,
+        stdioArgs,
+      });
+      return {
+        modelClient: {
+          model: mcpClient.model,
+          builtinProviderId: providerId,
+          tools: mcpClient.tools,
+          close: mcpClient.close,
         },
         backupModelClients: [],
       };
