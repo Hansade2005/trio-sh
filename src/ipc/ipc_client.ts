@@ -963,4 +963,8 @@ export class IpcClient {
   public async searchFileContent(path: string, query: string): Promise<{ line: number, content: string }[]> {
     return this.ipcRenderer.invoke("search-file-content", { path, query });
   }
+
+  public async moveFile(from: string, to: string): Promise<void> {
+    return this.ipcRenderer.invoke("move-file", { from, to });
+  }
 }

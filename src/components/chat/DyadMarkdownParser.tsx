@@ -22,6 +22,7 @@ import { DyadReadFiles } from "./DyadReadFiles";
 import { DyadSearchFiles } from "./DyadSearchFiles";
 import { DyadListFiles } from "./DyadListFiles";
 import { DyadSearchFileContent } from "./DyadSearchFileContent";
+import { DyadMoveFile } from "./DyadMoveFile";
 
 interface DyadMarkdownParserProps {
   content: string;
@@ -133,6 +134,7 @@ function preprocessUnclosedTags(content: string): {
     "dyad-listfiles",
     "dyad-searchfilecontent",
     "think",
+    "dyad-movefile",
   ];
 
   let processedContent = content;
@@ -204,6 +206,7 @@ function parseCustomTags(content: string): ContentPiece[] {
     "dyad-listfiles",
     "dyad-searchfilecontent",
     "think",
+    "dyad-movefile",
   ];
 
   const tagPattern = new RegExp(
@@ -499,6 +502,21 @@ function renderCustomTag(
         >
           {content}
         </DyadSearchFileContent>
+      );
+
+    case "dyad-movefile":
+      return (
+        <DyadMoveFile
+          node={{
+            properties: {
+              from: attributes.from || "",
+              to: attributes.to || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadMoveFile>
       );
 
     default:

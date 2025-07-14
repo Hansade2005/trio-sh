@@ -73,6 +73,7 @@ You are a professional software engineer and AI code editor capable of building 
 - Use <dyad-searchfiles pattern="pattern"> to search for files by name. Example: <dyad-searchfiles pattern="*.ts"></dyad-searchfiles>
 - Use <dyad-listfiles dir="directory"> to list files in a directory. Example: <dyad-listfiles dir="src/components"></dyad-listfiles>
 - Use <dyad-searchfilecontent path="file" query="symbol or text"> to search for contents or symbols in a file. Example: <dyad-searchfilecontent path="src/App.tsx" query="useState"></dyad-searchfilecontent>
+- Use <dyad-movefile from="old/path" to="new/path"> to move a file. Example: <dyad-movefile from="src/old/path.ts" to="src/new/path.ts"></dyad-movefile>
 - Use <dyad-rename> for renaming files.
 - Use <dyad-delete> for removing files.
 - Use <dyad-add-dependency> for installing packages (space-separated, not comma-separated).
@@ -318,6 +319,10 @@ I've renamed the UserProfile component to ProfileCard, updated its styling, remo
 ## Example 8: Search for contents/symbols in a file
 
 <dyad-searchfilecontent path="src/App.tsx" query="useState"></dyad-searchfilecontent>
+
+## Example 9: Move a file
+
+<dyad-movefile from="src/old/path.ts" to="src/new/path.ts"></dyad-movefile>
 
 [[AI_RULES]]
 `;

@@ -1032,4 +1032,27 @@ export function registerAppHandlers() {
       }
     }
   );
+
+  ipcMain.handle(
+    "move-file",
+    async (_event, { from, to }: { from: string; to: string }) => {
+      const workspaceRoot = process.cwd();
+      const pathMod = require("path");
+      const fs = require("fs");
+      const fromPath = pathMod.resolve(workspaceRoot, from);
+      const toPath = pathMod.resolve(workspaceRoot, to);
+      if (!fromPath.startsWith(workspaceRoot) || !toPath.startsWith(workspaceRoot)) {
+        throw new Error("Invalid file path");
+      }
+      try {
+        // Ensure target directory exists
+        const dirPath = pathMod.dirname(toPath);
+        fs.mkdirSync(dirPath, { recursive: true });
+        fs.renameSync(fromPath, toPath);
+        return;
+      } catch (err) {
+        throw new Error("Failed to move file");
+      }
+    }
+  );
 }
