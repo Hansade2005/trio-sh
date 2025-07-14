@@ -22,9 +22,7 @@ import { getDyadAppPath } from "../../paths/paths";
 import { readSettings } from "../../main/settings";
 import type { ChatResponseEnd, ChatStreamParams } from "../ipc_types";
 import { extractCodebase, readFileWithCache } from "../../utils/codebase";
-import {
-  processFullResponseActions,
-} from "../processors/response_processor";
+import { processFullResponseActions } from "../processors/response_processor";
 import { streamTestResponse } from "./testing_chat_handlers";
 import { getTestResponse } from "./testing_chat_handlers";
 import { getModelClient, ModelClient } from "../utils/get_model_client";
@@ -482,22 +480,31 @@ This conversation includes one or more image attachments. When the user uploads 
           { tag: "triobuilder-write", description: "Create or update a file." },
           { tag: "triobuilder-rename", description: "Rename a file." },
           { tag: "triobuilder-delete", description: "Delete a file." },
-          { tag: "triobuilder-add-dependency", description: "Install npm packages." },
+          {
+            tag: "triobuilder-add-dependency",
+            description: "Install npm packages.",
+          },
           { tag: "triobuilder-read-file", description: "Read a single file." },
-          { tag: "triobuilder-read-files", description: "Read up to three files at once." },
+          {
+            tag: "triobuilder-read-files",
+            description: "Read up to three files at once.",
+          },
           // Add more as needed
         ];
         // Prepare file list (relative paths)
         const fileList = files
-          .map(f => typeof f === 'string' ? f : f?.path)
+          .map((f) => (typeof f === "string" ? f : f?.path))
           .filter(Boolean)
-          .map(f => path.relative(appPath, f));
+          .map((f) => path.relative(appPath, f));
         // Get model name as string
-        const modelName = typeof settings.selectedModel === 'string'
-          ? settings.selectedModel
-          : settings.selectedModel?.name || '';
+        const modelName =
+          typeof settings.selectedModel === "string"
+            ? settings.selectedModel
+            : settings.selectedModel?.name || "";
         // Get current time
-        const currentTime = new Date().toLocaleString("en-US", { timeZoneName: "short" });
+        const currentTime = new Date().toLocaleString("en-US", {
+          timeZoneName: "short",
+        });
         // Build structured context
         const structuredPrompt = buildStructuredContext({
           userMessage: req.prompt,
@@ -517,9 +524,11 @@ This conversation includes one or more image attachments. When the user uploads 
                   ...msg,
                   content:
                     settings.selectedChatMode === "ask"
-                      ? removeTriobuilderTags(removeNonEssentialTags(msg.content))
+                      ? removeTriobuilderTags(
+                          removeNonEssentialTags(msg.content),
+                        )
                       : removeNonEssentialTags(msg.content),
-                }
+                },
           ),
         ];
 
@@ -1144,7 +1153,9 @@ function escapeTriobuilderTags(text: string): string {
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text.replace(/<triobuilder/g, "＜triobuilder").replace(/<\/triobuilder/g, "＜/triobuilder");
+  return text
+    .replace(/<triobuilder/g, "＜triobuilder")
+    .replace(/<\/triobuilder/g, "＜/triobuilder");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

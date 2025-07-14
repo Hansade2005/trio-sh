@@ -1,5 +1,19 @@
 import React, { useState } from "react";
-import { Folder, FolderOpen, FilePlus, FolderPlus, MoreVertical, File, Copy, Scissors, Trash2, Edit, ClipboardPaste, Plus, X } from "lucide-react";
+import {
+  Folder,
+  FolderOpen,
+  FilePlus,
+  FolderPlus,
+  MoreVertical,
+  File,
+  Copy,
+  Scissors,
+  Trash2,
+  Edit,
+  ClipboardPaste,
+  Plus,
+  X,
+} from "lucide-react";
 import { selectedFileAtom } from "@/atoms/viewAtoms";
 import { useSetAtom } from "jotai";
 import {
@@ -76,7 +90,9 @@ export const FileTree = ({ files }: FileTreeProps) => {
     <DndProvider backend={HTML5Backend}>
       <div className="file-tree mt-2">
         <div className="flex items-center justify-between px-2 py-1 border-b border-border bg-muted sticky top-0 z-10">
-          <span className="font-semibold text-xs text-muted-foreground">Files</span>
+          <span className="font-semibold text-xs text-muted-foreground">
+            Files
+          </span>
           <div className="flex gap-1 items-center">
             {/* VSCode button */}
             <button
@@ -87,9 +103,18 @@ export const FileTree = ({ files }: FileTreeProps) => {
               style={{ display: "flex", alignItems: "center" }}
             >
               {/* VSCode SVG icon */}
-              <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <g>
-                  <path d="M29.726 6.266a1.5 1.5 0 0 0-1.62-.217l-6.98 3.18-8.16-5.6a1.5 1.5 0 0 0-1.82.08l-8.5 7.5a1.5 1.5 0 0 0-.06 2.22l5.7 5.5-5.7 5.5a1.5 1.5 0 0 0 .06 2.22l8.5 7.5a1.5 1.5 0 0 0 1.82.08l8.16-5.6 6.98 3.18a1.5 1.5 0 0 0 2.13-1.36V7.626a1.5 1.5 0 0 0-.62-1.36zM12.18 6.38l7.32 5.02-3.98 2.02-7.32-5.02 3.98-2.02zm-7.1 8.12l6.7-5.91 7.32 5.02-6.7 5.91-7.32-5.02zm6.7 7.09l6.7-5.91 3.98 2.02-6.7 5.91-3.98-2.02zm-6.7 5.91l7.32-5.02 3.98 2.02-7.32 5.02-3.98-2.02zm23.18 2.5l-6.18-2.82V9.82l6.18-2.82v19.1z" fill="#007ACC"/>
+                  <path
+                    d="M29.726 6.266a1.5 1.5 0 0 0-1.62-.217l-6.98 3.18-8.16-5.6a1.5 1.5 0 0 0-1.82.08l-8.5 7.5a1.5 1.5 0 0 0-.06 2.22l5.7 5.5-5.7 5.5a1.5 1.5 0 0 0 .06 2.22l8.5 7.5a1.5 1.5 0 0 0 1.82.08l8.16-5.6 6.98 3.18a1.5 1.5 0 0 0 2.13-1.36V7.626a1.5 1.5 0 0 0-.62-1.36zM12.18 6.38l7.32 5.02-3.98 2.02-7.32-5.02 3.98-2.02zm-7.1 8.12l6.7-5.91 7.32 5.02-6.7 5.91-7.32-5.02zm6.7 7.09l6.7-5.91 3.98 2.02-6.7 5.91-3.98-2.02zm-6.7 5.91l7.32-5.02 3.98 2.02-7.32 5.02-3.98-2.02zm23.18 2.5l-6.18-2.82V9.82l6.18-2.82v19.1z"
+                    fill="#007ACC"
+                  />
                 </g>
               </svg>
             </button>
@@ -98,17 +123,23 @@ export const FileTree = ({ files }: FileTreeProps) => {
               type="file"
               parentPath={""}
               appId={appId}
-              onCreated={() => setRefreshKey(k => k + 1)}
+              onCreated={() => setRefreshKey((k) => k + 1)}
             />
             <TreeNodeCreationButton
               type="folder"
               parentPath={""}
               appId={appId}
-              onCreated={() => setRefreshKey(k => k + 1)}
+              onCreated={() => setRefreshKey((k) => k + 1)}
             />
           </div>
         </div>
-        <TreeNodes nodes={treeData} level={0} key={refreshKey} appId={appId} onRefresh={() => setRefreshKey(k => k + 1)} />
+        <TreeNodes
+          nodes={treeData}
+          level={0}
+          key={refreshKey}
+          appId={appId}
+          onRefresh={() => setRefreshKey((k) => k + 1)}
+        />
       </div>
     </DndProvider>
   );
@@ -128,10 +159,26 @@ const sortNodes = (nodes: TreeNode[]): TreeNode[] => {
   });
 };
 
-const TreeNodes = ({ nodes, level, appId, onRefresh }: { nodes: TreeNode[]; level: number; appId: string | undefined; onRefresh: () => void }) => (
+const TreeNodes = ({
+  nodes,
+  level,
+  appId,
+  onRefresh,
+}: {
+  nodes: TreeNode[];
+  level: number;
+  appId: string | undefined;
+  onRefresh: () => void;
+}) => (
   <ul className="ml-4">
     {sortNodes(nodes).map((node, index) => (
-      <TreeNode key={index} node={node} level={level} appId={appId} onRefresh={onRefresh} />
+      <TreeNode
+        key={index}
+        node={node}
+        level={level}
+        appId={appId}
+        onRefresh={onRefresh}
+      />
     ))}
   </ul>
 );
@@ -147,7 +194,17 @@ function isDescendant(parent: string, child: string) {
   return child.startsWith(parent + "/");
 }
 
-const TreeNode = ({ node, level, appId, onRefresh }: { node: TreeNode; level: number; appId: string | undefined; onRefresh: () => void }) => {
+const TreeNode = ({
+  node,
+  level,
+  appId,
+  onRefresh,
+}: {
+  node: TreeNode;
+  level: number;
+  appId: string | undefined;
+  onRefresh: () => void;
+}) => {
   const [expanded, setExpanded] = React.useState(level < 2);
   const setSelectedFile = useSetAtom(selectedFileAtom);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -179,7 +236,9 @@ const TreeNode = ({ node, level, appId, onRefresh }: { node: TreeNode; level: nu
     drop: async (item: { path: string; isDirectory: boolean }) => {
       if (!appId) return;
       const from = item.path;
-      const to = node.path ? `${node.path}/${from.split("/").pop()}` : from.split("/").pop();
+      const to = node.path
+        ? `${node.path}/${from.split("/").pop()}`
+        : from.split("/").pop();
       try {
         await IpcClient.getInstance().invoke("move-file", { from, to });
         showSuccess(`Moved '${from}' to '${to}'`);
@@ -224,7 +283,9 @@ const TreeNode = ({ node, level, appId, onRefresh }: { node: TreeNode; level: nu
 
   const handleCreate = async () => {
     if (!newName.trim() || !appId) return;
-    const fullPath = node.path ? `${node.path}/${newName.trim()}` : newName.trim();
+    const fullPath = node.path
+      ? `${node.path}/${newName.trim()}`
+      : newName.trim();
     try {
       if (creating === "file") {
         await IpcClient.getInstance().editAppFile(appId, fullPath, "");
@@ -256,7 +317,7 @@ const TreeNode = ({ node, level, appId, onRefresh }: { node: TreeNode; level: nu
             ref={ref}
             className={`flex items-center rounded cursor-pointer px-1.5 py-0.5 text-sm group ${isDragging ? "opacity-50" : ""} ${isOver && canDrop ? "bg-blue-100" : ""}`}
             onClick={handleClick}
-            onContextMenu={e => {
+            onContextMenu={(e) => {
               e.preventDefault();
               setMenuOpen(true);
             }}
@@ -267,23 +328,64 @@ const TreeNode = ({ node, level, appId, onRefresh }: { node: TreeNode; level: nu
                 {expanded ? <FolderOpen size={16} /> : <Folder size={16} />}
               </span>
             ) : (
-              <span className="mr-1 text-gray-500"><File size={16} /></span>
+              <span className="mr-1 text-gray-500">
+                <File size={16} />
+              </span>
             )}
             <span>{node.name}</span>
-            <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"><MoreVertical size={14} /></span>
+            <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreVertical size={14} />
+            </span>
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right" align="start">
-          <DropdownMenuItem onClick={() => handleMenuAction("Open")}>Open</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuAction("Rename")}> <Edit size={14} className="mr-1" />Rename</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuAction("Delete")} variant="destructive"> <Trash2 size={14} className="mr-1" />Delete</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleMenuAction("Open")}>
+            Open
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleMenuAction("Rename")}>
+            {" "}
+            <Edit size={14} className="mr-1" />
+            Rename
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleMenuAction("Delete")}
+            variant="destructive"
+          >
+            {" "}
+            <Trash2 size={14} className="mr-1" />
+            Delete
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => handleMenuAction("Copy")}> <Copy size={14} className="mr-1" />Copy</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuAction("Cut")}> <Scissors size={14} className="mr-1" />Cut</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleMenuAction("Paste")}> <ClipboardPaste size={14} className="mr-1" />Paste</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleMenuAction("Copy")}>
+            {" "}
+            <Copy size={14} className="mr-1" />
+            Copy
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleMenuAction("Cut")}>
+            {" "}
+            <Scissors size={14} className="mr-1" />
+            Cut
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleMenuAction("Paste")}>
+            {" "}
+            <ClipboardPaste size={14} className="mr-1" />
+            Paste
+          </DropdownMenuItem>
           {node.isDirectory && <DropdownMenuSeparator />}
-          {node.isDirectory && <DropdownMenuItem onClick={() => handleMenuAction("New File")}> <FilePlus size={14} className="mr-1" />New File</DropdownMenuItem>}
-          {node.isDirectory && <DropdownMenuItem onClick={() => handleMenuAction("New Folder")}> <FolderPlus size={14} className="mr-1" />New Folder</DropdownMenuItem>}
+          {node.isDirectory && (
+            <DropdownMenuItem onClick={() => handleMenuAction("New File")}>
+              {" "}
+              <FilePlus size={14} className="mr-1" />
+              New File
+            </DropdownMenuItem>
+          )}
+          {node.isDirectory && (
+            <DropdownMenuItem onClick={() => handleMenuAction("New Folder")}>
+              {" "}
+              <FolderPlus size={14} className="mr-1" />
+              New Folder
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       {/* Inline creation input for this folder */}
@@ -292,28 +394,57 @@ const TreeNode = ({ node, level, appId, onRefresh }: { node: TreeNode; level: nu
           <input
             autoFocus
             className="flex-1 px-2 py-1 text-xs border rounded focus:outline-none"
-            placeholder={creating === "file" ? "New file name..." : "New folder name..."}
+            placeholder={
+              creating === "file" ? "New file name..." : "New folder name..."
+            }
             value={newName}
-            onChange={e => setNewName(e.target.value)}
-            onKeyDown={e => {
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
               if (e.key === "Enter") handleCreate();
               if (e.key === "Escape") handleCancel();
             }}
           />
-          <button onClick={handleCreate} className="p-1 text-green-600 hover:bg-green-100 rounded"><Plus size={16} /></button>
-          <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-100 rounded"><X size={16} /></button>
-          {creatingError && <span className="text-xs text-red-500 ml-2">{creatingError}</span>}
+          <button
+            onClick={handleCreate}
+            className="p-1 text-green-600 hover:bg-green-100 rounded"
+          >
+            <Plus size={16} />
+          </button>
+          <button
+            onClick={handleCancel}
+            className="p-1 text-red-600 hover:bg-red-100 rounded"
+          >
+            <X size={16} />
+          </button>
+          {creatingError && (
+            <span className="text-xs text-red-500 ml-2">{creatingError}</span>
+          )}
         </div>
       )}
       {node.isDirectory && expanded && (
-        <TreeNodes nodes={node.children} level={level + 1} appId={appId} onRefresh={onRefresh} />
+        <TreeNodes
+          nodes={node.children}
+          level={level + 1}
+          appId={appId}
+          onRefresh={onRefresh}
+        />
       )}
     </li>
   );
 };
 
 // Button for root-level creation
-const TreeNodeCreationButton = ({ type, parentPath, appId, onCreated }: { type: "file" | "folder"; parentPath: string; appId: string | undefined; onCreated: () => void }) => {
+const TreeNodeCreationButton = ({
+  type,
+  parentPath,
+  appId,
+  onCreated,
+}: {
+  type: "file" | "folder";
+  parentPath: string;
+  appId: string | undefined;
+  onCreated: () => void;
+}) => {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [creatingError, setCreatingError] = useState<string | null>(null);
@@ -324,7 +455,9 @@ const TreeNodeCreationButton = ({ type, parentPath, appId, onCreated }: { type: 
   };
   const handleCreate = async () => {
     if (!newName.trim() || !appId) return;
-    const fullPath = parentPath ? `${parentPath}/${newName.trim()}` : newName.trim();
+    const fullPath = parentPath
+      ? `${parentPath}/${newName.trim()}`
+      : newName.trim();
     try {
       if (type === "file") {
         await IpcClient.getInstance().editAppFile(appId, fullPath, "");
@@ -353,22 +486,40 @@ const TreeNodeCreationButton = ({ type, parentPath, appId, onCreated }: { type: 
         <input
           autoFocus
           className="flex-1 px-2 py-1 text-xs border rounded focus:outline-none"
-          placeholder={type === "file" ? "New file name..." : "New folder name..."}
+          placeholder={
+            type === "file" ? "New file name..." : "New folder name..."
+          }
           value={newName}
-          onChange={e => setNewName(e.target.value)}
-          onKeyDown={e => {
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => {
             if (e.key === "Enter") handleCreate();
             if (e.key === "Escape") handleCancel();
           }}
         />
-        <button onClick={handleCreate} className="p-1 text-green-600 hover:bg-green-100 rounded"><Plus size={16} /></button>
-        <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-100 rounded"><X size={16} /></button>
-        {creatingError && <span className="text-xs text-red-500 ml-2">{creatingError}</span>}
+        <button
+          onClick={handleCreate}
+          className="p-1 text-green-600 hover:bg-green-100 rounded"
+        >
+          <Plus size={16} />
+        </button>
+        <button
+          onClick={handleCancel}
+          className="p-1 text-red-600 hover:bg-red-100 rounded"
+        >
+          <X size={16} />
+        </button>
+        {creatingError && (
+          <span className="text-xs text-red-500 ml-2">{creatingError}</span>
+        )}
       </div>
     );
   }
   return (
-    <button title={type === "file" ? "New File" : "New Folder"} onClick={handleStart} className="p-1 rounded hover:bg-accent">
+    <button
+      title={type === "file" ? "New File" : "New Folder"}
+      onClick={handleStart}
+      className="p-1 rounded hover:bg-accent"
+    >
       {type === "file" ? <FilePlus size={16} /> : <FolderPlus size={16} />}
     </button>
   );

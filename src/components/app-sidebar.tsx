@@ -178,7 +178,9 @@ function AppIcons({
                   asChild
                   size="sm"
                   className={`font-medium w-16 h-16 flex flex-col items-center gap-1 mb-2 rounded-2xl transition-all text-zinc-700 dark:text-zinc-200 hover:bg-pink-100 dark:hover:bg-pink-800/60 hover:text-pink-600 dark:hover:text-pink-400 shadow-md ${
-                    isActive ? "bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg" : "bg-white/60 dark:bg-zinc-800/60"
+                    isActive
+                      ? "bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg"
+                      : "bg-white/60 dark:bg-zinc-800/60"
                   }`}
                 >
                   <Link
@@ -194,7 +196,9 @@ function AppIcons({
                   >
                     <div className="flex flex-col items-center gap-1">
                       <item.icon className="h-6 w-6" />
-                      <span className={"text-xs font-semibold"}>{item.title}</span>
+                      <span className={"text-xs font-semibold"}>
+                        {item.title}
+                      </span>
                     </div>
                   </Link>
                 </SidebarMenuButton>

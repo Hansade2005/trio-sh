@@ -126,13 +126,13 @@ export function TokenBar({ chatId }: TokenBarProps) {
         </Tooltip>
       </TooltipProvider>
       {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
-      {(!settings?.enableProSmartFilesContextMode) && (
+      {!settings?.enableProSmartFilesContextMode && (
         <div className="text-xs text-center text-muted-foreground mt-2">
-          Optimize your tokens with {" "}
+          Optimize your tokens with{" "}
           <a
             onClick={() =>
               IpcClient.getInstance().openExternalUrl(
-                "https://www.triobuilder.cc/docs/guides/ai-models/pro-modes#smart-context"
+                "https://www.triobuilder.cc/docs/guides/ai-models/pro-modes#smart-context",
               )
             }
             className="text-pink-500 dark:text-pink-400 cursor-pointer hover:underline"

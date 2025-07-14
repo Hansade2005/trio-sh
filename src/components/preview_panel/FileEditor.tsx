@@ -100,7 +100,9 @@ export function getLanguage(filePath: string): string {
   return languageMap[ext] || "plaintext";
 }
 
-const supportedLanguages = Array.from(new Set(["plaintext", ...Object.values(languageMap)])).sort();
+const supportedLanguages = Array.from(
+  new Set(["plaintext", ...Object.values(languageMap)]),
+).sort();
 const themeOptions = [
   { value: "dyad-dark", label: "Dark" },
   { value: "dyad-light", label: "Light" },
@@ -113,7 +115,13 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
   const { settings } = useSettings();
   const [value, setValue] = useState<string | undefined>(undefined);
   const [displayUnsavedChanges, setDisplayUnsavedChanges] = useState(false);
-  const [editorTheme, setEditorTheme] = useState<string>(theme === "system" ? "dyad-dark" : theme === "dark" ? "dyad-dark" : "dyad-light");
+  const [editorTheme, setEditorTheme] = useState<string>(
+    theme === "system"
+      ? "dyad-dark"
+      : theme === "dark"
+        ? "dyad-dark"
+        : "dyad-light",
+  );
   const [language, setLanguage] = useState<string>(getLanguage(filePath));
 
   // Use refs for values that need to be current in event handlers
@@ -146,7 +154,13 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
 
   // Update editor theme when app theme changes
   useEffect(() => {
-    setEditorTheme(theme === "system" ? "dyad-dark" : theme === "dark" ? "dyad-dark" : "dyad-light");
+    setEditorTheme(
+      theme === "system"
+        ? "dyad-dark"
+        : theme === "dark"
+          ? "dyad-dark"
+          : "dyad-light",
+    );
   }, [theme]);
 
   // Handle editor mount
@@ -170,7 +184,13 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
 
   // Save the file
   const saveFile = async () => {
-    if (!appId || !currentValueRef.current || !needsSaveRef.current || isSavingRef.current) return;
+    if (
+      !appId ||
+      !currentValueRef.current ||
+      !needsSaveRef.current ||
+      isSavingRef.current
+    )
+      return;
     try {
       isSavingRef.current = true;
       const ipcClient = IpcClient.getInstance();
@@ -224,11 +244,13 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
           <span>Language:</span>
           <select
             value={language}
-            onChange={e => setLanguage(e.target.value)}
+            onChange={(e) => setLanguage(e.target.value)}
             className="bg-transparent border-none outline-none text-xs"
           >
-            {supportedLanguages.map(lang => (
-              <option key={lang} value={lang}>{lang}</option>
+            {supportedLanguages.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
             ))}
           </select>
         </div>
@@ -236,9 +258,12 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
           <span>Theme:</span>
           <select
             value={editorTheme}
-            onChange={e => {
+            onChange={(e) => {
               setEditorTheme(e.target.value);
-              if (e.target.value === "dyad-dark" || e.target.value === "dyad-light") {
+              if (
+                e.target.value === "dyad-dark" ||
+                e.target.value === "dyad-light"
+              ) {
                 setTheme(e.target.value === "dyad-dark" ? "dark" : "light");
               } else {
                 setTheme("system");
@@ -246,8 +271,10 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
             }}
             className="bg-transparent border-none outline-none text-xs"
           >
-            {themeOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {themeOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
             ))}
           </select>
         </div>

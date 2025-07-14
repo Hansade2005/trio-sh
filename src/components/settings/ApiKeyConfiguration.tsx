@@ -47,7 +47,9 @@ export function ApiKeyConfiguration({
   isDyad,
 }: ApiKeyConfigurationProps) {
   const envApiKey = envVarName ? envVars[envVarName] : undefined;
-  const userApiKey = (settings?.providerSettings?.[provider] as { apiKey?: { value: string } })?.apiKey?.value;
+  const userApiKey = (
+    settings?.providerSettings?.[provider] as { apiKey?: { value: string } }
+  )?.apiKey?.value;
 
   const isValidUserKey =
     !!userApiKey &&

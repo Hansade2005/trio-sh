@@ -21,7 +21,8 @@ import { PromoMessage } from "./PromoMessage";
 
 // Utility to extract tool tags from a string
 function extractToolTags(content: string) {
-  const tagRegex = /<triobuilder-([a-z-]+)([^>]*)\/>|<triobuilder-([a-z-]+)([^>]*)><\/triobuilder-\3>/g;
+  const tagRegex =
+    /<triobuilder-([a-z-]+)([^>]*)\/>|<triobuilder-([a-z-]+)([^>]*)><\/triobuilder-\3>/g;
   const attrRegex = /([a-zA-Z0-9_-]+)="([^"]*)"/g;
   const tags = [];
   let match;
@@ -62,10 +63,16 @@ const TOOL_TAGS = {
 
 // Helper to check if a git command is safe
 function isSafeGitCommand(command: string) {
-  return ["status", "log", "diff", "show"].some((c) => command?.trim().startsWith(c));
+  return ["status", "log", "diff", "show"].some((c) =>
+    command?.trim().startsWith(c),
+  );
 }
 // Tool tag executor
-async function executeToolTag(tag: string, attributes: Record<string, string>, confirmFn: (tag: string, attrs: Record<string, string>) => Promise<boolean>) {
+async function executeToolTag(
+  tag: string,
+  attributes: Record<string, string>,
+  confirmFn: (tag: string, attrs: Record<string, string>) => Promise<boolean>,
+) {
   const tool = TOOL_TAGS[tag as keyof typeof TOOL_TAGS];
   if (!tool) return;
   if (tag === "git" && isSafeGitCommand(attributes.command)) {
@@ -87,7 +94,7 @@ interface MessagesListProps {
 export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
   function MessagesList(
     { messages, messagesEndRef }: MessagesListProps,
-    ref: React.ForwardedRef<HTMLDivElement>
+    ref: React.ForwardedRef<HTMLDivElement>,
   ) {
     const appId = useAtomValue(selectedAppIdAtom);
     const { versions, revertVersion } = useVersions(appId);
@@ -111,10 +118,13 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
           const tool = TOOL_TAGS[tag as keyof typeof TOOL_TAGS];
           if (!tool) continue;
           // Confirmation dialog for destructive actions
-          const confirmFn = async (tag: string, attrs: Record<string, string>) => {
-            if (tool.destructive && typeof window !== 'undefined') {
+          const confirmFn = async (
+            tag: string,
+            attrs: Record<string, string>,
+          ) => {
+            if (tool.destructive && typeof window !== "undefined") {
               return window.confirm(
-                `Are you sure you want to execute '${tag}' with parameters: ${JSON.stringify(attrs)}?`
+                `Are you sure you want to execute '${tag}' with parameters: ${JSON.stringify(attrs)}?`,
               );
             }
             return true;

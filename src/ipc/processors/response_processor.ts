@@ -29,7 +29,8 @@ export function getTriobuilderWriteTags(fullResponse: string): {
   content: string;
   description?: string;
 }[] {
-  const triobuilderWriteRegex = /<triobuilder-write([^>]*)>([\s\S]*?)<\/triobuilder-write>/gi;
+  const triobuilderWriteRegex =
+    /<triobuilder-write([^>]*)>([\s\S]*?)<\/triobuilder-write>/gi;
   const pathRegex = /path="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
 
@@ -48,10 +49,10 @@ export function getTriobuilderWriteTags(fullResponse: string): {
       const description = descriptionMatch?.[1];
 
       const contentLines = content.split("\n");
-      if (contentLines[0]?.startsWith("```") ) {
+      if (contentLines[0]?.startsWith("```")) {
         contentLines.shift();
       }
-      if (contentLines[contentLines.length - 1]?.startsWith("```") ) {
+      if (contentLines[contentLines.length - 1]?.startsWith("```")) {
         contentLines.pop();
       }
       content = contentLines.join("\n");
@@ -95,7 +96,9 @@ export function getTriobuilderDeleteTags(fullResponse: string): string[] {
   return paths;
 }
 
-export function getTriobuilderAddDependencyTags(fullResponse: string): string[] {
+export function getTriobuilderAddDependencyTags(
+  fullResponse: string,
+): string[] {
   const triobuilderAddDependencyRegex =
     /<triobuilder-add-dependency packages="([^"]+)">[^<]*<\/triobuilder-add-dependency>/g;
   let match;
@@ -106,7 +109,9 @@ export function getTriobuilderAddDependencyTags(fullResponse: string): string[] 
   return packages;
 }
 
-export function getTriobuilderChatSummaryTag(fullResponse: string): string | null {
+export function getTriobuilderChatSummaryTag(
+  fullResponse: string,
+): string | null {
   const triobuilderChatSummaryRegex =
     /<triobuilder-chat-summary>([\s\S]*?)<\/triobuilder-chat-summary>/g;
   const match = triobuilderChatSummaryRegex.exec(fullResponse);
@@ -216,7 +221,8 @@ export async function processFullResponseActions(
     const triobuilderWriteTags = getTriobuilderWriteTags(fullResponse);
     const triobuilderRenameTags = getTriobuilderRenameTags(fullResponse);
     const triobuilderDeletePaths = getTriobuilderDeleteTags(fullResponse);
-    const triobuilderAddDependencyPackages = getTriobuilderAddDependencyTags(fullResponse);
+    const triobuilderAddDependencyPackages =
+      getTriobuilderAddDependencyTags(fullResponse);
     const triobuilderExecuteSqlQueries = chatWithApp.app.supabaseProjectId
       ? getTriobuilderExecuteSqlTags(fullResponse)
       : [];
@@ -479,7 +485,9 @@ export async function processFullResponseActions(
           `added ${triobuilderAddDependencyPackages.join(", ")} package(s)`,
         );
       if (triobuilderExecuteSqlQueries.length > 0)
-        changes.push(`executed ${triobuilderExecuteSqlQueries.length} SQL queries`);
+        changes.push(
+          `executed ${triobuilderExecuteSqlQueries.length} SQL queries`,
+        );
 
       let message = chatSummary
         ? `[dyad] ${chatSummary} - ${changes.join(", ")}`
