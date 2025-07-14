@@ -943,4 +943,8 @@ export class IpcClient {
   }): Promise<ProblemReport> {
     return this.ipcRenderer.invoke("check-problems", params);
   }
+
+  public async invoke(handler: string, params?: any): Promise<any> {
+    return this.ipcRenderer.invoke(handler, params);
+  }
 }
