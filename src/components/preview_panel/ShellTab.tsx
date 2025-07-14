@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IpcClient } from "@/ipc/ipc_client";
 import { Terminal } from "xterm";
-import "xterm/css/xterm.css";
+import "xterm/lib/xterm.css";
 
 export function ShellTab() {
   const xtermRef = useRef<HTMLDivElement>(null);
