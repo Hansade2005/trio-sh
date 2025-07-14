@@ -944,8 +944,8 @@ export class IpcClient {
     return this.ipcRenderer.invoke("check-problems", params);
   }
 
-  public async startTerminal(): Promise<{ success: boolean; error?: string }> {
-    return this.ipcRenderer.invoke("terminal:start");
+  public async startTerminal(cwd?: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("terminal:start", { cwd });
   }
 
   public async sendTerminalInput(input: string): Promise<{ success: boolean; error?: string }> {

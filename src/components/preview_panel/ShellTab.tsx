@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { IpcClient } from "@/ipc/ipc_client";
 import { Terminal } from "xterm";
-import "xterm/lib/xterm.css";
+import "xterm/css/xterm.css";
+import { useAtomValue } from "jotai";
+import { currentAppAtom } from "@/atoms/appAtoms";
 
 export function ShellTab() {
   const xtermRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const currentApp = useAtomValue(currentAppAtom);
 
   useEffect(() => {
     const term = new Terminal({
@@ -24,7 +27,8 @@ export function ShellTab() {
     }
     let unsub: (() => void) | undefined;
     let started = false;
-    IpcClient.getInstance().startTerminal().then((res) => {
+    const cwd = currentApp?.path;
+    IpcClient.getInstance().startTerminal(cwd).then((res) => {
       if (!res.success) {
         setError(res.error || "Failed to start terminal");
         return;
@@ -49,7 +53,7 @@ export function ShellTab() {
       if (unsub) unsub();
       term.dispose();
     };
-  }, []);
+  }, [currentApp]);
 
   if (error) {
     return <div className="flex flex-col h-full items-center justify-center text-red-500">{error}</div>;

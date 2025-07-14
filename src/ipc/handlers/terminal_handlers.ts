@@ -17,7 +17,7 @@ function getShellCommand() {
 }
 
 export function registerTerminalHandlers() {
-  ipcMain.handle("terminal:start", (event) => {
+  ipcMain.handle("terminal:start", (event, { cwd } = {}) => {
     const senderId = event.sender.id;
     if (shellProcesses.has(senderId)) {
       // Already running
@@ -27,7 +27,7 @@ export function registerTerminalHandlers() {
     const proc = spawn(shell, [], {
       stdio: "pipe",
       env: process.env,
-      cwd: process.cwd(),
+      cwd: cwd || process.cwd(),
     });
     shellProcesses.set(senderId, proc);
 
