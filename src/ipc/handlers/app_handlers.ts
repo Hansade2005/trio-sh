@@ -410,6 +410,49 @@ export function registerAppHandlers() {
     },
   );
 
+  ipcMain.handle(
+    "read-file",
+    async (_event, { path }: { path: string }) => {
+      // Only allow reading files within the workspace root for now
+      const workspaceRoot = process.cwd();
+      const fullPath = require("path").resolve(workspaceRoot, path);
+      if (!fullPath.startsWith(workspaceRoot)) {
+        throw new Error("Invalid file path");
+      }
+      try {
+        const contents = require("fs").readFileSync(fullPath, "utf-8");
+        return contents;
+      } catch (error) {
+        logger.error(`Error reading file ${path}:`, error);
+        throw new Error("Failed to read file");
+      }
+    }
+  );
+
+  ipcMain.handle(
+    "read-files",
+    async (_event, { paths }: { paths: string[] }) => {
+      const workspaceRoot = process.cwd();
+      const fs = require("fs");
+      const pathMod = require("path");
+      const contents: Record<string, string> = {};
+      const error: Record<string, string> = {};
+      for (const relPath of (paths || []).slice(0, 3)) {
+        const fullPath = pathMod.resolve(workspaceRoot, relPath);
+        if (!fullPath.startsWith(workspaceRoot)) {
+          error[relPath] = "Invalid file path";
+          continue;
+        }
+        try {
+          contents[relPath] = fs.readFileSync(fullPath, "utf-8");
+        } catch (err) {
+          error[relPath] = "Failed to read file";
+        }
+      }
+      return { contents, error };
+    }
+  );
+
   // Do NOT use handle for this, it contains sensitive information.
   ipcMain.handle("get-env-vars", async () => {
     const envVars: Record<string, string | undefined> = {};

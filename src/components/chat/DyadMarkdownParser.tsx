@@ -17,6 +17,11 @@ import { CustomTagState } from "./stateTypes";
 import { DyadOutput } from "./DyadOutput";
 import { DyadProblemSummary } from "./DyadProblemSummary";
 import { IpcClient } from "@/ipc/ipc_client";
+import { DyadReadFile } from "./DyadReadFile";
+import { DyadReadFiles } from "./DyadReadFiles";
+import { DyadSearchFiles } from "./DyadSearchFiles";
+import { DyadListFiles } from "./DyadListFiles";
+import { DyadSearchFileContent } from "./DyadSearchFileContent";
 
 interface DyadMarkdownParserProps {
   content: string;
@@ -122,6 +127,11 @@ function preprocessUnclosedTags(content: string): {
     "dyad-chat-summary",
     "dyad-edit",
     "dyad-codebase-context",
+    "dyad-readfile",
+    "dyad-readfiles",
+    "dyad-searchfiles",
+    "dyad-listfiles",
+    "dyad-searchfilecontent",
     "think",
   ];
 
@@ -188,6 +198,11 @@ function parseCustomTags(content: string): ContentPiece[] {
     "dyad-chat-summary",
     "dyad-edit",
     "dyad-codebase-context",
+    "dyad-readfile",
+    "dyad-readfiles",
+    "dyad-searchfiles",
+    "dyad-listfiles",
+    "dyad-searchfilecontent",
     "think",
   ];
 
@@ -417,6 +432,74 @@ function renderCustomTag(
     case "dyad-chat-summary":
       // Don't render anything for dyad-chat-summary
       return null;
+
+    case "dyad-readfile":
+      return (
+        <DyadReadFile
+          node={{
+            properties: {
+              path: attributes.path || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadReadFile>
+      );
+    case "dyad-readfiles":
+      return (
+        <DyadReadFiles
+          node={{
+            properties: {
+              paths: attributes.paths || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadReadFiles>
+      );
+
+    case "dyad-searchfiles":
+      return (
+        <DyadSearchFiles
+          node={{
+            properties: {
+              pattern: attributes.pattern || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadSearchFiles>
+      );
+    case "dyad-listfiles":
+      return (
+        <DyadListFiles
+          node={{
+            properties: {
+              dir: attributes.dir || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadListFiles>
+      );
+    case "dyad-searchfilecontent":
+      return (
+        <DyadSearchFileContent
+          node={{
+            properties: {
+              path: attributes.path || "",
+              query: attributes.query || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadSearchFileContent>
+      );
 
     default:
       return null;

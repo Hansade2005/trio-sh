@@ -211,6 +211,14 @@ export class IpcClient {
     });
   }
 
+  public async readFile(path: string): Promise<string> {
+    return this.ipcRenderer.invoke("read-file", { path });
+  }
+
+  public async readFiles(paths: string[]): Promise<{ contents: Record<string, string>, error: Record<string, string> }> {
+    return this.ipcRenderer.invoke("read-files", { paths });
+  }
+
   // Edit a file in an app directory
   public async editAppFile(
     appId: number,
