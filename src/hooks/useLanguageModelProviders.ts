@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { IpcClient } from "@/ipc/ipc_client";
 import type { LanguageModelProvider } from "@/ipc/ipc_types";
 import { useSettings } from "./useSettings";
+import { getProviderApiKey } from "@/ipc/utils/get_model_client";
 import { cloudProviders } from "@/lib/schemas";
 
 export function useLanguageModelProviders() {
@@ -20,7 +21,8 @@ export function useLanguageModelProviders() {
     if (queryResult.isLoading) {
       return false;
     }
-    if (providerSettings?.apiKey?.value) {
+    const apiKeyValue = providerSettings.auto && 'apiKey' in providerSettings.auto ? providerSettings.auto.apiKey?.value : undefined;
+    if (apiKeyValue) {
       return true;
     }
     const providerData = queryResult.data?.find((p) => p.id === provider);

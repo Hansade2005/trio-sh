@@ -4,6 +4,7 @@ import { userSettingsAtom, envVarsAtom } from "@/atoms/appAtoms";
 import { IpcClient } from "@/ipc/ipc_client";
 import { type UserSettings } from "@/lib/schemas";
 import { usePostHog } from "posthog-js/react";
+import { getProviderApiKey } from "@/ipc/utils/get_model_client";
 
 const TELEMETRY_CONSENT_KEY = "dyadTelemetryConsent";
 const TELEMETRY_USER_ID_KEY = "dyadTelemetryUserId";
@@ -36,7 +37,7 @@ export function useSettings() {
       processSettingsForTelemetry(userSettings);
       if (!isInitialLoad) {
         posthog.capture("app:initial-load", {
-          isPro: Boolean(userSettings.providerSettings?.auto?.apiKey?.value),
+          isPro: Boolean(getProviderApiKey(userSettings, "auto")),
         });
         isInitialLoad = true;
       }
