@@ -45,10 +45,10 @@ export const DyadCodebaseContext: React.FC<DyadCodebaseContextProps> = ({
     >
       {/* Top-left label badge */}
       <div
-        className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold text-blue-500 bg-white dark:bg-zinc-900"
+        className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold text-pink-500 bg-white dark:bg-zinc-900"
         style={{ zIndex: 1 }}
       >
-        <Code2 size={16} className="text-blue-500" />
+        <Code2 size={16} className="text-pink-500" />
         <span>Codebase Context</span>
       </div>
 

@@ -17,8 +17,8 @@ export function ChatErrorBox({
       <ChatErrorContainer onDismiss={onDismiss}>
         {error}
         <span className="ml-1">
-          <ExternalLink href="https://dyad.sh/pro">
-            Access with Dyad Pro.
+          <ExternalLink href="https://triobuilder.cc/pro">
+            Access with Trio Pro.
           </ExternalLink>
         </span>
       </ChatErrorContainer>
@@ -32,8 +32,8 @@ export function ChatErrorBox({
       <ChatErrorContainer onDismiss={onDismiss}>
         {error}
         <span className="ml-1">
-          <ExternalLink href="https://dyad.sh/pro">
-            Upgrade to Dyad Pro.
+          <ExternalLink href="https://triobuilder.cc/pro">
+            Upgrade to Trio Pro.
           </ExternalLink>
         </span>
       </ChatErrorContainer>
@@ -44,9 +44,9 @@ export function ChatErrorBox({
     return (
       <ChatInfoContainer onDismiss={onDismiss}>
         <span>
-          Looks like you don't have a valid Dyad Pro key.{" "}
-          <ExternalLink href="https://dyad.sh/pro">
-            Upgrade to Dyad Pro
+          Looks like you don't have a valid Trio Pro key.{" "}
+          <ExternalLink href="https://triobuilder.cc/pro">
+            Upgrade to Trio Pro
           </ExternalLink>{" "}
           today.
         </span>
@@ -57,9 +57,9 @@ export function ChatErrorBox({
     return (
       <ChatInfoContainer onDismiss={onDismiss}>
         <span>
-          You have used all of your Dyad AI credits this month.{" "}
-          <ExternalLink href="https://academy.dyad.sh/subscription">
-            Upgrade to Dyad Max
+          You have used all of your Trio AI credits this month.{" "}
+          <ExternalLink href="https://academy.triobuilder.cc/subscription">
+            Upgrade to Trio Max
           </ExternalLink>{" "}
           and get more AI credits
         </span>

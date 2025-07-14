@@ -28,6 +28,8 @@ import { ImportAppButton } from "@/components/ImportAppButton";
 import { showError } from "@/lib/toast";
 import { invalidateAppQuery } from "@/hooks/useLoadApp";
 import { useQueryClient } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Adding an export for attachments
 export interface HomeSubmitOptions {
@@ -47,40 +49,64 @@ export default function HomePage() {
   const posthog = usePostHog();
   const appVersion = useAppVersion();
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
-  const [releaseUrl, setReleaseUrl] = useState("");
+  const [releaseData, setReleaseData] = useState<any>(null);
+  const [releaseLoading, setReleaseLoading] = useState(false);
+  const [releaseError, setReleaseError] = useState<string | null>(null);
   const { theme } = useTheme();
   const queryClient = useQueryClient();
   useEffect(() => {
-    const updateLastVersionLaunched = async () => {
+    async function fetchLatestRelease() {
+      setReleaseLoading(true);
+      setReleaseError(null);
+      try {
+        const res = await fetch("https://api.github.com/repos/trio-sh/trio/releases");
+        if (!res.ok) throw new Error("Failed to fetch release notes");
+        const releases = await res.json();
+        if (Array.isArray(releases) && releases.length > 0) {
+          setReleaseData(releases[0]);
+        } else {
+          setReleaseError("No releases found.");
+        }
+      } catch (err: any) {
+        setReleaseError(err.message || "Error fetching release notes");
+      } finally {
+        setReleaseLoading(false);
+      }
+    }
+    if (releaseNotesOpen) fetchLatestRelease();
+  }, [releaseNotesOpen]);
+
+  useEffect(() => {
+    async function maybeShowReleaseNotes() {
       if (
         appVersion &&
         appVersion.match(/^\d+\.\d+\.\d+$/) &&
         settings &&
         settings.lastShownReleaseNotesVersion !== appVersion
       ) {
-        await updateSettings({
-          lastShownReleaseNotesVersion: appVersion,
-        });
-
         try {
-          const result = await IpcClient.getInstance().doesReleaseNoteExist({
-            version: appVersion,
-          });
-
-          if (result.exists && result.url) {
-            setReleaseUrl(result.url + "?hideHeader=true&theme=" + theme);
-            setReleaseNotesOpen(true);
+          const res = await fetch("https://api.github.com/repos/trio-sh/trio/releases");
+          if (!res.ok) return;
+          const releases = await res.json();
+          if (Array.isArray(releases) && releases.length > 0 && releases[0]) {
+            const latest = releases[0];
+            if (
+              latest.tag_name === appVersion ||
+              latest.name === appVersion ||
+              latest.tag_name?.replace(/^v/, "") === appVersion // handle v1.2.3 vs 1.2.3
+            ) {
+              setReleaseData(latest);
+              setReleaseNotesOpen(true);
+              await updateSettings({ lastShownReleaseNotesVersion: appVersion });
+            }
           }
         } catch (err) {
-          console.warn(
-            "Unable to check if release note exists for: " + appVersion,
-            err,
-          );
+          // fail silently
         }
       }
-    };
-    updateLastVersionLaunched();
-  }, [appVersion, settings, updateSettings, theme]);
+    }
+    maybeShowReleaseNotes();
+  }, [appVersion, settings, updateSettings]);
 
   // Get the appId from search params
   const appId = search.appId ? Number(search.appId) : null;
@@ -183,18 +209,12 @@ export default function HomePage() {
                 type="button"
                 key={index}
                 onClick={() => setInputValue(`Build me a ${item.label}`)}
-                className="flex items-center gap-3 px-4 py-2 rounded-xl border border-gray-200
-                           bg-white/50 backdrop-blur-sm
-                           transition-all duration-200
-                           hover:bg-white hover:shadow-md hover:border-gray-300
-                           active:scale-[0.98]
-                           dark:bg-gray-800/50 dark:border-gray-700
-                           dark:hover:bg-gray-800 dark:hover:border-gray-600"
+                className="flex items-center gap-3 px-5 py-3 rounded-2xl border-none bg-white/70 dark:bg-zinc-900/70 shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-800/60 hover:text-pink-600 dark:hover:text-pink-400 hover:shadow-xl active:scale-[0.98] text-zinc-700 dark:text-zinc-200 font-semibold"
               >
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-pink-500 dark:text-pink-400">
                   {item.icon}
                 </span>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <span className="text-base font-semibold">
                   {item.label}
                 </span>
               </button>
@@ -204,16 +224,10 @@ export default function HomePage() {
           <button
             type="button"
             onClick={() => setRandomPrompts(getRandomPrompts())}
-            className="self-center flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200
-                       bg-white/50 backdrop-blur-sm
-                       transition-all duration-200
-                       hover:bg-white hover:shadow-md hover:border-gray-300
-                       active:scale-[0.98]
-                       dark:bg-gray-800/50 dark:border-gray-700
-                       dark:hover:bg-gray-800 dark:hover:border-gray-600"
+            className="self-center flex items-center gap-2 px-5 py-3 rounded-2xl border-none bg-white/70 dark:bg-zinc-900/70 shadow-lg backdrop-blur-md transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-800/60 hover:text-pink-600 dark:hover:text-pink-400 hover:shadow-xl active:scale-[0.98] text-zinc-700 dark:text-zinc-200 font-semibold"
           >
             <svg
-              className="w-5 h-5 text-gray-700 dark:text-gray-300"
+              className="w-5 h-5 text-pink-500 dark:text-pink-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -225,7 +239,7 @@ export default function HomePage() {
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-base font-semibold">
               More ideas
             </span>
           </button>
@@ -237,29 +251,32 @@ export default function HomePage() {
       <Dialog open={releaseNotesOpen} onOpenChange={setReleaseNotesOpen}>
         <DialogContent className="max-w-4xl bg-(--docs-bg) pr-0 pt-4 pl-4 gap-1">
           <DialogHeader>
-            <DialogTitle>What's new in v{appVersion}?</DialogTitle>
+            <DialogTitle>
+              {releaseData ? `What's new: ${releaseData.name || releaseData.tag_name}` : "Release Notes"}
+            </DialogTitle>
             <Button
               variant="ghost"
               size="sm"
               className="absolute right-10 top-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-              onClick={() =>
-                window.open(
-                  releaseUrl.replace("?hideHeader=true&theme=" + theme, ""),
-                  "_blank",
-                )
-              }
+              onClick={() => window.open("https://github.com/trio-sh/trio/releases", "_blank")}
             >
               <ExternalLink className="w-4 h-4" />
             </Button>
           </DialogHeader>
           <div className="overflow-auto h-[70vh] flex flex-col ">
-            {releaseUrl && (
-              <div className="flex-1">
-                <iframe
-                  src={releaseUrl}
-                  className="w-full h-full border-0 rounded-lg"
-                  title={`Release notes for v${appVersion}`}
-                />
+            {releaseLoading && <div className="p-8 text-center">Loading release notes…</div>}
+            {releaseError && <div className="p-8 text-center text-red-500">{releaseError}</div>}
+            {releaseData && (
+              <div className="flex-1 px-2 pb-4">
+                <div className="mb-2 text-sm text-gray-500">Published: {new Date(releaseData.published_at).toLocaleDateString()}</div>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{releaseData.body}</ReactMarkdown>
+                <div className="mt-4">
+                  <Button asChild variant="outline">
+                    <a href="https://github.com/trio-sh/trio/releases" target="_blank" rel="noopener noreferrer">
+                      View all releases on GitHub
+                    </a>
+                  </Button>
+                </div>
               </div>
             )}
           </div>

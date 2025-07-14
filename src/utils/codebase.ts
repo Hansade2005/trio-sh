@@ -329,9 +329,9 @@ async function formatFile(
       .join("/");
 
     if (isOmittedFile(relativePath)) {
-      return `<dyad-file path="${relativePath}">
+      return `<triobuilder-file path="${relativePath}">
 ${OMITTED_FILE_CONTENT}
-</dyad-file>
+</triobuilder-file>
 
 `;
     }
@@ -339,23 +339,23 @@ ${OMITTED_FILE_CONTENT}
     const content = await readFileWithCache(filePath, virtualFileSystem);
 
     if (content == null) {
-      return `<dyad-file path="${relativePath}">
+      return `<triobuilder-file path="${relativePath}">
 // Error reading file
-</dyad-file>
+</triobuilder-file>
 
 `;
     }
 
-    return `<dyad-file path="${relativePath}">
+    return `<triobuilder-file path="${relativePath}">
 ${content}
-</dyad-file>
+</triobuilder-file>
 
 `;
   } catch (error) {
     logger.error(`Error reading file: ${filePath}`, error);
-    return `<dyad-file path="${path.relative(baseDir, filePath)}">
+    return `<triobuilder-file path="${path.relative(baseDir, filePath)}">
 // Error reading file: ${error}
-</dyad-file>
+</triobuilder-file>
 
 `;
   }
@@ -386,8 +386,7 @@ export async function extractCodebase({
   files: CodebaseFile[];
 }> {
   const settings = readSettings();
-  const isSmartContextEnabled =
-    settings?.enableDyadPro && settings?.enableProSmartFilesContextMode;
+  const isSmartContextEnabled = settings?.enableProSmartFilesContextMode;
 
   try {
     await fsAsync.access(appPath);

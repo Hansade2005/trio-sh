@@ -35,14 +35,14 @@ export const createChatCompletionHandler =
     ) {
       // Fix errors in create-ts-errors.md and introduce a new error
       messageContent = `
-<dyad-write path="src/bad-file.ts" description="Fix 2 errors and introduce a new error.">
+<triobuilder-write path="src/bad-file.ts" description="Fix 2 errors and introduce a new error.">
 // Import doesn't exist
 // import NonExistentClass from 'non-existent-class';
 
 
 const x = new Object();
 x.nonExistentMethod2();
-</dyad-write>
+</triobuilder-write>
 
       `;
     }
@@ -55,14 +55,14 @@ x.nonExistentMethod2();
     ) {
       // Fix errors in create-ts-errors.md and introduce a new error
       messageContent = `
-<dyad-write path="src/bad-file.ts" description="Fix remaining error.">
+<triobuilder-write path="src/bad-file.ts" description="Fix remaining error.">
 // Import doesn't exist
 // import NonExistentClass from 'non-existent-class';
 
 
 const x = new Object();
 x.toString(); // replaced with existing method
-</dyad-write>
+</triobuilder-write>
 
       `;
     }
@@ -81,10 +81,10 @@ x.toString(); // replaced with existing method
     ) {
       messageContent = `
       Fixing the error...
-      <dyad-write path="src/pages/Index.tsx">
+      <triobuilder-write path="src/pages/Index.tsx">
       
 
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import { MadeWithTrio } from "@/components/made-with-trio";
 
 const Index = () => {
   return (
@@ -92,14 +92,14 @@ const Index = () => {
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-4">No more errors!</h1>
       </div>
-      <MadeWithDyad />
+      <MadeWithTrio />
     </div>
   );
 };
 
 export default Index;
 
-      </dyad-write>
+      </triobuilder-write>
       `;
     }
     console.error("LASTMESSAGE", lastMessage);
@@ -160,7 +160,7 @@ export default Index;
       typeof lastMessage.content === "string" &&
       lastMessage.content.trim().endsWith("[[STRING_TO_BE_FINISHED]]")
     ) {
-      messageContent = `[[STRING_IS_FINISHED]]";</dyad-write>\nFinished writing file.`;
+      messageContent = `[[STRING_IS_FINISHED]]";</triobuilder-write>\nFinished writing file.`;
       messageContent += "\n\n" + generateDump(req);
     }
 
@@ -240,7 +240,7 @@ function generateDump(req: Request) {
       "utf-8",
     );
     console.log(`* Dumped messages to: ${dumpFilePath}`);
-    return `[[dyad-dump-path=${dumpFilePath}]]`;
+    return `[[triobuilder-dump-path=${dumpFilePath}]]`;
   } catch (error) {
     console.error(`* Error writing dump file: ${error}`);
     return `Error: Could not write dump file: ${error}`;

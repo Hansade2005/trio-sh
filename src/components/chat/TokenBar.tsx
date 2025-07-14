@@ -126,23 +126,18 @@ export function TokenBar({ chatId }: TokenBarProps) {
         </Tooltip>
       </TooltipProvider>
       {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
-      {(!settings?.enableProSmartFilesContextMode ||
-        !settings?.enableDyadPro) && (
+      {(!settings?.enableProSmartFilesContextMode) && (
         <div className="text-xs text-center text-muted-foreground mt-2">
-          Optimize your tokens with{" "}
+          Optimize your tokens with {" "}
           <a
             onClick={() =>
-              settings?.enableDyadPro
-                ? IpcClient.getInstance().openExternalUrl(
-                    "https://www.dyad.sh/docs/guides/ai-models/pro-modes#smart-context",
-                  )
-                : IpcClient.getInstance().openExternalUrl(
-                    "https://dyad.sh/pro#ai",
-                  )
+              IpcClient.getInstance().openExternalUrl(
+                "https://www.triobuilder.cc/docs/guides/ai-models/pro-modes#smart-context"
+              )
             }
-            className="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline"
+            className="text-pink-500 dark:text-pink-400 cursor-pointer hover:underline"
           >
-            Dyad Pro's Smart Context
+            Trio Smart Context
           </a>
         </div>
       )}

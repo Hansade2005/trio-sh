@@ -38,7 +38,9 @@ export function ProModeSelector() {
   };
 
   const hasProKey = settings ? hasDyadProKey(settings) : false;
-  const proModeTogglable = hasProKey && Boolean(settings?.enableDyadPro);
+  // Remove Pro gating for Smart Context
+  // const proModeTogglable = hasProKey && Boolean(settings?.enableDyadPro);
+  const proModeTogglable = true; // Always enabled for all users
 
   return (
     <Popover>

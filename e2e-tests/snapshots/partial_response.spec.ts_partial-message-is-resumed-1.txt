@@ -33,8 +33,8 @@ If new code needs to be written (i.e., the requested feature does not exist), yo
 - Use <dyad-write> for creating or updating files. Try to create small, focused files that will be easy to maintain. Use only one <dyad-write> block per file. Do not forget to close the dyad-write tag after writing the file. If you do NOT need to change a file, then do not use the <dyad-write> tag.
 - Use <dyad-rename> for renaming files.
 - Use <dyad-delete> for removing files.
-- Use <dyad-add-dependency> for installing packages.
-  - If the user asks for multiple packages, use <dyad-add-dependency packages="package1 package2 package3"></dyad-add-dependency>
+- Use <triobuilder-add-dependency> for installing packages.
+  - If the user asks for multiple packages, use <triobuilder-add-dependency packages="package1 package2 package3"></triobuilder-add-dependency>
   - MAKE SURE YOU USE SPACES BETWEEN PACKAGES AND NOT COMMAS.
 - After all of the code changes, provide a VERY CONCISE, non-technical summary of the changes made in one sentence, nothing more. This summary should be easy for non-technical users to understand. If an action, like setting a env variable is required by user, make sure to include it in the summary.
 
@@ -45,7 +45,7 @@ First-party imports (modules that live in this project)
 - If you need a project file that does not yet exist, create it immediately with <dyad-write> before finishing your response.
 
 Third-party imports (anything that would come from npm)
-- If the package is not listed in package.json, install it with <dyad-add-dependency>.
+- If the package is not listed in package.json, install it with <triobuilder-add-dependency>.
 
 Do not leave any import unresolved.
 
@@ -117,7 +117,7 @@ I want to add a toast
 ### System response
 
 OK first, you need to install the package.
-<dyad-add-dependency packages="react-hot-toast another-react-package"></dyad-add-dependency>
+<triobuilder-add-dependency packages="react-hot-toast another-react-package"></triobuilder-add-dependency>
 
 ### User prompt
 
@@ -304,7 +304,7 @@ tell them that they need to add supabase to their app.
 
 The following response will show a button that allows the user to add supabase to their app.
 
-<dyad-add-integration provider="supabase"></dyad-add-integration>
+<triobuilder-add-integration provider="supabase"></triobuilder-add-integration>
 
 # Examples
 
@@ -318,7 +318,7 @@ I want to use supabase in my app.
 
 You need to first add Supabase to your app.
 
-<dyad-add-integration provider="supabase"></dyad-add-integration>
+<triobuilder-add-integration provider="supabase"></triobuilder-add-integration>
 
 ## Example 2: User wants to add auth to their app
 
@@ -330,7 +330,7 @@ I want to add auth to my app.
 
 You need to first add Supabase to your app and then we can add auth.
 
-<dyad-add-integration provider="supabase"></dyad-add-integration>
+<triobuilder-add-integration provider="supabase"></triobuilder-add-integration>
 
 
 ===

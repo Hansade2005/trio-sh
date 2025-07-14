@@ -130,7 +130,7 @@ async function processStreamChunks({
         inThinkingBlock = true;
       }
 
-      chunk += escapeDyadTags(part.textDelta);
+      chunk += escapeTriobuilderTags(part.textDelta);
     }
 
     if (!chunk) {
@@ -236,8 +236,8 @@ export function registerChatStreamHandlers() {
           // If it's a text-based file, try to include the content
           if (await isTextFile(filePath)) {
             try {
-              attachmentInfo += `<dyad-text-attachment filename="${attachment.name}" type="${attachment.type}" path="${filePath}">
-              </dyad-text-attachment>
+              attachmentInfo += `<triobuilder-text-attachment filename="${attachment.name}" type="${attachment.type}" path="${filePath}">
+              </triobuilder-text-attachment>
               \n\n`;
             } catch (err) {
               logger.error(`Error reading file content: ${err}`);
@@ -486,7 +486,7 @@ This conversation includes one or more image attachments. When the user uploads 
             // and eats up extra tokens.
             content:
               settings.selectedChatMode === "ask"
-                ? removeDyadTags(removeNonEssentialTags(msg.content))
+                ? removeTriobuilderTags(removeNonEssentialTags(msg.content))
                 : removeNonEssentialTags(msg.content),
           })),
         ];
@@ -625,16 +625,16 @@ This conversation includes one or more image attachments. When the user uploads 
           if (
             !abortController.signal.aborted &&
             settings.selectedChatMode !== "ask" &&
-            hasUnclosedDyadWrite(fullResponse)
+            hasUnclosedTriobuilderWrite(fullResponse)
           ) {
             let continuationAttempts = 0;
             while (
-              hasUnclosedDyadWrite(fullResponse) &&
+              hasUnclosedTriobuilderWrite(fullResponse) &&
               continuationAttempts < 2 &&
               !abortController.signal.aborted
             ) {
               logger.warn(
-                `Received unclosed dyad-write tag, attempting to continue, attempt #${continuationAttempts + 1}`,
+                `Received unclosed triobuilder-write tag, attempting to continue, attempt #${continuationAttempts + 1}`,
               );
               continuationAttempts++;
 
@@ -686,14 +686,14 @@ This conversation includes one or more image attachments. When the user uploads 
                 autoFixAttempts < 2 &&
                 !abortController.signal.aborted
               ) {
-                fullResponse += `<dyad-problem-report summary="${problemReport.problems.length} problems">
+                fullResponse += `<triobuilder-problem-report summary="${problemReport.problems.length} problems">
 ${problemReport.problems
   .map(
     (problem) =>
       `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
   )
   .join("\n")}
-</dyad-problem-report>`;
+</triobuilder-problem-report>`;
 
                 logger.info(
                   `Attempting to auto-fix problems, attempt #${autoFixAttempts + 1}`,
@@ -814,9 +814,9 @@ ${problemReport.problems
 
       // Only save the response and process it if we weren't aborted
       if (!abortController.signal.aborted && fullResponse) {
-        // Scrape from: <dyad-chat-summary>Renaming profile file</dyad-chat-title>
+        // Scrape from: <triobuilder-chat-summary>Renaming profile file</triobuilder-chat-title>
         const chatTitle = fullResponse.match(
-          /<dyad-chat-summary>(.*?)<\/dyad-chat-summary>/,
+          /<triobuilder-chat-summary>(.*?)<\/triobuilder-chat-summary>/,
         );
         if (chatTitle) {
           await db
@@ -981,7 +981,7 @@ async function replaceTextAttachmentWithContent(
       // Replace the placeholder tag with the full content
       const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const tagPattern = new RegExp(
-        `<dyad-text-attachment filename="[^"]*" type="[^"]*" path="${escapedPath}">\\s*<\\/dyad-text-attachment>`,
+        `<triobuilder-text-attachment filename="[^"]*" type="[^"]*" path="${escapedPath}">\\s*<\\/triobuilder-text-attachment>`,
         "g",
       );
 
@@ -1074,18 +1074,18 @@ function removeThinkingTags(text: string): string {
 
 export function removeProblemReportTags(text: string): string {
   const problemReportRegex =
-    /<dyad-problem-report[^>]*>[\s\S]*?<\/dyad-problem-report>/g;
+    /<triobuilder-problem-report[^>]*>[\s\S]*?<\/triobuilder-problem-report>/g;
   return text.replace(problemReportRegex, "").trim();
 }
 
-export function removeDyadTags(text: string): string {
-  const dyadRegex = /<dyad-[^>]*>[\s\S]*?<\/dyad-[^>]*>/g;
-  return text.replace(dyadRegex, "").trim();
+export function removeTriobuilderTags(text: string): string {
+  const triobuilderRegex = /<triobuilder-[^>]*>[\s\S]*?<\/triobuilder-[^>]*>/g;
+  return text.replace(triobuilderRegex, "").trim();
 }
 
-export function hasUnclosedDyadWrite(text: string): boolean {
-  // Find the last opening dyad-write tag
-  const openRegex = /<dyad-write[^>]*>/g;
+export function hasUnclosedTriobuilderWrite(text: string): boolean {
+  // Find the last opening triobuilder-write tag
+  const openRegex = /<triobuilder-write[^>]*>/g;
   let lastOpenIndex = -1;
   let match;
 
@@ -1100,19 +1100,19 @@ export function hasUnclosedDyadWrite(text: string): boolean {
 
   // Look for a closing tag after the last opening tag
   const textAfterLastOpen = text.substring(lastOpenIndex);
-  const hasClosingTag = /<\/dyad-write>/.test(textAfterLastOpen);
+  const hasClosingTag = /<\/triobuilder-write>/.test(textAfterLastOpen);
 
   return !hasClosingTag;
 }
 
-function escapeDyadTags(text: string): string {
-  // Escape dyad tags in reasoning content
+function escapeTriobuilderTags(text: string): string {
+  // Escape triobuilder tags in reasoning content
   // We are replacing the opening tag with a look-alike character
-  // to avoid issues where thinking content includes dyad tags
+  // to avoid issues where thinking content includes triobuilder tags
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text.replace(/<dyad/g, "＜dyad").replace(/<\/dyad/g, "＜/dyad");
+  return text.replace(/<triobuilder/g, "＜triobuilder").replace(/<\/triobuilder/g, "＜/triobuilder");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

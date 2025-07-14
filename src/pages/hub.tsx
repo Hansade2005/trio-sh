@@ -18,7 +18,7 @@ const HubPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen px-8 py-4">
+    <div className="min-h-screen px-8 py-4 bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3 transition-all">
       <div className="max-w-5xl mx-auto">
         <Button
           onClick={() => router.history.back()}
@@ -46,13 +46,13 @@ const HubPage: React.FC = () => {
                 key={template.id}
                 onClick={() => handleTemplateSelect(template.id)}
                 className={`
-                  bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden 
+                  bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg overflow-hidden 
                   transform transition-all duration-300 ease-in-out 
-                  cursor-pointer group relative
+                  cursor-pointer group relative backdrop-blur-md border-none
                   ${
                     isSelected
-                      ? "ring-2 ring-blue-500 dark:ring-blue-400 shadow-xl"
-                      : "hover:shadow-lg hover:-translate-y-1"
+                      ? "ring-2 ring-pink-500 dark:ring-pink-400 shadow-xl"
+                      : "hover:shadow-xl hover:-translate-y-1"
                   }
                 `}
               >
@@ -63,7 +63,7 @@ const HubPage: React.FC = () => {
                     className={`w-full h-52 object-cover transition-opacity duration-300 group-hover:opacity-80 ${isSelected ? "opacity-75" : ""}`}
                   />
                   {isSelected && (
-                    <span className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-lg">
+                    <span className="absolute top-3 right-3 bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-lg">
                       Selected
                     </span>
                   )}
@@ -71,13 +71,13 @@ const HubPage: React.FC = () => {
                 <div className="p-4">
                   <div className="flex justify-between items-center mb-1.5">
                     <h2
-                      className={`text-lg font-semibold ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-white"}`}
+                      className={`text-lg font-semibold ${isSelected ? "text-pink-600 dark:text-pink-400" : "text-gray-900 dark:text-white"}`}
                     >
                       {template.title}
                     </h2>
                     {template.isOfficial && (
                       <span
-                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-600 dark:text-blue-100" : "bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-200"}`}
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isSelected ? "bg-pink-100 text-pink-700 dark:bg-pink-600 dark:text-pink-100" : "bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-200"}`}
                       >
                         Official
                       </span>
@@ -88,7 +88,7 @@ const HubPage: React.FC = () => {
                   </p>
                   {template.githubUrl && (
                     <a
-                      className={`inline-flex items-center text-sm font-medium transition-colors duration-200 ${isSelected ? "text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200" : "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"}`}
+                      className={`inline-flex items-center text-sm font-medium transition-colors duration-200 ${isSelected ? "text-pink-500 hover:text-pink-700 dark:text-pink-300 dark:hover:text-pink-200" : "text-pink-600 hover:text-pink-800 dark:text-pink-400 dark:hover:text-pink-300"}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (template.githubUrl) {

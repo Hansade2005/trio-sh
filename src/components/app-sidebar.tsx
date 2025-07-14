@@ -106,8 +106,9 @@ export function AppSidebar() {
           setHoverState("clear-hover");
         }
       }}
+      className="bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3 transition-all"
     >
-      <SidebarContent className="overflow-hidden">
+      <SidebarContent className="overflow-hidden rounded-2xl">
         <div className="flex mt-8">
           {/* Left Column: Menu items */}
           <div className="">
@@ -126,16 +127,16 @@ export function AppSidebar() {
         </div>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="rounded-b-2xl bg-white/60 dark:bg-zinc-900/60 shadow-inner">
         <SidebarMenu>
           <SidebarMenuItem>
             {/* Change button to open dialog instead of linking */}
             <SidebarMenuButton
               size="sm"
-              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl"
+              className="font-medium w-16 flex flex-col items-center gap-1 h-16 mb-2 rounded-2xl bg-pink-50 dark:bg-pink-900/30 text-pink-500 hover:bg-pink-100 dark:hover:bg-pink-800/60 shadow-md transition-all"
               onClick={() => setIsHelpDialogOpen(true)} // Open dialog on click
             >
-              <HelpCircle className="h-5 w-5" />
+              <HelpCircle className="h-6 w-6" />
               <span className={"text-xs"}>Help</span>
             </SidebarMenuButton>
             <HelpDialog
@@ -176,13 +177,13 @@ function AppIcons({
                 <SidebarMenuButton
                   asChild
                   size="sm"
-                  className="font-medium w-14"
+                  className={`font-medium w-16 h-16 flex flex-col items-center gap-1 mb-2 rounded-2xl transition-all text-zinc-700 dark:text-zinc-200 hover:bg-pink-100 dark:hover:bg-pink-800/60 hover:text-pink-600 dark:hover:text-pink-400 shadow-md ${
+                    isActive ? "bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg" : "bg-white/60 dark:bg-zinc-800/60"
+                  }`}
                 >
                   <Link
                     to={item.to}
-                    className={`flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl ${
-                      isActive ? "bg-sidebar-accent" : ""
-                    }`}
+                    className="flex flex-col items-center gap-1 w-full h-full justify-center"
                     onMouseEnter={() => {
                       if (item.title === "Apps") {
                         onHoverChange("start-hover:app");
@@ -192,8 +193,8 @@ function AppIcons({
                     }}
                   >
                     <div className="flex flex-col items-center gap-1">
-                      <item.icon className="h-5 w-5" />
-                      <span className={"text-xs"}>{item.title}</span>
+                      <item.icon className="h-6 w-6" />
+                      <span className={"text-xs font-semibold"}>{item.title}</span>
                     </div>
                   </Link>
                 </SidebarMenuButton>
