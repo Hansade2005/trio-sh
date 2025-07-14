@@ -23,9 +23,7 @@ interface ProviderSettingsPageProps {
 }
 
 // Type guard for MCP settings
-function isMcpSettings(
-  obj: any,
-): obj is {
+function isMcpSettings(obj: any): obj is {
   transportType: "sse" | "stdio";
   sseUrl?: string;
   stdioCommand?: string;
