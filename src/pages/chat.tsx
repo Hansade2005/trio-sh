@@ -42,7 +42,7 @@ export default function ChatPage() {
   return (
     <PanelGroup autoSaveId="persistence" direction="horizontal">
       <Panel id="chat-panel" minSize={30}>
-        <div className="h-full w-full bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3 transition-all">
+        <div className="h-full w-full">
           <ChatPanel
             chatId={chatId}
             isPreviewOpen={isPreviewOpen}
@@ -61,7 +61,7 @@ export default function ChatPage() {
       <>
         <PanelResizeHandle
           onDragging={(e) => setIsResizing(e)}
-          className="w-1 bg-pink-200 hover:bg-pink-300 dark:bg-pink-900 dark:hover:bg-pink-700 transition-colors cursor-col-resize"
+          className="w-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors cursor-col-resize"
         />
         <Panel
           collapsible
@@ -69,8 +69,7 @@ export default function ChatPage() {
           id="preview-panel"
           minSize={20}
           className={cn(
-            !isResizing &&
-              "transition-all duration-100 ease-in-out bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3",
+            !isResizing && "transition-all duration-100 ease-in-out",
           )}
         >
           <PreviewPanel />

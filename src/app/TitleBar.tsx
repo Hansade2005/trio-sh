@@ -70,11 +70,7 @@ export const TitleBar = () => {
     }
   };
 
-  const isDyadPro = !!(
-    settings?.providerSettings?.auto &&
-    "apiKey" in settings.providerSettings.auto &&
-    settings.providerSettings.auto.apiKey?.value
-  );
+  const isDyadPro = !!settings?.providerSettings?.auto?.apiKey?.value;
   const isDyadProEnabled = Boolean(settings?.enableDyadPro);
 
   return (

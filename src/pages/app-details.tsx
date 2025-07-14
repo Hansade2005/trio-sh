@@ -202,7 +202,7 @@ export default function AppDetailsPage() {
 
   if (!selectedApp) {
     return (
-      <div className="relative min-h-screen p-8 bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3 flex flex-col items-center justify-center transition-all">
+      <div className="relative min-h-screen p-8">
         <Button
           onClick={() => router.history.back()}
           variant="outline"
@@ -223,7 +223,7 @@ export default function AppDetailsPage() {
 
   return (
     <div
-      className="relative min-h-screen p-4 w-full bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3 transition-all"
+      className="relative min-h-screen p-4 w-full"
       data-testid="app-details-page"
     >
       <Button
@@ -236,7 +236,7 @@ export default function AppDetailsPage() {
         Back
       </Button>
 
-      <div className="w-full max-w-2xl mx-auto mt-10 p-6 bg-white/80 dark:bg-zinc-900/80 rounded-2xl border-none shadow-lg relative backdrop-blur-md">
+      <div className="w-full max-w-2xl mx-auto mt-10 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm relative">
         <div className="flex items-center mb-3">
           <h2 className="text-2xl font-bold">{selectedApp.name}</h2>
           <Button

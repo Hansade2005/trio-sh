@@ -6,38 +6,38 @@ import { cleanFullResponse } from "../utils/cleanFullResponse";
 const TEST_RESPONSES: Record<string, string> = {
   "ts-error": `This will get a TypeScript error.
   
-  <triobuilder-write path="src/bad-file.ts" description="This will get a TypeScript error.">
+  <dyad-write path="src/bad-file.ts" description="This will get a TypeScript error.">
   import NonExistentClass from 'non-existent-class';
 
   const x = new Object();
   x.nonExistentMethod();
-  </triobuilder-write>
+  </dyad-write>
   
   EOM`,
   "add-dep": `I'll add that dependency for you.
   
-  <triobuilder-add-dependency packages="deno"></triobuilder-add-dependency>
+  <dyad-add-dependency packages="deno"></dyad-add-dependency>
   
   EOM`,
   "add-non-existing-dep": `I'll add that dependency for you.
   
-  <triobuilder-add-dependency packages="@angular/does-not-exist"></triobuilder-add-dependency>
+  <dyad-add-dependency packages="@angular/does-not-exist"></dyad-add-dependency>
   
   EOM`,
   "add-multiple-deps": `I'll add that dependency for you.
   
-  <triobuilder-add-dependency packages="react-router-dom react-query"></triobuilder-add-dependency>
+  <dyad-add-dependency packages="react-router-dom react-query"></dyad-add-dependency>
   
   EOM`,
   write: `Hello world
-  <triobuilder-write path="src/hello.ts" content="Hello world">
+  <dyad-write path="src/hello.ts" content="Hello world">
   console.log("Hello world");
-  </triobuilder-write>
+  </dyad-write>
   EOM`,
   "string-literal-leak": `BEFORE TAG
-  <triobuilder-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags.">
+  <dyad-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags.">
 import React from 'react';
-</triobuilder-write>
+</dyad-write>
 AFTER TAG
 `,
 };

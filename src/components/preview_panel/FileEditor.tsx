@@ -53,76 +53,12 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ path, hasUnsavedChanges }) => {
   );
 };
 
-// Exported for use elsewhere if needed
-export const languageMap: Record<string, string> = {
-  js: "javascript",
-  jsx: "javascript",
-  ts: "typescript",
-  tsx: "typescript",
-  html: "html",
-  css: "css",
-  json: "json",
-  md: "markdown",
-  py: "python",
-  java: "java",
-  c: "c",
-  cpp: "cpp",
-  cs: "csharp",
-  go: "go",
-  rs: "rust",
-  rb: "ruby",
-  php: "php",
-  swift: "swift",
-  kt: "kotlin",
-  sh: "shell",
-  yaml: "yaml",
-  yml: "yaml",
-  xml: "xml",
-  sql: "sql",
-  dockerfile: "dockerfile",
-  vue: "vue",
-  scss: "scss",
-  less: "less",
-  perl: "perl",
-  r: "r",
-  dart: "dart",
-  scala: "scala",
-  lua: "lua",
-  makefile: "makefile",
-  bat: "bat",
-  ini: "ini",
-  toml: "toml",
-  // Add more as needed
-};
-
-export function getLanguage(filePath: string): string {
-  const ext = filePath.split(".").pop()?.toLowerCase() || "";
-  return languageMap[ext] || "plaintext";
-}
-
-const supportedLanguages = Array.from(
-  new Set(["plaintext", ...Object.values(languageMap)]),
-).sort();
-const themeOptions = [
-  { value: "dyad-dark", label: "Dark" },
-  { value: "dyad-light", label: "Light" },
-  { value: "system", label: "System" },
-];
-
 export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
   const { content, loading, error } = useLoadAppFile(appId, filePath);
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const { settings } = useSettings();
   const [value, setValue] = useState<string | undefined>(undefined);
   const [displayUnsavedChanges, setDisplayUnsavedChanges] = useState(false);
-  const [editorTheme, setEditorTheme] = useState<string>(
-    theme === "system"
-      ? "dyad-dark"
-      : theme === "dark"
-        ? "dyad-dark"
-        : "dyad-light",
-  );
-  const [language, setLanguage] = useState<string>(getLanguage(filePath));
 
   // Use refs for values that need to be current in event handlers
   const originalValueRef = useRef<string | undefined>(undefined);
@@ -147,26 +83,20 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
     setDisplayUnsavedChanges(needsSaveRef.current);
   }, [needsSaveRef.current]);
 
-  // Update language when filePath changes
-  useEffect(() => {
-    setLanguage(getLanguage(filePath));
-  }, [filePath]);
-
-  // Update editor theme when app theme changes
-  useEffect(() => {
-    setEditorTheme(
-      theme === "system"
-        ? "dyad-dark"
-        : theme === "dark"
-          ? "dyad-dark"
-          : "dyad-light",
-    );
-  }, [theme]);
+  // Determine if dark mode based on theme
+  const isDarkMode =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const editorTheme = isDarkMode ? "dyad-dark" : "dyad-light";
 
   // Handle editor mount
   const handleEditorDidMount: OnMount = (editor) => {
     editorRef.current = editor;
+
+    // Listen for model content change events
     editor.onDidBlurEditorText(() => {
+      console.log("Editor text blurred, checking if save needed");
       if (needsSaveRef.current) {
         saveFile();
       }
@@ -177,6 +107,7 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
   const handleEditorChange = (newValue: string | undefined) => {
     setValue(newValue);
     currentValueRef.current = newValue;
+
     const hasChanged = newValue !== originalValueRef.current;
     needsSaveRef.current = hasChanged;
     setDisplayUnsavedChanges(hasChanged);
@@ -191,10 +122,13 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
       isSavingRef.current
     )
       return;
+
     try {
       isSavingRef.current = true;
+
       const ipcClient = IpcClient.getInstance();
       await ipcClient.editAppFile(appId, filePath, currentValueRef.current);
+
       originalValueRef.current = currentValueRef.current;
       needsSaveRef.current = false;
       setDisplayUnsavedChanges(false);
@@ -205,12 +139,43 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
     }
   };
 
+  // Determine language based on file extension
+  const getLanguage = (filePath: string) => {
+    const extension = filePath.split(".").pop()?.toLowerCase() || "";
+    const languageMap: Record<string, string> = {
+      js: "javascript",
+      jsx: "javascript",
+      ts: "typescript",
+      tsx: "typescript",
+      html: "html",
+      css: "css",
+      json: "json",
+      md: "markdown",
+      py: "python",
+      java: "java",
+      c: "c",
+      cpp: "cpp",
+      cs: "csharp",
+      go: "go",
+      rs: "rust",
+      rb: "ruby",
+      php: "php",
+      swift: "swift",
+      kt: "kotlin",
+      // Add more as needed
+    };
+
+    return languageMap[extension] || "plaintext";
+  };
+
   if (loading) {
     return <div className="p-4">Loading file content...</div>;
   }
+
   if (error) {
     return <div className="p-4 text-red-500">Error: {error.message}</div>;
   }
+
   if (!content) {
     return <div className="p-4 text-gray-500">No content available</div>;
   }
@@ -221,7 +186,7 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
       <div className="flex-1 overflow-hidden">
         <Editor
           height="100%"
-          language={language}
+          defaultLanguage={getLanguage(filePath)}
           value={value}
           theme={editorTheme}
           onChange={handleEditorChange}
@@ -237,47 +202,6 @@ export const FileEditor = ({ appId, filePath }: FileEditorProps) => {
             readOnly: !settings?.experiments?.enableFileEditing,
           }}
         />
-      </div>
-      {/* Status bar */}
-      <div className="flex items-center justify-between px-4 py-1 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 text-xs">
-        <div className="flex items-center gap-2">
-          <span>Language:</span>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="bg-transparent border-none outline-none text-xs"
-          >
-            {supportedLanguages.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <span>Theme:</span>
-          <select
-            value={editorTheme}
-            onChange={(e) => {
-              setEditorTheme(e.target.value);
-              if (
-                e.target.value === "dyad-dark" ||
-                e.target.value === "dyad-light"
-              ) {
-                setTheme(e.target.value === "dyad-dark" ? "dark" : "light");
-              } else {
-                setTheme("system");
-              }
-            }}
-            className="bg-transparent border-none outline-none text-xs"
-          >
-            {themeOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
     </div>
   );

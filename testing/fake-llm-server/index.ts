@@ -48,9 +48,9 @@ export function createStreamChunk(
 }
 
 export const CANNED_MESSAGE = `
-  <triobuilder-write path="file1.txt">
+  <dyad-write path="file1.txt">
   A file (2)
-  </triobuilder-write>
+  </dyad-write>
   More
   EOM`;
 

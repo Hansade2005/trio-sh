@@ -22,7 +22,10 @@ import { getDyadAppPath } from "../../paths/paths";
 import { readSettings } from "../../main/settings";
 import type { ChatResponseEnd, ChatStreamParams } from "../ipc_types";
 import { extractCodebase, readFileWithCache } from "../../utils/codebase";
-import { processFullResponseActions } from "../processors/response_processor";
+import {
+  getDyadAddDependencyTags,
+  processFullResponseActions,
+} from "../processors/response_processor";
 import { streamTestResponse } from "./testing_chat_handlers";
 import { getTestResponse } from "./testing_chat_handlers";
 import { getModelClient, ModelClient } from "../utils/get_model_client";
@@ -50,7 +53,6 @@ import { generateProblemReport } from "../processors/tsc";
 import { createProblemFixPrompt } from "@/shared/problem_prompt";
 import { AsyncVirtualFileSystem } from "@/utils/VirtualFilesystem";
 import { fileExists } from "../utils/file_utils";
-import { buildStructuredContext } from "../../utils/codebase";
 
 type AsyncIterableStream<T> = AsyncIterable<T> & ReadableStream<T>;
 
@@ -128,7 +130,7 @@ async function processStreamChunks({
         inThinkingBlock = true;
       }
 
-      chunk += escapeTriobuilderTags(part.textDelta);
+      chunk += escapeDyadTags(part.textDelta);
     }
 
     if (!chunk) {
@@ -234,8 +236,8 @@ export function registerChatStreamHandlers() {
           // If it's a text-based file, try to include the content
           if (await isTextFile(filePath)) {
             try {
-              attachmentInfo += `<triobuilder-text-attachment filename="${attachment.name}" type="${attachment.type}" path="${filePath}">
-              </triobuilder-text-attachment>
+              attachmentInfo += `<dyad-text-attachment filename="${attachment.name}" type="${attachment.type}" path="${filePath}">
+              </dyad-text-attachment>
               \n\n`;
             } catch (err) {
               logger.error(`Error reading file content: ${err}`);
@@ -475,61 +477,18 @@ This conversation includes one or more image attachments. When the user uploads 
               },
             ] as const);
 
-        // Prepare tool tags
-        const toolTags = [
-          { tag: "triobuilder-write", description: "Create or update a file." },
-          { tag: "triobuilder-rename", description: "Rename a file." },
-          { tag: "triobuilder-delete", description: "Delete a file." },
-          {
-            tag: "triobuilder-add-dependency",
-            description: "Install npm packages.",
-          },
-          { tag: "triobuilder-read-file", description: "Read a single file." },
-          {
-            tag: "triobuilder-read-files",
-            description: "Read up to three files at once.",
-          },
-          // Add more as needed
-        ];
-        // Prepare file list (relative paths)
-        const fileList = files
-          .map((f) => (typeof f === "string" ? f : f?.path))
-          .filter(Boolean)
-          .map((f) => path.relative(appPath, f));
-        // Get model name as string
-        const modelName =
-          typeof settings.selectedModel === "string"
-            ? settings.selectedModel
-            : settings.selectedModel?.name || "";
-        // Get current time
-        const currentTime = new Date().toLocaleString("en-US", {
-          timeZoneName: "short",
-        });
-        // Build structured context
-        const structuredPrompt = buildStructuredContext({
-          userMessage: req.prompt,
-          appPath,
-          files: fileList,
-          model: modelName,
-          toolTags,
-          currentTime,
-        });
-        // Use structuredPrompt as the user message
         let chatMessages: CoreMessage[] = [
           ...codebasePrefix,
-          ...limitedMessageHistory.map((msg, idx) =>
-            idx === limitedMessageHistory.length - 1 && msg.role === "user"
-              ? { ...msg, content: structuredPrompt }
-              : {
-                  ...msg,
-                  content:
-                    settings.selectedChatMode === "ask"
-                      ? removeTriobuilderTags(
-                          removeNonEssentialTags(msg.content),
-                        )
-                      : removeNonEssentialTags(msg.content),
-                },
-          ),
+          ...limitedMessageHistory.map((msg) => ({
+            role: msg.role as "user" | "assistant" | "system",
+            // Why remove thinking tags?
+            // Thinking tags are generally not critical for the context
+            // and eats up extra tokens.
+            content:
+              settings.selectedChatMode === "ask"
+                ? removeDyadTags(removeNonEssentialTags(msg.content))
+                : removeNonEssentialTags(msg.content),
+          })),
         ];
 
         // Check if the last message should include attachments
@@ -666,16 +625,16 @@ This conversation includes one or more image attachments. When the user uploads 
           if (
             !abortController.signal.aborted &&
             settings.selectedChatMode !== "ask" &&
-            hasUnclosedTriobuilderWrite(fullResponse)
+            hasUnclosedDyadWrite(fullResponse)
           ) {
             let continuationAttempts = 0;
             while (
-              hasUnclosedTriobuilderWrite(fullResponse) &&
+              hasUnclosedDyadWrite(fullResponse) &&
               continuationAttempts < 2 &&
               !abortController.signal.aborted
             ) {
               logger.warn(
-                `Received unclosed triobuilder-write tag, attempting to continue, attempt #${continuationAttempts + 1}`,
+                `Received unclosed dyad-write tag, attempting to continue, attempt #${continuationAttempts + 1}`,
               );
               continuationAttempts++;
 
@@ -702,7 +661,7 @@ This conversation includes one or more image attachments. When the user uploads 
               }
             }
           }
-          const addDependencies = [];
+          const addDependencies = getDyadAddDependencyTags(fullResponse);
           if (
             !abortController.signal.aborted &&
             // If there are dependencies, we don't want to auto-fix problems
@@ -727,14 +686,14 @@ This conversation includes one or more image attachments. When the user uploads 
                 autoFixAttempts < 2 &&
                 !abortController.signal.aborted
               ) {
-                fullResponse += `<triobuilder-problem-report summary="${problemReport.problems.length} problems">
+                fullResponse += `<dyad-problem-report summary="${problemReport.problems.length} problems">
 ${problemReport.problems
   .map(
     (problem) =>
       `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
   )
   .join("\n")}
-</triobuilder-problem-report>`;
+</dyad-problem-report>`;
 
                 logger.info(
                   `Attempting to auto-fix problems, attempt #${autoFixAttempts + 1}`,
@@ -855,9 +814,9 @@ ${problemReport.problems
 
       // Only save the response and process it if we weren't aborted
       if (!abortController.signal.aborted && fullResponse) {
-        // Scrape from: <triobuilder-chat-summary>Renaming profile file</triobuilder-chat-title>
+        // Scrape from: <dyad-chat-summary>Renaming profile file</dyad-chat-title>
         const chatTitle = fullResponse.match(
-          /<triobuilder-chat-summary>(.*?)<\/triobuilder-chat-summary>/,
+          /<dyad-chat-summary>(.*?)<\/dyad-chat-summary>/,
         );
         if (chatTitle) {
           await db
@@ -1022,7 +981,7 @@ async function replaceTextAttachmentWithContent(
       // Replace the placeholder tag with the full content
       const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const tagPattern = new RegExp(
-        `<triobuilder-text-attachment filename="[^"]*" type="[^"]*" path="${escapedPath}">\\s*<\\/triobuilder-text-attachment>`,
+        `<dyad-text-attachment filename="[^"]*" type="[^"]*" path="${escapedPath}">\\s*<\\/dyad-text-attachment>`,
         "g",
       );
 
@@ -1115,18 +1074,18 @@ function removeThinkingTags(text: string): string {
 
 export function removeProblemReportTags(text: string): string {
   const problemReportRegex =
-    /<triobuilder-problem-report[^>]*>[\s\S]*?<\/triobuilder-problem-report>/g;
+    /<dyad-problem-report[^>]*>[\s\S]*?<\/dyad-problem-report>/g;
   return text.replace(problemReportRegex, "").trim();
 }
 
-export function removeTriobuilderTags(text: string): string {
-  const triobuilderRegex = /<triobuilder-[^>]*>[\s\S]*?<\/triobuilder-[^>]*>/g;
-  return text.replace(triobuilderRegex, "").trim();
+export function removeDyadTags(text: string): string {
+  const dyadRegex = /<dyad-[^>]*>[\s\S]*?<\/dyad-[^>]*>/g;
+  return text.replace(dyadRegex, "").trim();
 }
 
-export function hasUnclosedTriobuilderWrite(text: string): boolean {
-  // Find the last opening triobuilder-write tag
-  const openRegex = /<triobuilder-write[^>]*>/g;
+export function hasUnclosedDyadWrite(text: string): boolean {
+  // Find the last opening dyad-write tag
+  const openRegex = /<dyad-write[^>]*>/g;
   let lastOpenIndex = -1;
   let match;
 
@@ -1141,21 +1100,19 @@ export function hasUnclosedTriobuilderWrite(text: string): boolean {
 
   // Look for a closing tag after the last opening tag
   const textAfterLastOpen = text.substring(lastOpenIndex);
-  const hasClosingTag = /<\/triobuilder-write>/.test(textAfterLastOpen);
+  const hasClosingTag = /<\/dyad-write>/.test(textAfterLastOpen);
 
   return !hasClosingTag;
 }
 
-function escapeTriobuilderTags(text: string): string {
-  // Escape triobuilder tags in reasoning content
+function escapeDyadTags(text: string): string {
+  // Escape dyad tags in reasoning content
   // We are replacing the opening tag with a look-alike character
-  // to avoid issues where thinking content includes triobuilder tags
+  // to avoid issues where thinking content includes dyad tags
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text
-    .replace(/<triobuilder/g, "＜triobuilder")
-    .replace(/<\/triobuilder/g, "＜/triobuilder");
+  return text.replace(/<dyad/g, "＜dyad").replace(/<\/dyad/g, "＜/dyad");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

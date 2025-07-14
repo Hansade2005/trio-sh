@@ -79,53 +79,51 @@ vi.mock("../db", () => ({
 }));
 
 describe("getDyadAddDependencyTags", () => {
-  it("should return an empty array when no triobuilder-add-dependency tags are found", () => {
-    const result = getDyadAddDependencyTags(
-      "No triobuilder-add-dependency tags here",
-    );
+  it("should return an empty array when no dyad-add-dependency tags are found", () => {
+    const result = getDyadAddDependencyTags("No dyad-add-dependency tags here");
     expect(result).toEqual([]);
   });
 
-  it("should return an array of triobuilder-add-dependency tags", () => {
+  it("should return an array of dyad-add-dependency tags", () => {
     const result = getDyadAddDependencyTags(
-      `<triobuilder-add-dependency packages="uuid"></triobuilder-add-dependency>`,
+      `<dyad-add-dependency packages="uuid"></dyad-add-dependency>`,
     );
     expect(result).toEqual(["uuid"]);
   });
 
-  it("should return all the packages in the triobuilder-add-dependency tags", () => {
+  it("should return all the packages in the dyad-add-dependency tags", () => {
     const result = getDyadAddDependencyTags(
-      `<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>`,
+      `<dyad-add-dependency packages="pkg1 pkg2"></dyad-add-dependency>`,
     );
     expect(result).toEqual(["pkg1", "pkg2"]);
   });
 
-  it("should return all the packages in the triobuilder-add-dependency tags", () => {
+  it("should return all the packages in the dyad-add-dependency tags", () => {
     const result = getDyadAddDependencyTags(
-      `txt before<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>text after`,
+      `txt before<dyad-add-dependency packages="pkg1 pkg2"></dyad-add-dependency>text after`,
     );
     expect(result).toEqual(["pkg1", "pkg2"]);
   });
 
-  it("should return all the packages in multiple triobuilder-add-dependency tags", () => {
+  it("should return all the packages in multiple dyad-add-dependency tags", () => {
     const result = getDyadAddDependencyTags(
-      `txt before<triobuilder-add-dependency packages="pkg1 pkg2"></triobuilder-add-dependency>txt between<triobuilder-add-dependency packages="pkg3"></triobuilder-add-dependency>text after`,
+      `txt before<dyad-add-dependency packages="pkg1 pkg2"></dyad-add-dependency>txt between<dyad-add-dependency packages="pkg3"></dyad-add-dependency>text after`,
     );
     expect(result).toEqual(["pkg1", "pkg2", "pkg3"]);
   });
 });
-describe("getTriobuilderWriteTags", () => {
-  it("should return an empty array when no triobuilder-write tags are found", () => {
-    const result = getTriobuilderWriteTags("No triobuilder-write tags here");
+describe("getDyadWriteTags", () => {
+  it("should return an empty array when no dyad-write tags are found", () => {
+    const result = getDyadWriteTags("No dyad-write tags here");
     expect(result).toEqual([]);
   });
 
-  it("should return a triobuilder-write tag", () => {
+  it("should return a dyad-write tag", () => {
     const result =
-      getTriobuilderWriteTags(`<triobuilder-write path="src/components/TodoItem.tsx" description="Creating a component for individual todo items">
+      getDyadWriteTags(`<dyad-write path="src/components/TodoItem.tsx" description="Creating a component for individual todo items">
 import React from "react";
 console.log("TodoItem");
-</triobuilder-write>`);
+</dyad-write>`);
     expect(result).toEqual([
       {
         path: "src/components/TodoItem.tsx",
@@ -136,14 +134,14 @@ console.log("TodoItem");`,
     ]);
   });
 
-  it("should strip out code fence (if needed) from a triobuilder-write tag", () => {
+  it("should strip out code fence (if needed) from a dyad-write tag", () => {
     const result =
-      getTriobuilderWriteTags(`<triobuilder-write path="src/components/TodoItem.tsx" description="Creating a component for individual todo items">
+      getDyadWriteTags(`<dyad-write path="src/components/TodoItem.tsx" description="Creating a component for individual todo items">
 \`\`\`tsx
 import React from "react";
 console.log("TodoItem");
 \`\`\`
-</triobuilder-write>
+</dyad-write>
 `);
     expect(result).toEqual([
       {
@@ -156,10 +154,10 @@ console.log("TodoItem");`,
   });
 
   it("should handle missing description", () => {
-    const result = getTriobuilderWriteTags(`
-      <triobuilder-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx">
+    const result = getDyadWriteTags(`
+      <dyad-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx">
 import React from 'react';
-</triobuilder-write>
+</dyad-write>
     `);
     expect(result).toEqual([
       {
@@ -171,11 +169,11 @@ import React from 'react';
   });
 
   it("should handle extra space", () => {
-    const result = getTriobuilderWriteTags(
+    const result = getDyadWriteTags(
       cleanFullResponse(`
-      <triobuilder-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags." >
+      <dyad-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags." >
 import React from 'react';
-</triobuilder-write>
+</dyad-write>
     `),
     );
     expect(result).toEqual([
@@ -188,12 +186,12 @@ import React from 'react';
   });
 
   it("should handle nested tags", () => {
-    const result = getTriobuilderWriteTags(
+    const result = getDyadWriteTags(
       cleanFullResponse(`
       BEFORE TAG
-  <triobuilder-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags.">
+  <dyad-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags.">
 import React from 'react';
-</triobuilder-write>
+</dyad-write>
 AFTER TAG
     `),
     );
@@ -210,15 +208,15 @@ AFTER TAG
     // Simulate the preprocessing step that cleanFullResponse would do
     const inputWithNestedTags = `
       BEFORE TAG
-  <triobuilder-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags.">
+  <dyad-write path="src/pages/locations/neighborhoods/louisville/Highlands.tsx" description="Updating Highlands neighborhood page to use <a> tags.">
 import React from 'react';
-</triobuilder-write>
+</dyad-write>
 AFTER TAG
     `;
 
     const cleanedInput = cleanFullResponse(inputWithNestedTags);
 
-    const result = getTriobuilderWriteTags(cleanedInput);
+    const result = getDyadWriteTags(cleanedInput);
     expect(result).toEqual([
       {
         path: "src/pages/locations/neighborhoods/louisville/Highlands.tsx",
@@ -229,11 +227,11 @@ AFTER TAG
   });
 
   it("should handle multiple nested tags after preprocessing", () => {
-    const inputWithMultipleNestedTags = `<triobuilder-write path="src/file.tsx" description="Testing <div> and <span> and <a> tags.">content</triobuilder-write>`;
+    const inputWithMultipleNestedTags = `<dyad-write path="src/file.tsx" description="Testing <div> and <span> and <a> tags.">content</dyad-write>`;
 
     // This simulates what cleanFullResponse should do
     const cleanedInput = cleanFullResponse(inputWithMultipleNestedTags);
-    const result = getTriobuilderWriteTags(cleanedInput);
+    const result = getDyadWriteTags(cleanedInput);
     expect(result).toEqual([
       {
         path: "src/file.tsx",
@@ -244,12 +242,12 @@ AFTER TAG
   });
 
   it("should handle nested tags in multiple attributes", () => {
-    const inputWithNestedInMultipleAttrs = `<triobuilder-write path="src/<component>.tsx" description="Testing <div> tags.">content</triobuilder-write>`;
+    const inputWithNestedInMultipleAttrs = `<dyad-write path="src/<component>.tsx" description="Testing <div> tags.">content</dyad-write>`;
 
     // This simulates what cleanFullResponse should do
     const cleanedInput = cleanFullResponse(inputWithNestedInMultipleAttrs);
 
-    const result = getTriobuilderWriteTags(cleanedInput);
+    const result = getDyadWriteTags(cleanedInput);
     expect(result).toEqual([
       {
         path: "src/＜component＞.tsx",
@@ -259,22 +257,22 @@ AFTER TAG
     ]);
   });
 
-  it("should return an array of triobuilder-write tags", () => {
-    const result = getTriobuilderWriteTags(
+  it("should return an array of dyad-write tags", () => {
+    const result = getDyadWriteTags(
       `I'll create a simple todo list app using React, TypeScript, and shadcn/ui components. Let's get started!
 
 First, I'll create the necessary files for our todo list application:
 
-<triobuilder-write path="src/types/todo.ts" description="Creating types for our todo items">
+<dyad-write path="src/types/todo.ts" description="Creating types for our todo items">
 export interface Todo {
   id: string;
   text: string;
   completed: boolean;
   createdAt: Date;
 }
-</triobuilder-write>
+</dyad-write>
 
-<triobuilder-write path="src/components/TodoItem.tsx" description="Creating a component for individual todo items">
+<dyad-write path="src/components/TodoItem.tsx" description="Creating a component for individual todo items">
 import React from "react";
 import { Trash2, Check, X } from "lucide-react";
 import { Todo } from "../types/todo";
@@ -328,9 +326,9 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) => {
 };
 
 export default TodoItem;
-</triobuilder-write>
+</dyad-write>
 
-<triobuilder-write path="src/components/TodoForm.tsx" description="Creating a form component for adding new todos">
+<dyad-write path="src/components/TodoForm.tsx" description="Creating a form component for adding new todos">
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -369,9 +367,9 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAddTodo }) => {
 };
 
 export default TodoForm;
-</triobuilder-write>
+</dyad-write>
 
-<triobuilder-write path="src/components/TodoList.tsx" description="Creating the main todo list component">
+<dyad-write path="src/components/TodoList.tsx" description="Creating the main todo list component">
 import React from "react";
 import { Todo } from "../types/todo";
 import TodoItem from "./TodoItem";
@@ -409,9 +407,9 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete }) => {
 };
 
 export default TodoList;
-</triobuilder-write>
+</dyad-write>
 
-<triobuilder-write path="src/components/TodoStats.tsx" description="Creating a component to show todo statistics">
+<dyad-write path="src/components/TodoStats.tsx" description="Creating a component to show todo statistics">
 import React from "react";
 import { Todo } from "../types/todo";
 import { Card, CardContent } from "@/components/ui/card";
@@ -475,9 +473,9 @@ const TodoStats: React.FC<TodoStatsProps> = ({ todos }) => {
 };
 
 export default TodoStats;
-</triobuilder-write>
+</dyad-write>
 
-<triobuilder-write path="src/pages/Index.tsx" description="Creating the main page for our todo app">
+<dyad-write path="src/pages/Index.tsx" description="Creating the main page for our todo app">
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Todo } from "../types/todo";
@@ -576,15 +574,15 @@ const Index: React.FC = () => {
 };
 
 export default Index;
-</triobuilder-write>
+</dyad-write>
 
-<triobuilder-add-dependency packages="uuid"></triobuilder-add-dependency>
+<dyad-add-dependency packages="uuid"></dyad-add-dependency>
 
-<triobuilder-write path="src/types/uuid.d.ts" description="Adding type definitions for uuid">
+<dyad-write path="src/types/uuid.d.ts" description="Adding type definitions for uuid">
 declare module 'uuid' {
   export function v4(): string;
 }
-</triobuilder-write>
+</dyad-write>
 
 I've created a complete todo list application with the ability to add, complete, and delete tasks. The app includes statistics and uses local storage to persist data.`,
     );
@@ -592,16 +590,16 @@ I've created a complete todo list application with the ability to add, complete,
   });
 });
 
-describe("getTriobuilderRenameTags", () => {
-  it("should return an empty array when no triobuilder-rename tags are found", () => {
-    const result = getTriobuilderRenameTags("No triobuilder-rename tags here");
+describe("getDyadRenameTags", () => {
+  it("should return an empty array when no dyad-rename tags are found", () => {
+    const result = getDyadRenameTags("No dyad-rename tags here");
     expect(result).toEqual([]);
   });
 
-  it("should return an array of triobuilder-rename tags", () => {
-    const result = getTriobuilderRenameTags(
-      `<triobuilder-rename from="src/components/UserProfile.jsx" to="src/components/ProfileCard.jsx"></triobuilder-rename>
-      <triobuilder-rename from="src/utils/helpers.js" to="src/utils/utils.js"></triobuilder-rename>`,
+  it("should return an array of dyad-rename tags", () => {
+    const result = getDyadRenameTags(
+      `<dyad-rename from="src/components/UserProfile.jsx" to="src/components/ProfileCard.jsx"></dyad-rename>
+      <dyad-rename from="src/utils/helpers.js" to="src/utils/utils.js"></dyad-rename>`,
     );
     expect(result).toEqual([
       {
@@ -613,16 +611,16 @@ describe("getTriobuilderRenameTags", () => {
   });
 });
 
-describe("getTriobuilderDeleteTags", () => {
-  it("should return an empty array when no triobuilder-delete tags are found", () => {
-    const result = getTriobuilderDeleteTags("No triobuilder-delete tags here");
+describe("getDyadDeleteTags", () => {
+  it("should return an empty array when no dyad-delete tags are found", () => {
+    const result = getDyadDeleteTags("No dyad-delete tags here");
     expect(result).toEqual([]);
   });
 
-  it("should return an array of triobuilder-delete paths", () => {
-    const result = getTriobuilderDeleteTags(
-      `<triobuilder-delete path="src/components/Analytics.jsx"></triobuilder-delete>
-      <triobuilder-delete path="src/utils/unused.js"></triobuilder-delete>`,
+  it("should return an array of dyad-delete paths", () => {
+    const result = getDyadDeleteTags(
+      `<dyad-delete path="src/components/Analytics.jsx"></dyad-delete>
+      <dyad-delete path="src/utils/unused.js"></dyad-delete>`,
     );
     expect(result).toEqual([
       "src/components/Analytics.jsx",
@@ -665,9 +663,9 @@ describe("processFullResponse", () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
   });
 
-  it("should return empty object when no triobuilder-write tags are found", async () => {
+  it("should return empty object when no dyad-write tags are found", async () => {
     const result = await processFullResponseActions(
-      "No triobuilder-write tags here",
+      "No dyad-write tags here",
       1,
       {
         chatSummary: undefined,
@@ -683,12 +681,12 @@ describe("processFullResponse", () => {
     expect(fs.writeFileSync).not.toHaveBeenCalled();
   });
 
-  it("should process triobuilder-write tags and create files", async () => {
+  it("should process dyad-write tags and create files", async () => {
     // Set up fs mocks to succeed
     vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
     vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
 
-    const response = `<triobuilder-write path="src/file1.js">console.log('Hello');</triobuilder-write>`;
+    const response = `<dyad-write path="src/file1.js">console.log('Hello');</dyad-write>`;
 
     const result = await processFullResponseActions(response, 1, {
       chatSummary: undefined,
@@ -718,7 +716,7 @@ describe("processFullResponse", () => {
       throw new Error("Mock filesystem error");
     });
 
-    const response = `<triobuilder-write path="src/error-file.js">This will fail</triobuilder-write>`;
+    const response = `<dyad-write path="src/error-file.js">This will fail</dyad-write>`;
 
     const result = await processFullResponseActions(response, 1, {
       chatSummary: undefined,
@@ -729,7 +727,7 @@ describe("processFullResponse", () => {
     expect(result.error).toContain("Mock filesystem error");
   });
 
-  it("should process multiple triobuilder-write tags and commit all files", async () => {
+  it("should process multiple dyad-write tags and commit all files", async () => {
     // Clear previous mock calls
     vi.clearAllMocks();
 
@@ -738,12 +736,12 @@ describe("processFullResponse", () => {
     vi.mocked(fs.writeFileSync).mockImplementation(() => undefined);
 
     const response = `
-    <triobuilder-write path="src/file1.js">console.log('First file');</triobuilder-write>
-    <triobuilder-write path="src/utils/file2.js">export const add = (a, b) => a + b;</triobuilder-write>
-    <triobuilder-write path="src/components/Button.tsx">
+    <dyad-write path="src/file1.js">console.log('First file');</dyad-write>
+    <dyad-write path="src/utils/file2.js">export const add = (a, b) => a + b;</dyad-write>
+    <dyad-write path="src/components/Button.tsx">
     import React from 'react';
     export const Button = ({ children }) => <button>{children}</button>;
-    </triobuilder-write>
+    </dyad-write>
     `;
 
     const result = await processFullResponseActions(response, 1, {
@@ -804,13 +802,13 @@ describe("processFullResponse", () => {
     expect(result).toEqual({ updatedFiles: true });
   });
 
-  it("should process triobuilder-rename tags and rename files", async () => {
+  it("should process dyad-rename tags and rename files", async () => {
     // Set up fs mocks to succeed
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.mkdirSync).mockImplementation(() => undefined);
     vi.mocked(fs.renameSync).mockImplementation(() => undefined);
 
-    const response = `<triobuilder-rename from="src/components/OldComponent.jsx" to="src/components/NewComponent.jsx"></triobuilder-rename>`;
+    const response = `<dyad-rename from="src/components/OldComponent.jsx" to="src/components/NewComponent.jsx"></dyad-rename>`;
 
     const result = await processFullResponseActions(response, 1, {
       chatSummary: undefined,
@@ -843,7 +841,7 @@ describe("processFullResponse", () => {
     // Set up the mock to return false for existsSync
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
-    const response = `<triobuilder-rename from="src/components/NonExistent.jsx" to="src/components/NewFile.jsx"></triobuilder-rename>`;
+    const response = `<dyad-rename from="src/components/NonExistent.jsx" to="src/components/NewFile.jsx"></dyad-rename>`;
 
     const result = await processFullResponseActions(response, 1, {
       chatSummary: undefined,
@@ -860,12 +858,12 @@ describe("processFullResponse", () => {
     });
   });
 
-  it("should process triobuilder-delete tags and delete files", async () => {
+  it("should process dyad-delete tags and delete files", async () => {
     // Set up fs mocks to succeed
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.unlinkSync).mockImplementation(() => undefined);
 
-    const response = `<triobuilder-delete path="src/components/Unused.jsx"></triobuilder-delete>`;
+    const response = `<dyad-delete path="src/components/Unused.jsx"></dyad-delete>`;
 
     const result = await processFullResponseActions(response, 1, {
       chatSummary: undefined,
@@ -888,7 +886,7 @@ describe("processFullResponse", () => {
     // Set up the mock to return false for existsSync
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
-    const response = `<triobuilder-delete path="src/components/NonExistent.jsx"></triobuilder-delete>`;
+    const response = `<dyad-delete path="src/components/NonExistent.jsx"></dyad-delete>`;
 
     const result = await processFullResponseActions(response, 1, {
       chatSummary: undefined,
@@ -914,9 +912,9 @@ describe("processFullResponse", () => {
     vi.mocked(fs.unlinkSync).mockImplementation(() => undefined);
 
     const response = `
-    <triobuilder-write path="src/components/NewComponent.jsx">import React from 'react'; export default () => <div>New</div>;</triobuilder-write>
-    <triobuilder-rename from="src/components/OldComponent.jsx" to="src/components/RenamedComponent.jsx"></triobuilder-rename>
-    <triobuilder-delete path="src/components/Unused.jsx"></triobuilder-delete>
+    <dyad-write path="src/components/NewComponent.jsx">import React from 'react'; export default () => <div>New</div>;</dyad-write>
+    <dyad-rename from="src/components/OldComponent.jsx" to="src/components/RenamedComponent.jsx"></dyad-rename>
+    <dyad-delete path="src/components/Unused.jsx"></dyad-delete>
     `;
 
     const result = await processFullResponseActions(response, 1, {
@@ -970,33 +968,33 @@ describe("removeDyadTags", () => {
     expect(result).toBe(text);
   });
 
-  it("should remove a single triobuilder-write tag", () => {
-    const text = `Before text <triobuilder-write path="src/file.js">console.log('hello');</triobuilder-write> After text`;
+  it("should remove a single dyad-write tag", () => {
+    const text = `Before text <dyad-write path="src/file.js">console.log('hello');</dyad-write> After text`;
     const result = removeDyadTags(text);
     expect(result).toBe("Before text  After text");
   });
 
-  it("should remove a single triobuilder-delete tag", () => {
-    const text = `Before text <triobuilder-delete path="src/file.js"></triobuilder-delete> After text`;
+  it("should remove a single dyad-delete tag", () => {
+    const text = `Before text <dyad-delete path="src/file.js"></dyad-delete> After text`;
     const result = removeDyadTags(text);
     expect(result).toBe("Before text  After text");
   });
 
-  it("should remove a single triobuilder-rename tag", () => {
-    const text = `Before text <triobuilder-rename from="old.js" to="new.js"></triobuilder-rename> After text`;
+  it("should remove a single dyad-rename tag", () => {
+    const text = `Before text <dyad-rename from="old.js" to="new.js"></dyad-rename> After text`;
     const result = removeDyadTags(text);
     expect(result).toBe("Before text  After text");
   });
 
-  it("should remove multiple different triobuilder tags", () => {
-    const text = `Start <triobuilder-write path="file1.js">code here</triobuilder-write> middle <triobuilder-delete path="file2.js"></triobuilder-delete> end <triobuilder-rename from="old.js" to="new.js"></triobuilder-rename> finish`;
+  it("should remove multiple different dyad tags", () => {
+    const text = `Start <dyad-write path="file1.js">code here</dyad-write> middle <dyad-delete path="file2.js"></dyad-delete> end <dyad-rename from="old.js" to="new.js"></dyad-rename> finish`;
     const result = removeDyadTags(text);
     expect(result).toBe("Start  middle  end  finish");
   });
 
-  it("should remove triobuilder tags with multiline content", () => {
+  it("should remove dyad tags with multiline content", () => {
     const text = `Before
-<triobuilder-write path="src/component.tsx" description="A React component">
+<dyad-write path="src/component.tsx" description="A React component">
 import React from 'react';
 
 const Component = () => {
@@ -1004,126 +1002,124 @@ const Component = () => {
 };
 
 export default Component;
-</triobuilder-write>
+</dyad-write>
 After`;
     const result = removeDyadTags(text);
     expect(result).toBe("Before\n\nAfter");
   });
 
-  it("should handle triobuilder tags with complex attributes", () => {
-    const text = `Text <triobuilder-write path="src/file.js" description="Complex component with quotes" version="1.0">const x = "hello world";</triobuilder-write> more text`;
+  it("should handle dyad tags with complex attributes", () => {
+    const text = `Text <dyad-write path="src/file.js" description="Complex component with quotes" version="1.0">const x = "hello world";</dyad-write> more text`;
     const result = removeDyadTags(text);
     expect(result).toBe("Text  more text");
   });
 
-  it("should remove triobuilder tags and trim whitespace", () => {
-    const text = `  <triobuilder-write path="file.js">code</triobuilder-write>  `;
+  it("should remove dyad tags and trim whitespace", () => {
+    const text = `  <dyad-write path="file.js">code</dyad-write>  `;
     const result = removeDyadTags(text);
     expect(result).toBe("");
   });
 
   it("should handle nested content that looks like tags", () => {
-    const text = `<triobuilder-write path="file.js">
+    const text = `<dyad-write path="file.js">
 const html = '<div>Hello</div>';
 const component = <Component />;
-</triobuilder-write>`;
+</dyad-write>`;
     const result = removeDyadTags(text);
     expect(result).toBe("");
   });
 
-  it("should handle self-closing triobuilder tags", () => {
-    const text = `Before <triobuilder-delete path="file.js" /> After`;
+  it("should handle self-closing dyad tags", () => {
+    const text = `Before <dyad-delete path="file.js" /> After`;
     const result = removeDyadTags(text);
-    expect(result).toBe('Before <triobuilder-delete path="file.js" /> After');
+    expect(result).toBe('Before <dyad-delete path="file.js" /> After');
   });
 
-  it("should handle malformed triobuilder tags gracefully", () => {
-    const text = `Before <triobuilder-write path="file.js">unclosed tag After`;
+  it("should handle malformed dyad tags gracefully", () => {
+    const text = `Before <dyad-write path="file.js">unclosed tag After`;
     const result = removeDyadTags(text);
-    expect(result).toBe(
-      'Before <triobuilder-write path="file.js">unclosed tag After',
-    );
+    expect(result).toBe('Before <dyad-write path="file.js">unclosed tag After');
   });
 
-  it("should handle triobuilder tags with special characters in content", () => {
-    const text = `<triobuilder-write path="file.js">
+  it("should handle dyad tags with special characters in content", () => {
+    const text = `<dyad-write path="file.js">
 const regex = /<div[^>]*>.*?</div>/g;
 const special = "Special chars: @#$%^&*()[]{}|\\";
-</triobuilder-write>`;
+</dyad-write>`;
     const result = removeDyadTags(text);
     expect(result).toBe("");
   });
 
-  it("should handle multiple triobuilder tags of the same type", () => {
-    const text = `<triobuilder-write path="file1.js">code1</triobuilder-write> between <triobuilder-write path="file2.js">code2</triobuilder-write>`;
+  it("should handle multiple dyad tags of the same type", () => {
+    const text = `<dyad-write path="file1.js">code1</dyad-write> between <dyad-write path="file2.js">code2</dyad-write>`;
     const result = removeDyadTags(text);
     expect(result).toBe("between");
   });
 
-  it("should handle triobuilder tags with custom tag names", () => {
-    const text = `Before <triobuilder-custom-action param="value">content</triobuilder-custom-action> After`;
+  it("should handle dyad tags with custom tag names", () => {
+    const text = `Before <dyad-custom-action param="value">content</dyad-custom-action> After`;
     const result = removeDyadTags(text);
     expect(result).toBe("Before  After");
   });
 });
 
 describe("hasUnclosedDyadWrite", () => {
-  it("should return false when there are no triobuilder-write tags", () => {
+  it("should return false when there are no dyad-write tags", () => {
     const text = "This is just regular text without any dyad tags.";
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
-  it("should return false when triobuilder-write tag is properly closed", () => {
-    const text = `<triobuilder-write path="src/file.js">console.log('hello');</triobuilder-write>`;
+  it("should return false when dyad-write tag is properly closed", () => {
+    const text = `<dyad-write path="src/file.js">console.log('hello');</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
-  it("should return true when triobuilder-write tag is not closed", () => {
-    const text = `<triobuilder-write path="src/file.js">console.log('hello');`;
+  it("should return true when dyad-write tag is not closed", () => {
+    const text = `<dyad-write path="src/file.js">console.log('hello');`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
-  it("should return false when triobuilder-write tag with attributes is properly closed", () => {
-    const text = `<triobuilder-write path="src/file.js" description="A test file">console.log('hello');</triobuilder-write>`;
+  it("should return false when dyad-write tag with attributes is properly closed", () => {
+    const text = `<dyad-write path="src/file.js" description="A test file">console.log('hello');</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
-  it("should return true when triobuilder-write tag with attributes is not closed", () => {
-    const text = `<triobuilder-write path="src/file.js" description="A test file">console.log('hello');`;
+  it("should return true when dyad-write tag with attributes is not closed", () => {
+    const text = `<dyad-write path="src/file.js" description="A test file">console.log('hello');`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
-  it("should return false when there are multiple closed triobuilder-write tags", () => {
-    const text = `<triobuilder-write path="src/file1.js">code1</triobuilder-write>
+  it("should return false when there are multiple closed dyad-write tags", () => {
+    const text = `<dyad-write path="src/file1.js">code1</dyad-write>
     Some text in between
-    <triobuilder-write path="src/file2.js">code2</triobuilder-write>`;
+    <dyad-write path="src/file2.js">code2</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
-  it("should return true when the last triobuilder-write tag is unclosed", () => {
-    const text = `<triobuilder-write path="src/file1.js">code1</triobuilder-write>
+  it("should return true when the last dyad-write tag is unclosed", () => {
+    const text = `<dyad-write path="src/file1.js">code1</dyad-write>
     Some text in between
-    <triobuilder-write path="src/file2.js">code2`;
+    <dyad-write path="src/file2.js">code2`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
   it("should return false when first tag is unclosed but last tag is closed", () => {
-    const text = `<triobuilder-write path="src/file1.js">code1
+    const text = `<dyad-write path="src/file1.js">code1
     Some text in between
-    <triobuilder-write path="src/file2.js">code2</triobuilder-write>`;
+    <dyad-write path="src/file2.js">code2</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should handle multiline content correctly", () => {
-    const text = `<triobuilder-write path="src/component.tsx" description="React component">
+    const text = `<dyad-write path="src/component.tsx" description="React component">
 import React from 'react';
 
 const Component = () => {
@@ -1135,13 +1131,13 @@ const Component = () => {
 };
 
 export default Component;
-</triobuilder-write>`;
+</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should handle multiline unclosed content correctly", () => {
-    const text = `<triobuilder-write path="src/component.tsx" description="React component">
+    const text = `<dyad-write path="src/component.tsx" description="React component">
 import React from 'react';
 
 const Component = () => {
@@ -1158,17 +1154,17 @@ export default Component;`;
   });
 
   it("should handle complex attributes correctly", () => {
-    const text = `<triobuilder-write path="src/file.js" description="File with quotes and special chars" version="1.0" author="test">
+    const text = `<dyad-write path="src/file.js" description="File with quotes and special chars" version="1.0" author="test">
 const message = "Hello 'world'";
 const regex = /<div[^>]*>/g;
-</triobuilder-write>`;
+</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
-  it("should handle text before and after triobuilder-write tags", () => {
+  it("should handle text before and after dyad-write tags", () => {
     const text = `Some text before the tag
-<triobuilder-write path="src/file.js">console.log('hello');</triobuilder-write>
+<dyad-write path="src/file.js">console.log('hello');</dyad-write>
 Some text after the tag`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
@@ -1176,34 +1172,34 @@ Some text after the tag`;
 
   it("should handle unclosed tag with text after", () => {
     const text = `Some text before the tag
-<triobuilder-write path="src/file.js">console.log('hello');
+<dyad-write path="src/file.js">console.log('hello');
 Some text after the unclosed tag`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
-  it("should handle empty triobuilder-write tags", () => {
-    const text = `<triobuilder-write path="src/file.js"></triobuilder-write>`;
+  it("should handle empty dyad-write tags", () => {
+    const text = `<dyad-write path="src/file.js"></dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
-  it("should handle unclosed empty triobuilder-write tags", () => {
-    const text = `<triobuilder-write path="src/file.js">`;
+  it("should handle unclosed empty dyad-write tags", () => {
+    const text = `<dyad-write path="src/file.js">`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(true);
   });
 
   it("should focus on the last opening tag when there are mixed states", () => {
-    const text = `<triobuilder-write path="src/file1.js">completed content</triobuilder-write>
-    <triobuilder-write path="src/file2.js">unclosed content
-    <triobuilder-write path="src/file3.js">final content</triobuilder-write>`;
+    const text = `<dyad-write path="src/file1.js">completed content</dyad-write>
+    <dyad-write path="src/file2.js">unclosed content
+    <dyad-write path="src/file3.js">final content</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });
 
   it("should handle tags with special characters in attributes", () => {
-    const text = `<triobuilder-write path="src/file-name_with.special@chars.js" description="File with special chars in path">content</triobuilder-write>`;
+    const text = `<dyad-write path="src/file-name_with.special@chars.js" description="File with special chars in path">content</dyad-write>`;
     const result = hasUnclosedDyadWrite(text);
     expect(result).toBe(false);
   });

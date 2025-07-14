@@ -45,7 +45,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen px-8 py-4 bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3 transition-all">
+    <div className="min-h-screen px-8 py-4">
       <div className="max-w-5xl mx-auto">
         <Button
           onClick={() => router.history.back()}
@@ -71,7 +71,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg p-6 backdrop-blur-md border-none">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
               General Settings
             </h2>
@@ -156,12 +156,12 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg backdrop-blur-md border-none">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
             <ProviderSettingsGrid />
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg p-6 backdrop-blur-md border-none">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                 Telemetry
               </h2>
@@ -182,7 +182,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Integrations Section */}
-          <div className="bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg p-6 backdrop-blur-md border-none">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
               Integrations
             </h2>
@@ -193,7 +193,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Experiments Section */}
-          <div className="bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg p-6 backdrop-blur-md border-none">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
               Experiments
             </h2>
@@ -227,7 +227,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-white/80 dark:bg-zinc-900/80 rounded-2xl shadow-lg p-6 border border-red-200 dark:border-red-800 backdrop-blur-md">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-red-200 dark:border-red-800">
             <h2 className="text-lg font-medium text-red-600 dark:text-red-400 mb-4">
               Danger Zone
             </h2>

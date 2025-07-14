@@ -329,9 +329,9 @@ async function formatFile(
       .join("/");
 
     if (isOmittedFile(relativePath)) {
-      return `<triobuilder-file path="${relativePath}">
+      return `<dyad-file path="${relativePath}">
 ${OMITTED_FILE_CONTENT}
-</triobuilder-file>
+</dyad-file>
 
 `;
     }
@@ -339,23 +339,23 @@ ${OMITTED_FILE_CONTENT}
     const content = await readFileWithCache(filePath, virtualFileSystem);
 
     if (content == null) {
-      return `<triobuilder-file path="${relativePath}">
+      return `<dyad-file path="${relativePath}">
 // Error reading file
-</triobuilder-file>
+</dyad-file>
 
 `;
     }
 
-    return `<triobuilder-file path="${relativePath}">
+    return `<dyad-file path="${relativePath}">
 ${content}
-</triobuilder-file>
+</dyad-file>
 
 `;
   } catch (error) {
     logger.error(`Error reading file: ${filePath}`, error);
-    return `<triobuilder-file path="${path.relative(baseDir, filePath)}">
+    return `<dyad-file path="${path.relative(baseDir, filePath)}">
 // Error reading file: ${error}
-</triobuilder-file>
+</dyad-file>
 
 `;
   }
@@ -386,7 +386,8 @@ export async function extractCodebase({
   files: CodebaseFile[];
 }> {
   const settings = readSettings();
-  const isSmartContextEnabled = settings?.enableProSmartFilesContextMode;
+  const isSmartContextEnabled =
+    settings?.enableDyadPro && settings?.enableProSmartFilesContextMode;
 
   try {
     await fsAsync.access(appPath);
@@ -566,52 +567,4 @@ function createFullGlobPath({
   // By default the glob package treats "\" as an escape character.
   // We want the path to use forward slash for all platforms.
   return `${appPath.replace(/\\/g, "/")}/${globPath}`;
-}
-
-/**
- * Build a structured context for the LLM, including <task> and <environment_details> sections.
- * @param userMessage - The user's message/task
- * @param appPath - The workspace directory
- * @param files - Array of file paths (relative to appPath)
- * @param model - The current model name
- * @param toolTags - Array of { tag, description }
- * @returns XML-like string for the LLM context
- */
-export function buildStructuredContext({
-  userMessage,
-  appPath,
-  files,
-  model,
-  toolTags,
-  currentTime,
-}: {
-  userMessage: string;
-  appPath: string;
-  files: string[];
-  model: string;
-  toolTags: { tag: string; description: string }[];
-  currentTime: string;
-}): string {
-  return `
-<task>
-${userMessage}
-</task>
-
-<environment_details>
-# Available Tools/Tags
-${toolTags.map((t) => `<${t.tag}> - ${t.description}`).join("\n")}
-
-# Current Time
-${currentTime}
-
-# Current Model
-${model}
-
-# Current Workspace Directory
-${appPath}
-
-# Files
-${files.join("\n")}
-</environment_details>
-`;
 }

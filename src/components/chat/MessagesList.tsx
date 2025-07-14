@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Message } from "@/ipc/ipc_types";
-import { forwardRef, useState, useEffect } from "react";
+import { forwardRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import { SetupBanner } from "../SetupBanner";
 
@@ -19,83 +19,13 @@ import { useSettings } from "@/hooks/useSettings";
 import { useUserBudgetInfo } from "@/hooks/useUserBudgetInfo";
 import { PromoMessage } from "./PromoMessage";
 
-// Utility to extract tool tags from a string
-function extractToolTags(content: string) {
-  const tagRegex =
-    /<triobuilder-([a-z-]+)([^>]*)\/>|<triobuilder-([a-z-]+)([^>]*)><\/triobuilder-\3>/g;
-  const attrRegex = /([a-zA-Z0-9_-]+)="([^"]*)"/g;
-  const tags = [];
-  let match;
-  while ((match = tagRegex.exec(content))) {
-    const tag = match[1] || match[3];
-    const attrString = match[2] || match[4] || "";
-    const attributes: Record<string, string> = {};
-    let attrMatch;
-    while ((attrMatch = attrRegex.exec(attrString))) {
-      attributes[attrMatch[1]] = attrMatch[2];
-    }
-    tags.push({ tag, attributes });
-  }
-  return tags;
-}
-
-// Add types
-type ToolTag = {
-  tag: string;
-  attributes: Record<string, string>;
-};
-
-// Map tag to IPC handler and destructiveness
-const TOOL_TAGS = {
-  copy: { handler: "copy-file", destructive: false },
-  mkdir: { handler: "mkdir", destructive: false },
-  search: { handler: "search", destructive: false },
-  format: { handler: "format", destructive: false },
-  lint: { handler: "lint", destructive: false },
-  test: { handler: "test", destructive: false },
-  download: { handler: "download", destructive: false },
-  delete: { handler: "delete-file", destructive: true },
-  replace: { handler: "replace", destructive: true },
-  git: { handler: "git", destructive: true },
-  move: { handler: "move-file", destructive: true },
-  "run-script": { handler: "run-script", destructive: true },
-};
-
-// Helper to check if a git command is safe
-function isSafeGitCommand(command: string) {
-  return ["status", "log", "diff", "show"].some((c) =>
-    command?.trim().startsWith(c),
-  );
-}
-// Tool tag executor
-async function executeToolTag(
-  tag: string,
-  attributes: Record<string, string>,
-  confirmFn: (tag: string, attrs: Record<string, string>) => Promise<boolean>,
-) {
-  const tool = TOOL_TAGS[tag as keyof typeof TOOL_TAGS];
-  if (!tool) return;
-  if (tag === "git" && isSafeGitCommand(attributes.command)) {
-    // Safe git commands auto-execute
-    return IpcClient.getInstance().invoke(tool.handler, attributes);
-  }
-  if (tool.destructive) {
-    const confirmed = await confirmFn(tag, attributes);
-    if (!confirmed) return;
-  }
-  return IpcClient.getInstance().invoke(tool.handler, attributes);
-}
-
 interface MessagesListProps {
   messages: Message[];
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
-  function MessagesList(
-    { messages, messagesEndRef }: MessagesListProps,
-    ref: React.ForwardedRef<HTMLDivElement>,
-  ) {
+  function MessagesList({ messages, messagesEndRef }, ref) {
     const appId = useAtomValue(selectedAppIdAtom);
     const { versions, revertVersion } = useVersions(appId);
     const { streamMessage, isStreaming } = useStreamChat();
@@ -106,41 +36,6 @@ export const MessagesList = forwardRef<HTMLDivElement, MessagesListProps>(
     const [isRetryLoading, setIsRetryLoading] = useState(false);
     const selectedChatId = useAtomValue(selectedChatIdAtom);
     const { userBudget } = useUserBudgetInfo();
-
-    useEffect(() => {
-      if (!messages.length) return;
-      const lastMsg = messages[messages.length - 1];
-      if (lastMsg.role !== "assistant" || !lastMsg.content) return;
-      const tags: ToolTag[] = extractToolTags(lastMsg.content);
-      if (!tags.length) return;
-      (async () => {
-        for (const { tag, attributes } of tags) {
-          const tool = TOOL_TAGS[tag as keyof typeof TOOL_TAGS];
-          if (!tool) continue;
-          // Confirmation dialog for destructive actions
-          const confirmFn = async (
-            tag: string,
-            attrs: Record<string, string>,
-          ) => {
-            if (tool.destructive && typeof window !== "undefined") {
-              return window.confirm(
-                `Are you sure you want to execute '${tag}' with parameters: ${JSON.stringify(attrs)}?`,
-              );
-            }
-            return true;
-          };
-          try {
-            const result = await executeToolTag(tag, attributes, confirmFn);
-            if (result?.success || result?.stdout) {
-              showWarning(`Tool '${tag}' executed successfully.`);
-            }
-          } catch (err) {
-            showError(`Failed to execute tool '${tag}': ${err}`);
-          }
-        }
-      })();
-      // eslint-disable-next-line
-    }, [messages]);
 
     return (
       <div

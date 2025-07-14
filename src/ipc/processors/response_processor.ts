@@ -24,25 +24,24 @@ import { normalizePath } from "./normalizePath";
 const readFile = fs.promises.readFile;
 const logger = log.scope("response_processor");
 
-export function getTriobuilderWriteTags(fullResponse: string): {
+export function getDyadWriteTags(fullResponse: string): {
   path: string;
   content: string;
   description?: string;
 }[] {
-  const triobuilderWriteRegex =
-    /<triobuilder-write([^>]*)>([\s\S]*?)<\/triobuilder-write>/gi;
+  const dyadWriteRegex = /<dyad-write([^>]*)>([\s\S]*?)<\/dyad-write>/gi;
   const pathRegex = /path="([^"]+)"/;
   const descriptionRegex = /description="([^"]+)"/;
 
   let match;
   const tags: { path: string; content: string; description?: string }[] = [];
 
-  while ((match = triobuilderWriteRegex.exec(fullResponse)) !== null) {
+  while ((match = dyadWriteRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1];
     let content = match[2].trim();
 
     const pathMatch = pathRegex.exec(attributesString);
-    const descriptionMatch = descriptionRegex?.exec(attributesString);
+    const descriptionMatch = descriptionRegex.exec(attributesString);
 
     if (pathMatch && pathMatch[1]) {
       const path = pathMatch[1];
@@ -60,7 +59,7 @@ export function getTriobuilderWriteTags(fullResponse: string): {
       tags.push({ path: normalizePath(path), content, description });
     } else {
       logger.warn(
-        "Found <triobuilder-write> tag without a valid 'path' attribute:",
+        "Found <dyad-write> tag without a valid 'path' attribute:",
         match[0],
       );
     }
@@ -68,15 +67,15 @@ export function getTriobuilderWriteTags(fullResponse: string): {
   return tags;
 }
 
-export function getTriobuilderRenameTags(fullResponse: string): {
+export function getDyadRenameTags(fullResponse: string): {
   from: string;
   to: string;
 }[] {
-  const triobuilderRenameRegex =
-    /<triobuilder-rename from="([^"]+)" to="([^"]+)"[^>]*>([\s\S]*?)<\/triobuilder-rename>/g;
+  const dyadRenameRegex =
+    /<dyad-rename from="([^"]+)" to="([^"]+)"[^>]*>([\s\S]*?)<\/dyad-rename>/g;
   let match;
   const tags: { from: string; to: string }[] = [];
-  while ((match = triobuilderRenameRegex.exec(fullResponse)) !== null) {
+  while ((match = dyadRenameRegex.exec(fullResponse)) !== null) {
     tags.push({
       from: normalizePath(match[1]),
       to: normalizePath(match[2]),
@@ -85,50 +84,46 @@ export function getTriobuilderRenameTags(fullResponse: string): {
   return tags;
 }
 
-export function getTriobuilderDeleteTags(fullResponse: string): string[] {
-  const triobuilderDeleteRegex =
-    /<triobuilder-delete path="([^"]+)"[^>]*>([\s\S]*?)<\/triobuilder-delete>/g;
+export function getDyadDeleteTags(fullResponse: string): string[] {
+  const dyadDeleteRegex =
+    /<dyad-delete path="([^"]+)"[^>]*>([\s\S]*?)<\/dyad-delete>/g;
   let match;
   const paths: string[] = [];
-  while ((match = triobuilderDeleteRegex.exec(fullResponse)) !== null) {
+  while ((match = dyadDeleteRegex.exec(fullResponse)) !== null) {
     paths.push(normalizePath(match[1]));
   }
   return paths;
 }
 
-export function getTriobuilderAddDependencyTags(
-  fullResponse: string,
-): string[] {
-  const triobuilderAddDependencyRegex =
-    /<triobuilder-add-dependency packages="([^"]+)">[^<]*<\/triobuilder-add-dependency>/g;
+export function getDyadAddDependencyTags(fullResponse: string): string[] {
+  const dyadAddDependencyRegex =
+    /<dyad-add-dependency packages="([^"]+)">[^<]*<\/dyad-add-dependency>/g;
   let match;
   const packages: string[] = [];
-  while ((match = triobuilderAddDependencyRegex.exec(fullResponse)) !== null) {
+  while ((match = dyadAddDependencyRegex.exec(fullResponse)) !== null) {
     packages.push(...match[1].split(" "));
   }
   return packages;
 }
 
-export function getTriobuilderChatSummaryTag(
-  fullResponse: string,
-): string | null {
-  const triobuilderChatSummaryRegex =
-    /<triobuilder-chat-summary>([\s\S]*?)<\/triobuilder-chat-summary>/g;
-  const match = triobuilderChatSummaryRegex.exec(fullResponse);
+export function getDyadChatSummaryTag(fullResponse: string): string | null {
+  const dyadChatSummaryRegex =
+    /<dyad-chat-summary>([\s\S]*?)<\/dyad-chat-summary>/g;
+  const match = dyadChatSummaryRegex.exec(fullResponse);
   if (match && match[1]) {
     return match[1].trim();
   }
   return null;
 }
 
-export function getTriobuilderExecuteSqlTags(fullResponse: string): SqlQuery[] {
-  const triobuilderExecuteSqlRegex =
-    /<triobuilder-execute-sql([^>]*)>([\s\S]*?)<\/triobuilder-execute-sql>/g;
+export function getDyadExecuteSqlTags(fullResponse: string): SqlQuery[] {
+  const dyadExecuteSqlRegex =
+    /<dyad-execute-sql([^>]*)>([\s\S]*?)<\/dyad-execute-sql>/g;
   const descriptionRegex = /description="([^"]+)"/;
   let match;
   const queries: { content: string; description?: string }[] = [];
 
-  while ((match = triobuilderExecuteSqlRegex.exec(fullResponse)) !== null) {
+  while ((match = dyadExecuteSqlRegex.exec(fullResponse)) !== null) {
     const attributesString = match[1] || "";
     let content = match[2].trim();
     const descriptionMatch = descriptionRegex.exec(attributesString);
@@ -150,13 +145,13 @@ export function getTriobuilderExecuteSqlTags(fullResponse: string): SqlQuery[] {
   return queries;
 }
 
-export function getTriobuilderCommandTags(fullResponse: string): string[] {
-  const triobuilderCommandRegex =
-    /<triobuilder-command type="([^"]+)"[^>]*><\/triobuilder-command>/g;
+export function getDyadCommandTags(fullResponse: string): string[] {
+  const dyadCommandRegex =
+    /<dyad-command type="([^"]+)"[^>]*><\/dyad-command>/g;
   let match;
   const commands: string[] = [];
 
-  while ((match = triobuilderCommandRegex.exec(fullResponse)) !== null) {
+  while ((match = dyadCommandRegex.exec(fullResponse)) !== null) {
     commands.push(match[1]);
   }
 
@@ -218,13 +213,12 @@ export async function processFullResponseActions(
 
   try {
     // Extract all tags
-    const triobuilderWriteTags = getTriobuilderWriteTags(fullResponse);
-    const triobuilderRenameTags = getTriobuilderRenameTags(fullResponse);
-    const triobuilderDeletePaths = getTriobuilderDeleteTags(fullResponse);
-    const triobuilderAddDependencyPackages =
-      getTriobuilderAddDependencyTags(fullResponse);
-    const triobuilderExecuteSqlQueries = chatWithApp.app.supabaseProjectId
-      ? getTriobuilderExecuteSqlTags(fullResponse)
+    const dyadWriteTags = getDyadWriteTags(fullResponse);
+    const dyadRenameTags = getDyadRenameTags(fullResponse);
+    const dyadDeletePaths = getDyadDeleteTags(fullResponse);
+    const dyadAddDependencyPackages = getDyadAddDependencyTags(fullResponse);
+    const dyadExecuteSqlQueries = chatWithApp.app.supabaseProjectId
+      ? getDyadExecuteSqlTags(fullResponse)
       : [];
     let writtenSqlMigrationFiles = 0;
 
@@ -242,8 +236,8 @@ export async function processFullResponseActions(
     }
 
     // Handle SQL execution tags
-    if (triobuilderExecuteSqlQueries.length > 0) {
-      for (const query of triobuilderExecuteSqlQueries) {
+    if (dyadExecuteSqlQueries.length > 0) {
+      for (const query of dyadExecuteSqlQueries) {
         try {
           await executeSupabaseSql({
             supabaseProjectId: chatWithApp.app.supabaseProjectId!,
@@ -273,20 +267,20 @@ export async function processFullResponseActions(
           });
         }
       }
-      logger.log(`Executed ${triobuilderExecuteSqlQueries.length} SQL queries`);
+      logger.log(`Executed ${dyadExecuteSqlQueries.length} SQL queries`);
     }
 
     // TODO: Handle add dependency tags
-    if (triobuilderAddDependencyPackages.length > 0) {
+    if (dyadAddDependencyPackages.length > 0) {
       try {
         await executeAddDependency({
-          packages: triobuilderAddDependencyPackages,
+          packages: dyadAddDependencyPackages,
           message: message,
           appPath,
         });
       } catch (error) {
         errors.push({
-          message: `Failed to add dependencies: ${triobuilderAddDependencyPackages.join(
+          message: `Failed to add dependencies: ${dyadAddDependencyPackages.join(
             ", ",
           )}`,
           error: error,
@@ -316,7 +310,7 @@ export async function processFullResponseActions(
     //////////////////////
 
     // Process all file deletions
-    for (const filePath of triobuilderDeletePaths) {
+    for (const filePath of dyadDeletePaths) {
       const fullFilePath = safeJoin(appPath, filePath);
 
       // Delete the file if it exists
@@ -359,7 +353,7 @@ export async function processFullResponseActions(
     }
 
     // Process all file renames
-    for (const tag of triobuilderRenameTags) {
+    for (const tag of dyadRenameTags) {
       const fromPath = safeJoin(appPath, tag.from);
       const toPath = safeJoin(appPath, tag.to);
 
@@ -422,7 +416,7 @@ export async function processFullResponseActions(
     }
 
     // Process all file writes
-    for (const tag of triobuilderWriteTags) {
+    for (const tag of dyadWriteTags) {
       const filePath = tag.path;
       const content = tag.content;
       const fullFilePath = safeJoin(appPath, filePath);
@@ -456,7 +450,7 @@ export async function processFullResponseActions(
       writtenFiles.length > 0 ||
       renamedFiles.length > 0 ||
       deletedFiles.length > 0 ||
-      triobuilderAddDependencyPackages.length > 0 ||
+      dyadAddDependencyPackages.length > 0 ||
       writtenSqlMigrationFiles > 0;
 
     let uncommittedFiles: string[] = [];
@@ -480,14 +474,12 @@ export async function processFullResponseActions(
         changes.push(`renamed ${renamedFiles.length} file(s)`);
       if (deletedFiles.length > 0)
         changes.push(`deleted ${deletedFiles.length} file(s)`);
-      if (triobuilderAddDependencyPackages.length > 0)
+      if (dyadAddDependencyPackages.length > 0)
         changes.push(
-          `added ${triobuilderAddDependencyPackages.join(", ")} package(s)`,
+          `added ${dyadAddDependencyPackages.join(", ")} package(s)`,
         );
-      if (triobuilderExecuteSqlQueries.length > 0)
-        changes.push(
-          `executed ${triobuilderExecuteSqlQueries.length} SQL queries`,
-        );
+      if (dyadExecuteSqlQueries.length > 0)
+        changes.push(`executed ${dyadExecuteSqlQueries.length} SQL queries`);
 
       let message = chatSummary
         ? `[dyad] ${chatSummary} - ${changes.join(", ")}`

@@ -80,7 +80,7 @@ export function HelpDialog({ isOpen, onClose }: HelpDialogProps) {
 <!-- What actually happened? -->
 
 ## System Information
-- Trio Version: ${debugInfo.dyadVersion}
+- Dyad Version: ${debugInfo.dyadVersion}
 - Platform: ${debugInfo.platform}
 - Architecture: ${debugInfo.architecture}
 - Node Version: ${debugInfo.nodeVersion || "n/a"}
@@ -98,7 +98,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       // Create the GitHub issue URL with the pre-filled body
       const encodedBody = encodeURIComponent(issueBody);
       const encodedTitle = encodeURIComponent("[bug] <add title>");
-      const githubIssueUrl = `https://github.com/trio-sh/trio/issues/new?title=${encodedTitle}&labels=bug,filed-from-app&body=${encodedBody}`;
+      const githubIssueUrl = `https://github.com/dyad-sh/dyad/issues/new?title=${encodedTitle}&labels=bug,filed-from-app&body=${encodedBody}`;
 
       // Open the pre-filled GitHub issue page
       IpcClient.getInstance().openExternalUrl(githubIssueUrl);
@@ -106,7 +106,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       console.error("Failed to prepare bug report:", error);
       // Fallback to opening the regular GitHub issue page
       IpcClient.getInstance().openExternalUrl(
-        "https://github.com/trio-sh/trio/issues/new",
+        "https://github.com/dyad-sh/dyad/issues/new",
       );
     } finally {
       setIsLoading(false);
@@ -152,7 +152,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
 
       // Get signed URL
       const response = await fetch(
-        "https://upload-logs.triobuilder.cc/generate-upload-url",
+        "https://upload-logs.dyad.sh/generate-upload-url",
         {
           method: "POST",
           headers: {
@@ -214,7 +214,7 @@ Session ID: ${sessionId}
 
     const encodedBody = encodeURIComponent(issueBody);
     const encodedTitle = encodeURIComponent("[session report] <add title>");
-    const githubIssueUrl = `https://github.com/trio-sh/trio/issues/new?title=${encodedTitle}&labels=support&body=${encodedBody}`;
+    const githubIssueUrl = `https://github.com/dyad-sh/dyad/issues/new?title=${encodedTitle}&labels=support&body=${encodedBody}`;
 
     IpcClient.getInstance().openExternalUrl(githubIssueUrl);
     handleClose();
@@ -225,14 +225,14 @@ Session ID: ${sessionId}
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Upload Complete — Trio Support</DialogTitle>
+            <DialogTitle>Upload Complete</DialogTitle>
           </DialogHeader>
           <div className="py-6 flex flex-col items-center space-y-4">
-            <div className="bg-pink-50 dark:bg-pink-900/20 p-6 rounded-full">
-              <CheckIcon className="h-8 w-8 text-pink-600 dark:text-pink-400" />
+            <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-full">
+              <CheckIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
-            <h3 className="text-lg font-medium text-pink-600 dark:text-pink-400">
-              Chat Logs Uploaded Successfully to Trio
+            <h3 className="text-lg font-medium">
+              Chat Logs Uploaded Successfully
             </h3>
             <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded flex items-center space-x-2 font-mono text-sm">
               <FileIcon
@@ -247,19 +247,16 @@ Session ID: ${sessionId}
               />
               <span>{sessionId}</span>
             </div>
-            <p className="text-center text-sm text-pink-600 dark:text-pink-400">
-              Share this session ID with the Trio team for support.
+            <p className="text-center text-sm">
+              Please open a GitHub issue so we can follow-up with you on this
+              issue.
             </p>
-            <Button
-              onClick={handleOpenGitHubIssue}
-              className="mt-2 bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg hover:from-pink-500 hover:to-pink-700 hover:shadow-xl rounded-2xl border-none"
-            >
+          </div>
+          <DialogFooter>
+            <Button onClick={handleOpenGitHubIssue} className="w-full">
               Open GitHub Issue
             </Button>
-            <Button variant="outline" onClick={handleClose}>
-              Close
-            </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     );
@@ -319,7 +316,7 @@ Session ID: ${sessionId}
             <div className="border rounded-md p-3">
               <h3 className="font-medium mb-2">System Information</h3>
               <div className="text-sm bg-slate-50 dark:bg-slate-900 rounded p-2 max-h-32 overflow-y-auto">
-                <p>Trio Version: {chatLogsData.debugInfo.dyadVersion}</p>
+                <p>Dyad Version: {chatLogsData.debugInfo.dyadVersion}</p>
                 <p>Platform: {chatLogsData.debugInfo.platform}</p>
                 <p>Architecture: {chatLogsData.debugInfo.architecture}</p>
                 <p>
@@ -361,41 +358,18 @@ Session ID: ${sessionId}
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Trio Help & Support</DialogTitle>
-          <DialogDescription>
-            Welcome to{" "}
-            <span className="text-pink-600 dark:text-pink-400 font-bold">
-              Trio
-            </span>
-            ! Need help? You can report bugs, upload chat logs, or visit our
-            documentation. For more, visit{" "}
-            <a
-              href="https://optimaai.cc"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pink-500 hover:underline"
-            >
-              optimaai.cc
-            </a>{" "}
-            or our{" "}
-            <a
-              href="https://github.com/trio-sh/trio"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pink-500 hover:underline"
-            >
-              GitHub repo
-            </a>
-            .
-          </DialogDescription>
+          <DialogTitle>Need help with Dyad?</DialogTitle>
         </DialogHeader>
+        <DialogDescription className="">
+          If you need help or want to report an issue, here are some options:
+        </DialogDescription>
         <div className="flex flex-col space-y-4 w-full">
           <div className="flex flex-col space-y-2">
             <Button
               variant="outline"
               onClick={() => {
                 IpcClient.getInstance().openExternalUrl(
-                  "https://optimaai.cc/docs",
+                  "https://www.dyad.sh/docs",
                 );
               }}
               className="w-full py-6 bg-(--background-lightest)"

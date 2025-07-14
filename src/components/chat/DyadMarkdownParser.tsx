@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 
 import { DyadWrite } from "./DyadWrite";
@@ -67,7 +67,7 @@ export const VanillaMarkdownParser = ({ content }: { content: string }) => {
 };
 
 /**
- * Custom component to parse markdown content with Trio-specific tags
+ * Custom component to parse markdown content with Dyad-specific tags
  */
 export const DyadMarkdownParser: React.FC<DyadMarkdownParserProps> = ({
   content,
@@ -111,30 +111,17 @@ function preprocessUnclosedTags(content: string): {
   inProgressTags: Map<string, Set<number>>;
 } {
   const customTagNames = [
-    "triobuilder-write",
-    "triobuilder-rename",
-    "triobuilder-move",
-    "triobuilder-copy",
-    "triobuilder-mkdir",
-    "triobuilder-search",
-    "triobuilder-replace",
-    "triobuilder-run-script",
-    "triobuilder-format",
-    "triobuilder-lint",
-    "triobuilder-test",
-    "triobuilder-git",
-    "triobuilder-download",
-    "triobuilder-delete",
-    "triobuilder-add-dependency",
-    "triobuilder-read-file",
-    "triobuilder-read-files",
-    "triobuilder-execute-sql",
-    "triobuilder-add-integration",
-    "triobuilder-output",
-    "triobuilder-problem-report",
-    "triobuilder-chat-summary",
-    "triobuilder-edit",
-    "triobuilder-codebase-context",
+    "dyad-write",
+    "dyad-rename",
+    "dyad-delete",
+    "dyad-add-dependency",
+    "dyad-execute-sql",
+    "dyad-add-integration",
+    "dyad-output",
+    "dyad-problem-report",
+    "dyad-chat-summary",
+    "dyad-edit",
+    "dyad-codebase-context",
     "think",
   ];
 
@@ -190,30 +177,17 @@ function parseCustomTags(content: string): ContentPiece[] {
   const { processedContent, inProgressTags } = preprocessUnclosedTags(content);
 
   const customTagNames = [
-    "triobuilder-write",
-    "triobuilder-rename",
-    "triobuilder-move",
-    "triobuilder-copy",
-    "triobuilder-mkdir",
-    "triobuilder-search",
-    "triobuilder-replace",
-    "triobuilder-run-script",
-    "triobuilder-format",
-    "triobuilder-lint",
-    "triobuilder-test",
-    "triobuilder-git",
-    "triobuilder-download",
-    "triobuilder-delete",
-    "triobuilder-add-dependency",
-    "triobuilder-read-file",
-    "triobuilder-read-files",
-    "triobuilder-execute-sql",
-    "triobuilder-add-integration",
-    "triobuilder-output",
-    "triobuilder-problem-report",
-    "triobuilder-chat-summary",
-    "triobuilder-edit",
-    "triobuilder-codebase-context",
+    "dyad-write",
+    "dyad-rename",
+    "dyad-delete",
+    "dyad-add-dependency",
+    "dyad-execute-sql",
+    "dyad-add-integration",
+    "dyad-output",
+    "dyad-problem-report",
+    "dyad-chat-summary",
+    "dyad-edit",
+    "dyad-codebase-context",
     "think",
   ];
 
@@ -312,7 +286,7 @@ function renderCustomTag(
           {content}
         </DyadThink>
       );
-    case "triobuilder-write":
+    case "dyad-write":
       return (
         <DyadWrite
           node={{
@@ -327,7 +301,7 @@ function renderCustomTag(
         </DyadWrite>
       );
 
-    case "triobuilder-rename":
+    case "dyad-rename":
       return (
         <DyadRename
           node={{
@@ -341,7 +315,7 @@ function renderCustomTag(
         </DyadRename>
       );
 
-    case "triobuilder-delete":
+    case "dyad-delete":
       return (
         <DyadDelete
           node={{
@@ -354,7 +328,7 @@ function renderCustomTag(
         </DyadDelete>
       );
 
-    case "triobuilder-add-dependency":
+    case "dyad-add-dependency":
       return (
         <DyadAddDependency
           node={{
@@ -367,7 +341,7 @@ function renderCustomTag(
         </DyadAddDependency>
       );
 
-    case "triobuilder-execute-sql":
+    case "dyad-execute-sql":
       return (
         <DyadExecuteSql
           node={{
@@ -381,7 +355,7 @@ function renderCustomTag(
         </DyadExecuteSql>
       );
 
-    case "triobuilder-add-integration":
+    case "dyad-add-integration":
       return (
         <DyadAddIntegration
           node={{
@@ -394,7 +368,7 @@ function renderCustomTag(
         </DyadAddIntegration>
       );
 
-    case "triobuilder-edit":
+    case "dyad-edit":
       return (
         <DyadEdit
           node={{
@@ -409,7 +383,7 @@ function renderCustomTag(
         </DyadEdit>
       );
 
-    case "triobuilder-codebase-context":
+    case "dyad-codebase-context":
       return (
         <DyadCodebaseContext
           node={{
@@ -423,7 +397,7 @@ function renderCustomTag(
         </DyadCodebaseContext>
       );
 
-    case "triobuilder-output":
+    case "dyad-output":
       return (
         <DyadOutput
           type={attributes.type as "warning" | "error"}
@@ -433,147 +407,18 @@ function renderCustomTag(
         </DyadOutput>
       );
 
-    case "triobuilder-problem-report":
+    case "dyad-problem-report":
       return (
         <DyadProblemSummary summary={attributes.summary}>
           {content}
         </DyadProblemSummary>
       );
 
-    case "triobuilder-chat-summary":
-      // Don't render anything for triobuilder-chat-summary
+    case "dyad-chat-summary":
+      // Don't render anything for dyad-chat-summary
       return null;
-
-    case "triobuilder-read-file":
-      return <ReadFileTag path={attributes.path} />;
-    case "triobuilder-read-files":
-      return <ReadFilesTag paths={attributes.paths} />;
-
-    case "triobuilder-move":
-      return (
-        <div style={{ color: "#b8860b", fontStyle: "italic" }}>
-          Move file from <b>{attributes.from}</b> to <b>{attributes.to}</b>
-        </div>
-      );
-
-    case "triobuilder-copy":
-      return (
-        <div style={{ color: "#4682b4", fontStyle: "italic" }}>
-          Copy file or directory from <b>{attributes.from}</b> to{" "}
-          <b>{attributes.to}</b>
-        </div>
-      );
-    case "triobuilder-mkdir":
-      return (
-        <div style={{ color: "#228b22", fontStyle: "italic" }}>
-          Create directory <b>{attributes.path}</b>
-        </div>
-      );
-    case "triobuilder-search":
-      return (
-        <div style={{ color: "#8b008b", fontStyle: "italic" }}>
-          Search for <b>{attributes.query}</b> in the codebase
-        </div>
-      );
-    case "triobuilder-replace":
-      return (
-        <div style={{ color: "#b22222", fontStyle: "italic" }}>
-          Replace <b>{attributes.query}</b> with <b>{attributes.replace}</b> in{" "}
-          <b>{attributes.files}</b>
-        </div>
-      );
-    case "triobuilder-run-script":
-      return (
-        <div style={{ color: "#ff8c00", fontStyle: "italic" }}>
-          Run script <b>{attributes.script}</b>
-        </div>
-      );
-    case "triobuilder-format":
-      return (
-        <div style={{ color: "#20b2aa", fontStyle: "italic" }}>
-          Format code at <b>{attributes.path}</b>
-        </div>
-      );
-    case "triobuilder-lint":
-      return (
-        <div style={{ color: "#a0522d", fontStyle: "italic" }}>
-          Lint code at <b>{attributes.path}</b>
-        </div>
-      );
-    case "triobuilder-test":
-      return (
-        <div style={{ color: "#6a5acd", fontStyle: "italic" }}>
-          Run tests{" "}
-          {attributes.path ? `at <b>${attributes.path}</b>` : "in the codebase"}
-        </div>
-      );
-    case "triobuilder-git":
-      return (
-        <div style={{ color: "#708090", fontStyle: "italic" }}>
-          Run git command <b>{attributes.command}</b>
-        </div>
-      );
-    case "triobuilder-download":
-      return (
-        <div style={{ color: "#2e8b57", fontStyle: "italic" }}>
-          Download file from <b>{attributes.url}</b> to <b>{attributes.to}</b>
-        </div>
-      );
 
     default:
       return null;
   }
-}
-
-function ReadFileTag({ path }: { path: string }) {
-  const [content, setContent] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    if (!path) return;
-    IpcClient.getInstance()
-      .invoke("read-file", { path })
-      .then((res: any) => setContent(res.content))
-      .catch((err: any) => setError(err.message || String(err)));
-  }, [path]);
-  if (error) return <div className="text-red-500">Error: {error}</div>;
-  if (content === null) return <div>Loading file...</div>;
-  return (
-    <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
-      {content}
-    </pre>
-  );
-}
-
-function ReadFilesTag({ paths }: { paths: string }) {
-  const [contents, setContents] = useState<Record<string, string> | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    if (!paths) return;
-    const pathArr = paths
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (pathArr.length === 0 || pathArr.length > 3) {
-      setError("You must provide 1-3 file paths");
-      return;
-    }
-    IpcClient.getInstance()
-      .invoke("read-files", { paths: pathArr })
-      .then((res: any) => setContents(res))
-      .catch((err: any) => setError(err.message || String(err)));
-  }, [paths]);
-  if (error) return <div className="text-red-500">Error: {error}</div>;
-  if (!contents) return <div>Loading files...</div>;
-  return (
-    <div className="space-y-4">
-      {Object.entries(contents).map(([path, content]) => (
-        <div key={path}>
-          <div className="font-mono text-xs text-gray-500 mb-1">{path}</div>
-          <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
-            {content}
-          </pre>
-        </div>
-      ))}
-    </div>
-  );
 }

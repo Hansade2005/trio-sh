@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import {
-  getTriobuilderWriteTags,
-  getTriobuilderRenameTags,
-  getTriobuilderDeleteTags,
+  getDyadWriteTags,
+  getDyadRenameTags,
+  getDyadDeleteTags,
 } from "../ipc/processors/response_processor";
 import { normalizePath } from "../ipc/processors/normalizePath";
 
@@ -79,9 +79,9 @@ export abstract class BaseVirtualFileSystem {
    * Apply changes from a response containing dyad tags
    */
   public applyResponseChanges(fullResponse: string): void {
-    const writeTags = getTriobuilderWriteTags(fullResponse);
-    const renameTags = getTriobuilderRenameTags(fullResponse);
-    const deletePaths = getTriobuilderDeleteTags(fullResponse);
+    const writeTags = getDyadWriteTags(fullResponse);
+    const renameTags = getDyadRenameTags(fullResponse);
+    const deletePaths = getDyadDeleteTags(fullResponse);
 
     // Process deletions
     for (const deletePath of deletePaths) {

@@ -23,21 +23,6 @@ import { registerContextPathsHandlers } from "./handlers/context_paths_handlers"
 import { registerAppUpgradeHandlers } from "./handlers/app_upgrade_handlers";
 import { registerCapacitorHandlers } from "./handlers/capacitor_handlers";
 import { registerProblemsHandlers } from "./handlers/problems_handlers";
-import { registerReadFileHandlers } from "./handlers/read_file_handlers";
-import { registerMoveFileHandler } from "./handlers/read_file_handlers";
-import {
-  registerCopyFileHandler,
-  registerMkdirHandler,
-  registerSearchHandler,
-  registerReplaceHandler,
-  registerRunScriptHandler,
-  registerFormatHandler,
-  registerLintHandler,
-  registerTestHandler,
-  registerGitHandler,
-  registerDownloadHandler,
-} from "./handlers/read_file_handlers";
-import { registerTerminalHandlers } from "./handlers/terminal_handlers";
 
 export function registerIpcHandlers() {
   // Register all IPC handlers by category
@@ -66,17 +51,4 @@ export function registerIpcHandlers() {
   registerContextPathsHandlers();
   registerAppUpgradeHandlers();
   registerCapacitorHandlers();
-  registerReadFileHandlers();
-  registerMoveFileHandler();
-  registerCopyFileHandler();
-  registerMkdirHandler();
-  registerSearchHandler();
-  registerReplaceHandler();
-  registerRunScriptHandler();
-  registerFormatHandler();
-  registerLintHandler();
-  registerTestHandler();
-  registerGitHandler();
-  registerDownloadHandler();
-  registerTerminalHandlers();
 }

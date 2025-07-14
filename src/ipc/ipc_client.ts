@@ -943,45 +943,4 @@ export class IpcClient {
   }): Promise<ProblemReport> {
     return this.ipcRenderer.invoke("check-problems", params);
   }
-
-  public async startTerminal(
-    cwd?: string,
-  ): Promise<{ success: boolean; error?: string }> {
-    return this.ipcRenderer.invoke("terminal:start", { cwd });
-  }
-
-  public async sendTerminalInput(
-    input: string,
-  ): Promise<{ success: boolean; error?: string }> {
-    return this.ipcRenderer.invoke("terminal:input", { input });
-  }
-
-  public async stopTerminal(): Promise<{ success: boolean; error?: string }> {
-    return this.ipcRenderer.invoke("terminal:stop");
-  }
-
-  public onTerminalData(
-    callback: (data: {
-      type: string;
-      data?: string;
-      code?: number;
-      signal?: string;
-    }) => void,
-  ) {
-    this.ipcRenderer.on("terminal:onData", (_event: any, data: any) => {
-      callback(data);
-    });
-    // Return unsubscribe function
-    return () => {
-      this.ipcRenderer.removeAllListeners("terminal:onData");
-    };
-  }
-
-  public async invoke(handler: string, params?: any): Promise<any> {
-    return this.ipcRenderer.invoke(handler, params);
-  }
-
-  public async openInVSCode(appPath: string): Promise<{ success: boolean }> {
-    return this.ipcRenderer.invoke("open-in-vscode", { appPath });
-  }
 }

@@ -119,7 +119,8 @@ export function ModelPicker() {
     return null;
   }
   const selectedModel = settings?.selectedModel;
-  const isSmartAutoEnabled = settings.enableProSmartFilesContextMode;
+  const isSmartAutoEnabled =
+    settings.enableProSmartFilesContextMode && isDyadProEnabled(settings);
   const modelDisplayName = getModelDisplayName();
 
   return (
@@ -199,8 +200,8 @@ export function ModelPicker() {
                           </span>
                           <div className="flex items-center gap-1.5">
                             {isSmartAutoEnabled && (
-                              <span className="text-[10px] bg-gradient-to-r from-pink-500 via-pink-400 to-pink-500 bg-[length:200%_100%] animate-[shimmer_5s_ease-in-out_infinite] text-white px-1.5 py-0.5 rounded-full font-medium">
-                                Trio Smart Context
+                              <span className="text-[10px] bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600 bg-[length:200%_100%] animate-[shimmer_5s_ease-in-out_infinite] text-white px-1.5 py-0.5 rounded-full font-medium">
+                                Dyad Pro
                               </span>
                             )}
                             {model.tag && (

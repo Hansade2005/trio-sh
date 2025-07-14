@@ -40,7 +40,7 @@ export function ErrorBoundary({ error }: ErrorComponentProps) {
 ${error?.stack ? `\n\`\`\`\n${error.stack.slice(0, 1000)}\n\`\`\`` : ""}
 
 ## System Information
-- Trio Version: ${debugInfo.dyadVersion}
+- Dyad Version: ${debugInfo.dyadVersion}
 - Platform: ${debugInfo.platform}
 - Architecture: ${debugInfo.architecture}
 - Node Version: ${debugInfo.nodeVersion || "Not available"}
@@ -57,9 +57,9 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       // Create the GitHub issue URL with the pre-filled body
       const encodedBody = encodeURIComponent(issueBody);
       const encodedTitle = encodeURIComponent(
-        "[bug] Error in Trio application",
+        "[bug] Error in Dyad application",
       );
-      const githubIssueUrl = `https://github.com/trio-sh/trio/issues/new?title=${encodedTitle}&labels=bug,filed-from-app,client-error&body=${encodedBody}`;
+      const githubIssueUrl = `https://github.com/dyad-sh/dyad/issues/new?title=${encodedTitle}&labels=bug,filed-from-app,client-error&body=${encodedBody}`;
 
       // Open the pre-filled GitHub issue page
       await IpcClient.getInstance().openExternalUrl(githubIssueUrl);
@@ -67,7 +67,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
       console.error("Failed to prepare bug report:", err);
       // Fallback to opening the regular GitHub issue page
       IpcClient.getInstance().openExternalUrl(
-        "https://github.com/trio-sh/trio/issues/new",
+        "https://github.com/dyad-sh/dyad/issues/new",
       );
     } finally {
       setIsLoading(false);
@@ -77,7 +77,7 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
   return (
     <div className="flex flex-col items-center justify-center h-screen p-6">
       <div className="max-w-md w-full bg-background p-6 rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-pink-600 dark:text-pink-400">
+        <h2 className="text-xl font-bold mb-4">
           Sorry, that shouldn't have happened!
         </h2>
 
@@ -95,20 +95,16 @@ ${debugInfo.logs.slice(-3_500) || "No logs available"}
         )}
 
         <div className="flex flex-col gap-2">
-          <Button
-            onClick={handleReportBug}
-            disabled={isLoading}
-            className="bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 text-white shadow-lg hover:from-pink-500 hover:to-pink-700 hover:shadow-xl rounded-2xl border-none"
-          >
-            {isLoading ? "Preparing report..." : "Report Bug to Trio"}
+          <Button onClick={handleReportBug} disabled={isLoading}>
+            {isLoading ? "Preparing report..." : "Report Bug"}
           </Button>
         </div>
 
-        <div className="mt-4 p-3 bg-pink-50 dark:bg-pink-950 border border-pink-200 dark:border-pink-800 rounded-md flex items-center gap-2">
-          <LightbulbIcon className="h-4 w-4 text-pink-700 dark:text-pink-400 flex-shrink-0" />
-          <p className="text-sm text-pink-700 dark:text-pink-400">
-            <strong>Tip:</strong> Try closing and re-opening{" "}
-            <span className="font-bold">Trio</span> as a temporary workaround.
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md flex items-center gap-2">
+          <LightbulbIcon className="h-4 w-4 text-blue-700 dark:text-blue-400 flex-shrink-0" />
+          <p className="text-sm text-blue-700 dark:text-blue-400">
+            <strong>Tip:</strong> Try closing and re-opening Dyad as a temporary
+            workaround.
           </p>
         </div>
       </div>
