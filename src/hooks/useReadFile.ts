@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { IpcClient } from "@/ipc/ipc_client";
 
 export function useReadFile(path: string | null) {
-  const [content, setContent] = useState<string | null>(null);
+  const [content, setContent] = useState<{ line: number, content: string }[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

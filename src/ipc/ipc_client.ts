@@ -211,11 +211,11 @@ export class IpcClient {
     });
   }
 
-  public async readFile(path: string): Promise<string> {
+  public async readFile(path: string): Promise<{ line: number, content: string }[]> {
     return this.ipcRenderer.invoke("read-file", { path });
   }
 
-  public async readFiles(paths: string[]): Promise<{ contents: Record<string, string>, error: Record<string, string> }> {
+  public async readFiles(paths: string[]): Promise<{ contents: Record<string, { line: number, content: string }[]>, error: Record<string, string> }> {
     return this.ipcRenderer.invoke("read-files", { paths });
   }
 
@@ -950,5 +950,17 @@ export class IpcClient {
     appId: number;
   }): Promise<ProblemReport> {
     return this.ipcRenderer.invoke("check-problems", params);
+  }
+
+  public async searchFiles(pattern: string): Promise<string[]> {
+    return this.ipcRenderer.invoke("search-files", { pattern });
+  }
+
+  public async listFiles(dir: string): Promise<string[]> {
+    return this.ipcRenderer.invoke("list-files", { dir });
+  }
+
+  public async searchFileContent(path: string, query: string): Promise<{ line: number, content: string }[]> {
+    return this.ipcRenderer.invoke("search-file-content", { path, query });
   }
 }

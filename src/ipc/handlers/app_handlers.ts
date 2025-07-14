@@ -42,6 +42,8 @@ import { gitCommit } from "../utils/git_utils";
 import { safeSend } from "../utils/safe_sender";
 import { normalizePath } from "../processors/normalizePath";
 
+const glob = require("glob");
+
 async function copyDir(
   source: string,
   destination: string,
@@ -413,7 +415,6 @@ export function registerAppHandlers() {
   ipcMain.handle(
     "read-file",
     async (_event, { path }: { path: string }) => {
-      // Only allow reading files within the workspace root for now
       const workspaceRoot = process.cwd();
       const fullPath = require("path").resolve(workspaceRoot, path);
       if (!fullPath.startsWith(workspaceRoot)) {
@@ -421,7 +422,7 @@ export function registerAppHandlers() {
       }
       try {
         const contents = require("fs").readFileSync(fullPath, "utf-8");
-        return contents;
+        return contents.split("\n").map((content, idx) => ({ line: idx + 1, content }));
       } catch (error) {
         logger.error(`Error reading file ${path}:`, error);
         throw new Error("Failed to read file");
@@ -435,7 +436,7 @@ export function registerAppHandlers() {
       const workspaceRoot = process.cwd();
       const fs = require("fs");
       const pathMod = require("path");
-      const contents: Record<string, string> = {};
+      const contents: Record<string, { line: number, content: string }[]> = {};
       const error: Record<string, string> = {};
       for (const relPath of (paths || []).slice(0, 3)) {
         const fullPath = pathMod.resolve(workspaceRoot, relPath);
@@ -444,7 +445,8 @@ export function registerAppHandlers() {
           continue;
         }
         try {
-          contents[relPath] = fs.readFileSync(fullPath, "utf-8");
+          const fileContent = fs.readFileSync(fullPath, "utf-8");
+          contents[relPath] = fileContent.split("\n").map((content, idx) => ({ line: idx + 1, content }));
         } catch (err) {
           error[relPath] = "Failed to read file";
         }
@@ -980,4 +982,54 @@ export function registerAppHandlers() {
       }
     });
   });
+
+  ipcMain.handle(
+    "search-files",
+    async (_event, { pattern }: { pattern: string }) => {
+      const workspaceRoot = process.cwd();
+      // Use glob to find files matching the pattern
+      return glob.sync(pattern, { cwd: workspaceRoot, nodir: true });
+    }
+  );
+
+  ipcMain.handle(
+    "list-files",
+    async (_event, { dir }: { dir: string }) => {
+      const workspaceRoot = process.cwd();
+      const pathMod = require("path");
+      const fs = require("fs");
+      const fullDir = pathMod.resolve(workspaceRoot, dir);
+      if (!fullDir.startsWith(workspaceRoot)) {
+        throw new Error("Invalid directory path");
+      }
+      try {
+        return fs.readdirSync(fullDir);
+      } catch (err) {
+        throw new Error("Failed to list files");
+      }
+    }
+  );
+
+  ipcMain.handle(
+    "search-file-content",
+    async (_event, { path, query }: { path: string; query: string }) => {
+      const workspaceRoot = process.cwd();
+      const pathMod = require("path");
+      const fs = require("fs");
+      const fullPath = pathMod.resolve(workspaceRoot, path);
+      if (!fullPath.startsWith(workspaceRoot)) {
+        throw new Error("Invalid file path");
+      }
+      try {
+        const content = fs.readFileSync(fullPath, "utf-8");
+        const lines = content.split("\n");
+        const lowerQuery = query.toLowerCase();
+        return lines
+          .map((lineContent, idx) => ({ line: idx + 1, content: lineContent }))
+          .filter(obj => obj.content.toLowerCase().includes(lowerQuery));
+      } catch (err) {
+        throw new Error("Failed to search file content");
+      }
+    }
+  );
 }
