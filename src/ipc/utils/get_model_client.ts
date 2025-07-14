@@ -46,9 +46,18 @@ interface File {
 const logger = log.scope("getModelClient");
 // Helper to safely get apiKey for providers that use it
 function hasApiKey(setting: any): setting is { apiKey: { value: string } } {
-  return !!setting && typeof setting === 'object' && 'apiKey' in setting && setting.apiKey && typeof setting.apiKey.value === 'string';
+  return (
+    !!setting &&
+    typeof setting === "object" &&
+    "apiKey" in setting &&
+    setting.apiKey &&
+    typeof setting.apiKey.value === "string"
+  );
 }
-function getProviderApiKey(settings: any, provider: string): string | undefined {
+function getProviderApiKey(
+  settings: any,
+  provider: string,
+): string | undefined {
   const setting = settings.providerSettings?.[provider];
   if (hasApiKey(setting)) {
     return setting.apiKey.value;
@@ -66,7 +75,7 @@ export async function getModelClient(
 }> {
   const allProviders = await getLanguageModelProviders();
 
-  const dyadApiKey = getProviderApiKey(settings, 'auto');
+  const dyadApiKey = getProviderApiKey(settings, "auto");
 
   // --- Handle specific provider ---
   const providerConfig = allProviders.find((p) => p.id === model.provider);
@@ -150,7 +159,8 @@ export async function getModelClient(
       );
       const envVarName = providerInfo?.envVarName;
 
-      const apiKey = getProviderApiKey(settings, autoModel.provider) ||
+      const apiKey =
+        getProviderApiKey(settings, autoModel.provider) ||
         (envVarName ? getEnvVar(envVarName) : undefined);
 
       if (apiKey) {
@@ -184,7 +194,8 @@ async function getRegularModelClient(
   // Get API key for the specific provider (skip for MCP)
   let apiKey: string | undefined = undefined;
   if (providerConfig.id !== "mcp") {
-    apiKey = getProviderApiKey(settings, model.provider) ||
+    apiKey =
+      getProviderApiKey(settings, model.provider) ||
       (providerConfig.envVarName
         ? getEnvVar(providerConfig.envVarName)
         : undefined);
@@ -276,8 +287,10 @@ async function getRegularModelClient(
       if (transportType === "sse" && !sseUrl) {
         sseUrl = providerConfig.apiBaseUrl || mcpSettings?.apiBaseUrl?.value;
       }
-      if (transportType === "sse" && !sseUrl) throw new Error("MCP SSE server URL not configured.");
-      if (transportType === "stdio" && !stdioCommand) throw new Error("MCP stdio command not configured.");
+      if (transportType === "sse" && !sseUrl)
+        throw new Error("MCP SSE server URL not configured.");
+      if (transportType === "stdio" && !stdioCommand)
+        throw new Error("MCP stdio command not configured.");
       const mcpClient = await createMCPModel({
         transportType,
         sseUrl,

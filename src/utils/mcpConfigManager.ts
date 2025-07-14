@@ -8,11 +8,13 @@ export function getUserSettings() {
 export function addOrUpdateMCPServer(serverConfig: any) {
   const settings = getUserSettings();
   settings.providerSettings = settings.providerSettings || {};
-  settings.providerSettings.mcpServers = settings.providerSettings.mcpServers || [];
+  settings.providerSettings.mcpServers =
+    settings.providerSettings.mcpServers || [];
   // Remove existing with same id
-  settings.providerSettings.mcpServers = settings.providerSettings.mcpServers.filter(
-    (s: any) => s.id !== serverConfig.id
-  );
+  settings.providerSettings.mcpServers =
+    settings.providerSettings.mcpServers.filter(
+      (s: any) => s.id !== serverConfig.id,
+    );
   settings.providerSettings.mcpServers.push({ ...serverConfig, active: true });
   writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
-} 
+}

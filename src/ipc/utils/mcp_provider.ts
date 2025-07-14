@@ -1,4 +1,7 @@
-import { experimental_createMCPClient, Experimental_StdioMCPTransport } from "ai";
+import {
+  experimental_createMCPClient,
+  Experimental_StdioMCPTransport,
+} from "ai";
 import type { LanguageModelV1 } from "ai";
 
 interface MCPTransportConfig {
@@ -8,10 +11,17 @@ interface MCPTransportConfig {
   stdioArgs?: string[];
 }
 
-export async function createMCPModel(config: MCPTransportConfig & { env?: Record<string, string> }): Promise<{ model: LanguageModelV1, tools: () => Promise<any>, close: () => Promise<void> }> {
+export async function createMCPModel(
+  config: MCPTransportConfig & { env?: Record<string, string> },
+): Promise<{
+  model: LanguageModelV1;
+  tools: () => Promise<any>;
+  close: () => Promise<void>;
+}> {
   let transport: any;
   if (config.transportType === "stdio") {
-    if (!config.stdioCommand) throw new Error("Missing stdioCommand for MCP stdio transport");
+    if (!config.stdioCommand)
+      throw new Error("Missing stdioCommand for MCP stdio transport");
     transport = new Experimental_StdioMCPTransport({
       command: config.stdioCommand,
       args: config.stdioArgs || [],
@@ -28,4 +38,4 @@ export async function createMCPModel(config: MCPTransportConfig & { env?: Record
     tools: client.tools.bind(client),
     close: client.close.bind(client),
   };
-} 
+}

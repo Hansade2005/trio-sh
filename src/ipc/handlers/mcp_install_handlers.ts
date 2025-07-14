@@ -8,8 +8,12 @@ export function registerMCPInstallHandlers() {
       let output = "";
       let error = "";
 
-      proc.stdout.on("data", (data) => { output += data.toString(); });
-      proc.stderr.on("data", (data) => { error += data.toString(); });
+      proc.stdout.on("data", (data) => {
+        output += data.toString();
+      });
+      proc.stderr.on("data", (data) => {
+        error += data.toString();
+      });
 
       proc.on("close", (code) => {
         if (code === 0) resolve({ success: true, output });
@@ -29,12 +33,18 @@ export function registerMCPInstallHandlers() {
     proc.stdout.on("data", (data) => {
       const msg = data.toString();
       output += msg;
-      event.sender.send("mcp:install-server-log", { type: "stdout", message: msg });
+      event.sender.send("mcp:install-server-log", {
+        type: "stdout",
+        message: msg,
+      });
     });
     proc.stderr.on("data", (data) => {
       const msg = data.toString();
       error += msg;
-      event.sender.send("mcp:install-server-log", { type: "stderr", message: msg });
+      event.sender.send("mcp:install-server-log", {
+        type: "stderr",
+        message: msg,
+      });
     });
 
     proc.on("close", (code) => {
@@ -45,7 +55,10 @@ export function registerMCPInstallHandlers() {
       });
     });
     proc.on("error", (err) => {
-      event.sender.send("mcp:install-server-log", { type: "error", message: err.message });
+      event.sender.send("mcp:install-server-log", {
+        type: "error",
+        message: err.message,
+      });
     });
   });
-} 
+}

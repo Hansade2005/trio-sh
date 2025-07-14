@@ -6,7 +6,7 @@ import { useLanguageModelProviders } from "@/hooks/useLanguageModelProviders";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { } from "@/components/ui/accordion";
+import {} from "@/components/ui/accordion";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -23,18 +23,37 @@ interface ProviderSettingsPageProps {
 }
 
 // Type guard for MCP settings
-function isMcpSettings(obj: any): obj is { transportType: "sse" | "stdio"; sseUrl?: string; stdioCommand?: string; stdioArgs?: string[]; apiBaseUrl?: { value: string } } {
+function isMcpSettings(
+  obj: any,
+): obj is {
+  transportType: "sse" | "stdio";
+  sseUrl?: string;
+  stdioCommand?: string;
+  stdioArgs?: string[];
+  apiBaseUrl?: { value: string };
+} {
   return obj && typeof obj === "object" && "transportType" in obj;
 }
 
 // MCP Env Editor component
-function MCPEnvEditor({ env, onChange }: { env: Record<string, string>, onChange: (env: Record<string, string>) => void }) {
-  const [editing, setEditing] = React.useState<{ key: string; value: string } | null>(null);
+function MCPEnvEditor({
+  env,
+  onChange,
+}: {
+  env: Record<string, string>;
+  onChange: (env: Record<string, string>) => void;
+}) {
+  const [editing, setEditing] = React.useState<{
+    key: string;
+    value: string;
+  } | null>(null);
   const [newKey, setNewKey] = React.useState("");
   const [newValue, setNewValue] = React.useState("");
   return (
     <div className="mt-2">
-      <label className="block text-sm font-medium mb-2">Environment Variables</label>
+      <label className="block text-sm font-medium mb-2">
+        Environment Variables
+      </label>
       <div className="space-y-2">
         {Object.entries(env).map(([key, value]) => (
           <div key={key} className="flex gap-2 items-center">
@@ -43,13 +62,17 @@ function MCPEnvEditor({ env, onChange }: { env: Record<string, string>, onChange
                 <input
                   className="input flex-1"
                   value={editing.key}
-                  onChange={e => setEditing({ ...editing, key: e.target.value })}
+                  onChange={(e) =>
+                    setEditing({ ...editing, key: e.target.value })
+                  }
                   placeholder="KEY"
                 />
                 <input
                   className="input flex-1"
                   value={editing.value}
-                  onChange={e => setEditing({ ...editing, value: e.target.value })}
+                  onChange={(e) =>
+                    setEditing({ ...editing, value: e.target.value })
+                  }
                   placeholder="VALUE"
                 />
                 <Button
@@ -61,15 +84,43 @@ function MCPEnvEditor({ env, onChange }: { env: Record<string, string>, onChange
                     setEditing(null);
                     onChange(newEnv);
                   }}
-                >Save</Button>
-                <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+                >
+                  Save
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setEditing(null)}
+                >
+                  Cancel
+                </Button>
               </>
             ) : (
               <>
-                <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{key}</span>
-                <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{value}</span>
-                <Button size="sm" variant="ghost" onClick={() => setEditing({ key, value })}>Edit</Button>
-                <Button size="sm" variant="destructive" onClick={() => { const newEnv = { ...env }; delete newEnv[key]; onChange(newEnv); }}>Delete</Button>
+                <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                  {key}
+                </span>
+                <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                  {value}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setEditing({ key, value })}
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    const newEnv = { ...env };
+                    delete newEnv[key];
+                    onChange(newEnv);
+                  }}
+                >
+                  Delete
+                </Button>
               </>
             )}
           </div>
@@ -78,13 +129,13 @@ function MCPEnvEditor({ env, onChange }: { env: Record<string, string>, onChange
           <input
             className="input flex-1"
             value={newKey}
-            onChange={e => setNewKey(e.target.value)}
+            onChange={(e) => setNewKey(e.target.value)}
             placeholder="KEY"
           />
           <input
             className="input flex-1"
             value={newValue}
-            onChange={e => setNewValue(e.target.value)}
+            onChange={(e) => setNewValue(e.target.value)}
             placeholder="VALUE"
           />
           <Button
@@ -95,7 +146,9 @@ function MCPEnvEditor({ env, onChange }: { env: Record<string, string>, onChange
               setNewKey("");
               setNewValue("");
             }}
-          >Add</Button>
+          >
+            Add
+          </Button>
         </div>
       </div>
     </div>
@@ -127,12 +180,18 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
 
   // --- State for MCP fields ---
   const mcpSettings = settings?.providerSettings?.mcp;
-  const mcpTransportType = isMcpSettings(mcpSettings) ? mcpSettings.transportType : "sse";
+  const mcpTransportType = isMcpSettings(mcpSettings)
+    ? mcpSettings.transportType
+    : "sse";
   const mcpSseUrl = isMcpSettings(mcpSettings)
-    ? mcpSettings.sseUrl ?? mcpSettings.apiBaseUrl?.value ?? ""
-    : (mcpSettings as any)?.apiBaseUrl?.value ?? "";
-  const mcpStdioCommand = isMcpSettings(mcpSettings) ? mcpSettings.stdioCommand ?? "" : "";
-  const mcpStdioArgs = isMcpSettings(mcpSettings) ? mcpSettings.stdioArgs ?? [] : [];
+    ? (mcpSettings.sseUrl ?? mcpSettings.apiBaseUrl?.value ?? "")
+    : ((mcpSettings as any)?.apiBaseUrl?.value ?? "");
+  const mcpStdioCommand = isMcpSettings(mcpSettings)
+    ? (mcpSettings.stdioCommand ?? "")
+    : "";
+  const mcpStdioArgs = isMcpSettings(mcpSettings)
+    ? (mcpSettings.stdioArgs ?? [])
+    : [];
 
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -153,9 +212,12 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
   const envVarName = isDyad ? undefined : providerData?.envVarName;
 
   // Use provider ID (which is the 'provider' prop)
-  const userApiKey = provider !== "mcp" && settings?.providerSettings?.[provider] && 'apiKey' in settings.providerSettings[provider]
-    ? (settings.providerSettings[provider] as any)?.apiKey?.value
-    : undefined;
+  const userApiKey =
+    provider !== "mcp" &&
+    settings?.providerSettings?.[provider] &&
+    "apiKey" in settings.providerSettings[provider]
+      ? (settings.providerSettings[provider] as any)?.apiKey?.value
+      : undefined;
 
   // --- Configuration Logic --- Updated Priority ---
   const isValidUserKey =
@@ -250,15 +312,15 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
           ...settings?.providerSettings,
           mcp: isMcpSettings(settings?.providerSettings?.mcp)
             ? {
-              ...settings?.providerSettings?.mcp,
-              sseUrl: mcpUrlInput,
-              apiBaseUrl: { value: mcpUrlInput }, // for legacy fallback
-            }
+                ...settings?.providerSettings?.mcp,
+                sseUrl: mcpUrlInput,
+                apiBaseUrl: { value: mcpUrlInput }, // for legacy fallback
+              }
             : {
-              transportType: "sse",
-              sseUrl: mcpUrlInput,
-              apiBaseUrl: { value: mcpUrlInput },
-            },
+                transportType: "sse",
+                sseUrl: mcpUrlInput,
+                apiBaseUrl: { value: mcpUrlInput },
+              },
         },
       });
     } catch (error: any) {
@@ -364,27 +426,30 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
         {/* MCP server configuration for both SSE and stdio */}
         {provider === "mcp" && !settingsLoading && (
           <div className="mb-6 mt-4 p-4 border rounded-lg bg-muted">
-            <label htmlFor="mcp-transport-type" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="mcp-transport-type"
+              className="block text-sm font-medium mb-2"
+            >
               MCP Transport Type
             </label>
             <select
               id="mcp-transport-type"
               className="input mb-2"
               value={mcpTransportType}
-              onChange={e => {
+              onChange={(e) => {
                 updateSettings({
                   providerSettings: {
                     ...settings?.providerSettings,
                     mcp: isMcpSettings(settings?.providerSettings?.mcp)
                       ? {
-                        ...settings?.providerSettings?.mcp,
-                        transportType: e.target.value as "sse" | "stdio",
-                      }
+                          ...settings?.providerSettings?.mcp,
+                          transportType: e.target.value as "sse" | "stdio",
+                        }
                       : {
-                        transportType: e.target.value as "sse" | "stdio",
-                        sseUrl: mcpUrlInput,
-                        apiBaseUrl: { value: mcpUrlInput },
-                      },
+                          transportType: e.target.value as "sse" | "stdio",
+                          sseUrl: mcpUrlInput,
+                          apiBaseUrl: { value: mcpUrlInput },
+                        },
                   },
                 });
               }}
@@ -393,9 +458,12 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
               <option value="stdio">Stdio (Local Process)</option>
             </select>
             {/* SSE URL input */}
-            {(mcpTransportType === "sse") && (
+            {mcpTransportType === "sse" && (
               <div className="mt-2">
-                <label htmlFor="mcp-url" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="mcp-url"
+                  className="block text-sm font-medium mb-2"
+                >
                   MCP SSE Server URL
                 </label>
                 <div className="flex gap-2 items-center">
@@ -404,24 +472,33 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
                     type="text"
                     className="input flex-1"
                     value={mcpUrlInput}
-                    onChange={e => setMcpUrlInput(e.target.value)}
+                    onChange={(e) => setMcpUrlInput(e.target.value)}
                     placeholder="https://your-mcp-server/sse"
                     disabled={isSavingMcpUrl}
                   />
-                  <Button onClick={handleSaveMcpUrl} disabled={isSavingMcpUrl || !mcpUrlInput}>
+                  <Button
+                    onClick={handleSaveMcpUrl}
+                    disabled={isSavingMcpUrl || !mcpUrlInput}
+                  >
                     {isSavingMcpUrl ? "Saving..." : "Save URL"}
                   </Button>
                 </div>
-                {mcpUrlError && <p className="text-xs text-red-600 mt-1">{mcpUrlError}</p>}
+                {mcpUrlError && (
+                  <p className="text-xs text-red-600 mt-1">{mcpUrlError}</p>
+                )}
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter the SSE endpoint of your MCP server (e.g., https://your-mcp-server/sse)
+                  Enter the SSE endpoint of your MCP server (e.g.,
+                  https://your-mcp-server/sse)
                 </p>
               </div>
             )}
             {/* stdio command/args input */}
             {mcpTransportType === "stdio" && (
               <div className="mt-2">
-                <label htmlFor="mcp-stdio-command" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="mcp-stdio-command"
+                  className="block text-sm font-medium mb-2"
+                >
                   MCP Stdio Command
                 </label>
                 <input
@@ -429,7 +506,7 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
                   type="text"
                   className="input flex-1 mb-2"
                   value={mcpStdioCommand}
-                  onChange={e => {
+                  onChange={(e) => {
                     updateSettings({
                       providerSettings: {
                         ...settings?.providerSettings,
@@ -449,7 +526,10 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
                   }}
                   placeholder="node"
                 />
-                <label htmlFor="mcp-stdio-args" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="mcp-stdio-args"
+                  className="block text-sm font-medium mb-2"
+                >
                   MCP Stdio Args (comma separated)
                 </label>
                 <input
@@ -457,8 +537,11 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
                   type="text"
                   className="input flex-1"
                   value={mcpStdioArgs.join(",")}
-                  onChange={e => {
-                    const args = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                  onChange={(e) => {
+                    const args = e.target.value
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean);
                     updateSettings({
                       providerSettings: {
                         ...settings?.providerSettings,
@@ -479,8 +562,13 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
                   placeholder="src/stdio/dist/server.js"
                 />
                 <MCPEnvEditor
-                  env={isMcpSettings(settings?.providerSettings?.mcp) && settings?.providerSettings?.mcp.env ? settings.providerSettings.mcp.env : {}}
-                  onChange={newEnv => {
+                  env={
+                    isMcpSettings(settings?.providerSettings?.mcp) &&
+                    settings?.providerSettings?.mcp.env
+                      ? settings.providerSettings.mcp.env
+                      : {}
+                  }
+                  onChange={(newEnv) => {
                     updateSettings({
                       providerSettings: {
                         ...settings?.providerSettings,
@@ -500,7 +588,9 @@ export function ProviderSettingsPage({ provider }: ProviderSettingsPageProps) {
                   }}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter the command, arguments, and environment variables to launch your MCP stdio server (e.g., node, src/stdio/dist/server.js)
+                  Enter the command, arguments, and environment variables to
+                  launch your MCP stdio server (e.g., node,
+                  src/stdio/dist/server.js)
                 </p>
               </div>
             )}

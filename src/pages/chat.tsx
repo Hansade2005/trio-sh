@@ -69,7 +69,8 @@ export default function ChatPage() {
           id="preview-panel"
           minSize={20}
           className={cn(
-            !isResizing && "transition-all duration-100 ease-in-out bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3"
+            !isResizing &&
+              "transition-all duration-100 ease-in-out bg-white/70 dark:bg-zinc-900/70 shadow-xl backdrop-blur-md border-none ring-1 ring-pink-200/40 dark:ring-pink-400/20 rounded-2xl m-3",
           )}
         >
           <PreviewPanel />

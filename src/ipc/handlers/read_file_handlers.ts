@@ -31,7 +31,8 @@ export function registerReadFileHandlers() {
 
 export function registerMoveFileHandler() {
   handle("move-file", async (_event, { from, to }) => {
-    if (!from || !to) throw new Error("Both 'from' and 'to' paths are required");
+    if (!from || !to)
+      throw new Error("Both 'from' and 'to' paths are required");
     // Ensure the destination directory exists
     await fs.mkdir(path.dirname(to), { recursive: true });
     await fs.rename(from, to);
@@ -41,7 +42,8 @@ export function registerMoveFileHandler() {
 
 export function registerCopyFileHandler() {
   handle("copy-file", async (_event, { from, to }) => {
-    if (!from || !to) throw new Error("Both 'from' and 'to' paths are required");
+    if (!from || !to)
+      throw new Error("Both 'from' and 'to' paths are required");
     await fs.mkdir(path.dirname(to), { recursive: true });
     await fs.copyFile(from, to);
     return { success: true };
@@ -85,8 +87,9 @@ export function registerSearchHandler() {
 
 export function registerReplaceHandler() {
   handle("replace", async (_event, { query, replace, files }) => {
-    if (!query || !replace || !files) throw new Error("'query', 'replace', and 'files' are required");
-    const fileList = files.split(",").map(f => f.trim());
+    if (!query || !replace || !files)
+      throw new Error("'query', 'replace', and 'files' are required");
+    const fileList = files.split(",").map((f) => f.trim());
     for (const file of fileList) {
       let content = await fs.readFile(file, "utf8");
       content = content.split(query).join(replace);
@@ -107,7 +110,9 @@ export function registerRunScriptHandler() {
 export function registerFormatHandler() {
   handle("format", async (_event, { path: target }) => {
     if (!target) throw new Error("'path' is required");
-    const { stdout, stderr } = await execAsync(`npx prettier --write ${target}`);
+    const { stdout, stderr } = await execAsync(
+      `npx prettier --write ${target}`,
+    );
     return { stdout, stderr };
   });
 }
@@ -146,4 +151,4 @@ export function registerDownloadHandler() {
     await fs.writeFile(to, buffer);
     return { success: true };
   });
-} 
+}

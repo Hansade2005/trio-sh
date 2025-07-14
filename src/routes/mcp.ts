@@ -6,4 +6,4 @@ export const mcpRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/mcp",
   component: MCPHubPage,
-}); 
+});

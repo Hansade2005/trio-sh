@@ -6,8 +6,11 @@ import { Experimental_StdioMCPTransport } from "ai/mcp-stdio";
 function getActiveMCPConfigs() {
   try {
     if (typeof window === "undefined") return [];
-    const settings = JSON.parse(localStorage.getItem("user-settings") || "{}") || {};
-    return (settings.providerSettings?.mcpServers || []).filter((s: any) => s.active);
+    const settings =
+      JSON.parse(localStorage.getItem("user-settings") || "{}") || {};
+    return (settings.providerSettings?.mcpServers || []).filter(
+      (s: any) => s.active,
+    );
   } catch {
     return [];
   }
@@ -57,9 +60,11 @@ export function useMCPTools() {
     return () => {
       isMounted = false;
       // Clean up: close all clients
-      clientsRef.current.forEach(client => client && client.close && client.close());
+      clientsRef.current.forEach(
+        (client) => client && client.close && client.close(),
+      );
     };
   }, []);
 
   return { tools, clients, loading, error };
-} 
+}

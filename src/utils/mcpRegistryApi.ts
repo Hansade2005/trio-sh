@@ -9,20 +9,37 @@ export async function searchMCPServers(query: string) {
       return data;
     }
   }
-  const res = await fetch(`https://www.mcp.bar/api/servers?search=${encodeURIComponent(query)}`);
+  const res = await fetch(
+    `https://www.mcp.bar/api/servers?search=${encodeURIComponent(query)}`,
+  );
   if (!res.ok) throw new Error("Failed to fetch MCP servers");
   const data = await res.json();
-  localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data, lastQuery: query }));
+  localStorage.setItem(
+    CACHE_KEY,
+    JSON.stringify({ timestamp: Date.now(), data, lastQuery: query }),
+  );
   return data;
 }
 
-export function checkForMCPServerUpdates(installedServers: any[], registryServers: any[]) {
+export function checkForMCPServerUpdates(
+  installedServers: any[],
+  registryServers: any[],
+) {
   const updates: any[] = [];
   for (const installed of installedServers) {
     const match = registryServers.find((s: any) => s.id === installed.id);
-    if (match && match.version && installed.version && match.version !== installed.version) {
-      updates.push({ id: installed.id, current: installed.version, latest: match.version });
+    if (
+      match &&
+      match.version &&
+      installed.version &&
+      match.version !== installed.version
+    ) {
+      updates.push({
+        id: installed.id,
+        current: installed.version,
+        latest: match.version,
+      });
     }
   }
   return updates;
-} 
+}

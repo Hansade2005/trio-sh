@@ -22,9 +22,7 @@ import { getDyadAppPath } from "../../paths/paths";
 import { readSettings } from "../../main/settings";
 import type { ChatResponseEnd, ChatStreamParams } from "../ipc_types";
 import { extractCodebase, readFileWithCache } from "../../utils/codebase";
-import {
-  processFullResponseActions,
-} from "../processors/response_processor";
+import { processFullResponseActions } from "../processors/response_processor";
 import { streamTestResponse } from "./testing_chat_handlers";
 import { getTestResponse } from "./testing_chat_handlers";
 import { getModelClient, ModelClient } from "../utils/get_model_client";
@@ -351,13 +349,13 @@ ${componentSnippet}
         const appPath = getDyadAppPath(updatedChat.app.path);
         const chatContext = req.selectedComponent
           ? {
-            contextPaths: [
-              {
-                globPath: req.selectedComponent.relativePath,
-              },
-            ],
-            smartContextAutoIncludes: [],
-          }
+              contextPaths: [
+                {
+                  globPath: req.selectedComponent.relativePath,
+                },
+              ],
+              smartContextAutoIncludes: [],
+            }
           : validateChatContext(updatedChat.app.chatContext);
 
         const { formattedOutput: codebaseInfo, files } = await extractCodebase({
@@ -469,39 +467,48 @@ This conversation includes one or more image attachments. When the user uploads 
 
         const codebasePrefix = isEngineEnabled
           ? // No codebase prefix if engine is set, we will take of it there.
-          []
+            []
           : ([
-            {
-              role: "user",
-              content: createCodebasePrompt(codebaseInfo),
-            },
-            {
-              role: "assistant",
-              content: "OK, got it. I'm ready to help",
-            },
-          ] as const);
+              {
+                role: "user",
+                content: createCodebasePrompt(codebaseInfo),
+              },
+              {
+                role: "assistant",
+                content: "OK, got it. I'm ready to help",
+              },
+            ] as const);
 
         // Prepare tool tags
         const toolTags = [
           { tag: "triobuilder-write", description: "Create or update a file." },
           { tag: "triobuilder-rename", description: "Rename a file." },
           { tag: "triobuilder-delete", description: "Delete a file." },
-          { tag: "triobuilder-add-dependency", description: "Install npm packages." },
+          {
+            tag: "triobuilder-add-dependency",
+            description: "Install npm packages.",
+          },
           { tag: "triobuilder-read-file", description: "Read a single file." },
-          { tag: "triobuilder-read-files", description: "Read up to three files at once." },
+          {
+            tag: "triobuilder-read-files",
+            description: "Read up to three files at once.",
+          },
           // Add more as needed
         ];
         // Prepare file list (relative paths)
         const fileList = files
-          .map(f => typeof f === 'string' ? f : f?.path)
+          .map((f) => (typeof f === "string" ? f : f?.path))
           .filter(Boolean)
-          .map(f => path.relative(appPath, f));
+          .map((f) => path.relative(appPath, f));
         // Get model name as string
-        const modelName = typeof settings.selectedModel === 'string'
-          ? settings.selectedModel
-          : settings.selectedModel?.name || '';
+        const modelName =
+          typeof settings.selectedModel === "string"
+            ? settings.selectedModel
+            : settings.selectedModel?.name || "";
         // Get current time
-        const currentTime = new Date().toLocaleString("en-US", { timeZoneName: "short" });
+        const currentTime = new Date().toLocaleString("en-US", {
+          timeZoneName: "short",
+        });
         // Build structured context
         const structuredPrompt = buildStructuredContext({
           userMessage: req.prompt,
@@ -518,12 +525,14 @@ This conversation includes one or more image attachments. When the user uploads 
             idx === limitedMessageHistory.length - 1 && msg.role === "user"
               ? { ...msg, content: structuredPrompt }
               : {
-                ...msg,
-                content:
-                  settings.selectedChatMode === "ask"
-                    ? removeTriobuilderTags(removeNonEssentialTags(msg.content))
-                    : removeNonEssentialTags(msg.content),
-              }
+                  ...msg,
+                  content:
+                    settings.selectedChatMode === "ask"
+                      ? removeTriobuilderTags(
+                          removeNonEssentialTags(msg.content),
+                        )
+                      : removeNonEssentialTags(msg.content),
+                },
           ),
         ];
 
@@ -562,7 +571,9 @@ This conversation includes one or more image attachments. When the user uploads 
 
         try {
           const settings = readSettings();
-          const mcpServers = Array.isArray(settings.providerSettings?.mcpServers)
+          const mcpServers = Array.isArray(
+            settings.providerSettings?.mcpServers,
+          )
             ? settings.providerSettings.mcpServers.filter((s: any) => s.active)
             : [];
           for (const cfg of mcpServers) {
@@ -580,7 +591,10 @@ This conversation includes one or more image attachments. When the user uploads 
           logger.error("Error aggregating MCP tools:", err);
         }
         // Merge all tool objects into a single ToolSet object
-        const mergedMcpTools = mcpTools.reduce((acc, tool) => ({ ...acc, ...tool }), {});
+        const mergedMcpTools = mcpTools.reduce(
+          (acc, tool) => ({ ...acc, ...tool }),
+          {},
+        );
 
         const simpleStreamText = async ({
           chatMessages,
@@ -609,13 +623,19 @@ This conversation includes one or more image attachments. When the user uploads 
               },
               system: systemPrompt,
               messages: chatMessages.filter((m) => m.content),
-              tools: Object.keys(mergedMcpTools).length > 0 ? mergedMcpTools : undefined,
+              tools:
+                Object.keys(mergedMcpTools).length > 0
+                  ? mergedMcpTools
+                  : undefined,
               // onError and abortSignal are not serializable
             };
             // Log the payload (redact model and functions for safety)
             const safePayload = {
               ...llmPayload,
-              model: typeof llmPayload.model === 'string' ? llmPayload.model : '[ModelInstance]',
+              model:
+                typeof llmPayload.model === "string"
+                  ? llmPayload.model
+                  : "[ModelInstance]",
             };
             payloadLogger.log(JSON.stringify(safePayload, null, 2));
             return await streamText({
@@ -763,11 +783,11 @@ This conversation includes one or more image attachments. When the user uploads 
               ) {
                 fullResponse += `<triobuilder-problem-report summary="${problemReport.problems.length} problems">
 ${problemReport.problems
-                    .map(
-                      (problem) =>
-                        `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
-                    )
-                    .join("\n")}
+  .map(
+    (problem) =>
+      `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
+  )
+  .join("\n")}
 </triobuilder-problem-report>`;
 
                 logger.info(
@@ -1198,7 +1218,9 @@ function escapeTriobuilderTags(text: string): string {
   // and are mishandled by:
   // 1. FE markdown parser
   // 2. Main process response processor
-  return text.replace(/<triobuilder/g, "＜triobuilder").replace(/<\/triobuilder/g, "＜/triobuilder");
+  return text
+    .replace(/<triobuilder/g, "＜triobuilder")
+    .replace(/<\/triobuilder/g, "＜/triobuilder");
 }
 
 const CODEBASE_PROMPT_PREFIX = "This is my codebase.";

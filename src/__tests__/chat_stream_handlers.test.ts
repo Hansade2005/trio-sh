@@ -80,7 +80,9 @@ vi.mock("../db", () => ({
 
 describe("getDyadAddDependencyTags", () => {
   it("should return an empty array when no triobuilder-add-dependency tags are found", () => {
-    const result = getDyadAddDependencyTags("No triobuilder-add-dependency tags here");
+    const result = getDyadAddDependencyTags(
+      "No triobuilder-add-dependency tags here",
+    );
     expect(result).toEqual([]);
   });
 
@@ -1038,7 +1040,9 @@ const component = <Component />;
   it("should handle malformed triobuilder tags gracefully", () => {
     const text = `Before <triobuilder-write path="file.js">unclosed tag After`;
     const result = removeDyadTags(text);
-    expect(result).toBe('Before <triobuilder-write path="file.js">unclosed tag After');
+    expect(result).toBe(
+      'Before <triobuilder-write path="file.js">unclosed tag After',
+    );
   });
 
   it("should handle triobuilder tags with special characters in content", () => {

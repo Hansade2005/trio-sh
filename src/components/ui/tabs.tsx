@@ -20,8 +20,11 @@ export function Tabs({
   children,
   ...props
 }: TabsProps) {
-  const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue || "");
-  const value = controlledValue !== undefined ? controlledValue : uncontrolledValue;
+  const [uncontrolledValue, setUncontrolledValue] = React.useState(
+    defaultValue || "",
+  );
+  const value =
+    controlledValue !== undefined ? controlledValue : uncontrolledValue;
   const setValue = (val: string) => {
     setUncontrolledValue(val);
     onValueChange?.(val);
@@ -45,12 +48,17 @@ export function TabsList({ children, ...props }: TabsListProps) {
   );
 }
 
-export interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface TabsTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
   children: React.ReactNode;
 }
 
-export function TabsTrigger({ value: triggerValue, children, ...props }: TabsTriggerProps) {
+export function TabsTrigger({
+  value: triggerValue,
+  children,
+  ...props
+}: TabsTriggerProps) {
   const ctx = React.useContext(TabsContext);
   if (!ctx) throw new Error("TabsTrigger must be used within Tabs");
   const selected = ctx.value === triggerValue;
@@ -81,7 +89,11 @@ export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-export function TabsContent({ value: contentValue, children, ...props }: TabsContentProps) {
+export function TabsContent({
+  value: contentValue,
+  children,
+  ...props
+}: TabsContentProps) {
   const ctx = React.useContext(TabsContext);
   if (!ctx) throw new Error("TabsContent must be used within Tabs");
   if (ctx.value !== contentValue) return null;
@@ -96,4 +108,4 @@ export function TabsContent({ value: contentValue, children, ...props }: TabsCon
       {children}
     </div>
   );
-} 
+}

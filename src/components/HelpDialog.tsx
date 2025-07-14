@@ -363,7 +363,30 @@ Session ID: ${sessionId}
         <DialogHeader>
           <DialogTitle>Trio Help & Support</DialogTitle>
           <DialogDescription>
-            Welcome to <span className="text-pink-600 dark:text-pink-400 font-bold">Trio</span>! Need help? You can report bugs, upload chat logs, or visit our documentation. For more, visit <a href="https://optimaai.cc" target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:underline">optimaai.cc</a> or our <a href="https://github.com/trio-sh/trio" target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:underline">GitHub repo</a>.
+            Welcome to{" "}
+            <span className="text-pink-600 dark:text-pink-400 font-bold">
+              Trio
+            </span>
+            ! Need help? You can report bugs, upload chat logs, or visit our
+            documentation. For more, visit{" "}
+            <a
+              href="https://optimaai.cc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-500 hover:underline"
+            >
+              optimaai.cc
+            </a>{" "}
+            or our{" "}
+            <a
+              href="https://github.com/trio-sh/trio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-500 hover:underline"
+            >
+              GitHub repo
+            </a>
+            .
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col space-y-4 w-full">

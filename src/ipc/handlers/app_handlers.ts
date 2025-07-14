@@ -888,30 +888,35 @@ export function registerAppHandlers() {
     return { version: packageJson.version };
   });
 
-  ipcMain.handle("open-in-vscode", async (_event, { appPath }: { appPath: string }) => {
-    const platform = os.platform();
-    let command: string;
-    if (platform === "darwin") {
-      // Try open -a first, fallback to code
-      command = `open -a \"Visual Studio Code\" \"${appPath}\" || code \"${appPath}\"`;
-    } else {
-      // Windows or Linux
-      command = `code \"${appPath}\"`;
-    }
-    try {
-      const { exec } = require("child_process");
-      await new Promise((resolve, reject) => {
-        exec(command, (error: any) => {
-          if (error) reject(error);
-          else resolve(null);
+  ipcMain.handle(
+    "open-in-vscode",
+    async (_event, { appPath }: { appPath: string }) => {
+      const platform = os.platform();
+      let command: string;
+      if (platform === "darwin") {
+        // Try open -a first, fallback to code
+        command = `open -a \"Visual Studio Code\" \"${appPath}\" || code \"${appPath}\"`;
+      } else {
+        // Windows or Linux
+        command = `code \"${appPath}\"`;
+      }
+      try {
+        const { exec } = require("child_process");
+        await new Promise((resolve, reject) => {
+          exec(command, (error: any) => {
+            if (error) reject(error);
+            else resolve(null);
+          });
         });
-      });
-      return { success: true };
-    } catch (err: any) {
-      logger.error("Failed to open in VSCode:", err);
-      throw new Error("Failed to open in VSCode. Make sure VSCode is installed and the 'code' command is available in your PATH.");
-    }
-  });
+        return { success: true };
+      } catch (err: any) {
+        logger.error("Failed to open in VSCode:", err);
+        throw new Error(
+          "Failed to open in VSCode. Make sure VSCode is installed and the 'code' command is available in your PATH.",
+        );
+      }
+    },
+  );
 
   handle("rename-branch", async (_, params: RenameBranchParams) => {
     const { appId, oldBranchName, newBranchName } = params;

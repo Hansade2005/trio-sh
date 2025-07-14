@@ -33,11 +33,17 @@ export function registerTerminalHandlers() {
 
     // Stream stdout
     proc.stdout.on("data", (data) => {
-      event.sender.send("terminal:onData", { type: "stdout", data: data.toString() });
+      event.sender.send("terminal:onData", {
+        type: "stdout",
+        data: data.toString(),
+      });
     });
     // Stream stderr
     proc.stderr.on("data", (data) => {
-      event.sender.send("terminal:onData", { type: "stderr", data: data.toString() });
+      event.sender.send("terminal:onData", {
+        type: "stderr",
+        data: data.toString(),
+      });
     });
     // On exit
     proc.on("exit", (code, signal) => {
@@ -63,4 +69,4 @@ export function registerTerminalHandlers() {
     shellProcesses.delete(senderId);
     return { success: true };
   });
-} 
+}

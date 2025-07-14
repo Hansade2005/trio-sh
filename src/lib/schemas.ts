@@ -141,7 +141,7 @@ export const UserSettingsSchema = z.object({
   selectedModel: LargeLanguageModelSchema,
   providerSettings: z.record(
     z.string(),
-    z.union([ProviderSettingSchema, MCPProviderSettingSchema])
+    z.union([ProviderSettingSchema, MCPProviderSettingSchema]),
   ),
   githubUser: GithubUserSchema.optional(),
   githubAccessToken: SecretSchema.optional(),
