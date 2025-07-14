@@ -134,6 +134,8 @@
     "openai": "^4.91.1",
     "posthog-js": "^1.236.3",
     "react": "^19.0.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.7",

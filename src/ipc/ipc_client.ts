@@ -969,4 +969,8 @@ export class IpcClient {
   public async invoke(handler: string, params?: any): Promise<any> {
     return this.ipcRenderer.invoke(handler, params);
   }
+
+  public async openInVSCode(appPath: string): Promise<{ success: boolean }> {
+    return this.ipcRenderer.invoke("open-in-vscode", { appPath });
+  }
 }
