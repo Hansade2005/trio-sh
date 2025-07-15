@@ -42,6 +42,9 @@ import { gitCommit } from "../utils/git_utils";
 import { safeSend } from "../utils/safe_sender";
 import { normalizePath } from "../processors/normalizePath";
 
+import fs from "fs/promises";
+import fse from "fs-extra";
+
 const glob = require("glob");
 
 async function copyDir(
@@ -1095,4 +1098,257 @@ export function registerAppHandlers() {
       }
     }
   );
+
+  // Register Dyad file/dir operation handlers
+  ipcMain.handle("dyad:copyfile", async (_event, { from, to }) => {
+    try {
+      await fse.copy(from, to, { overwrite: true, errorOnExist: false });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:copydir", async (_event, { from, to }) => {
+    try {
+      await fse.copy(from, to, { overwrite: true, errorOnExist: false });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:mkdir", async (_event, { path }) => {
+    try {
+      await fs.mkdir(path, { recursive: true });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:deletedir", async (_event, { path }) => {
+    try {
+      await fse.remove(path);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  // Dyad file content tools
+  ipcMain.handle("dyad:appendfile", async (_event, { path, content }) => {
+    try {
+      const workspaceRoot = process.cwd();
+      const fullPath = require("path").resolve(workspaceRoot, path);
+      if (!fullPath.startsWith(workspaceRoot)) {
+        throw new Error("Invalid file path");
+      }
+      await fs.appendFile(fullPath, content, "utf-8");
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:prependfile", async (_event, { path, content }) => {
+    try {
+      const workspaceRoot = process.cwd();
+      const fullPath = require("path").resolve(workspaceRoot, path);
+      if (!fullPath.startsWith(workspaceRoot)) {
+        throw new Error("Invalid file path");
+      }
+      let original = "";
+      try {
+        original = await fs.readFile(fullPath, "utf-8");
+      } catch (e) {
+        // If file does not exist, treat as empty
+      }
+      await fs.writeFile(fullPath, content + original, "utf-8");
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:replacefile", async (_event, { path, search, replace }) => {
+    try {
+      const workspaceRoot = process.cwd();
+      const fullPath = require("path").resolve(workspaceRoot, path);
+      if (!fullPath.startsWith(workspaceRoot)) {
+        throw new Error("Invalid file path");
+      }
+      let original = await fs.readFile(fullPath, "utf-8");
+      // Replace all occurrences (simple global string replace)
+      const replaced = original.split(search).join(replace);
+      await fs.writeFile(fullPath, replaced, "utf-8");
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  // Dyad git tools
+  const { exec } = require("child_process");
+  function runGitCommand(args, opts = {}) {
+    return new Promise((resolve, reject) => {
+      exec(args, { cwd: process.cwd(), ...opts }, (error, stdout, stderr) => {
+        if (error) {
+          reject(stderr || error.message);
+        } else {
+          resolve(stdout);
+        }
+      });
+    });
+  }
+  ipcMain.handle("dyad:gitstatus", async () => {
+    try {
+      const status = await runGitCommand("git status --short --branch");
+      return { success: true, status };
+    } catch (error) {
+      return { success: false, error };
+    }
+  });
+  ipcMain.handle("dyad:gitdiff", async (_event, { path }) => {
+    try {
+      const diff = await runGitCommand(
+        path ? `git diff -- ${path}` : "git diff"
+      );
+      return { success: true, diff };
+    } catch (error) {
+      return { success: false, error };
+    }
+  });
+  ipcMain.handle("dyad:gitlog", async (_event, { count }) => {
+    try {
+      const log = await runGitCommand(
+        `git log -n ${parseInt(count, 10) || 5} --oneline --decorate --graph --all`
+      );
+      return { success: true, log };
+    } catch (error) {
+      return { success: false, error };
+    }
+  });
+  // Dyad dependency management tools
+  const fsDep = require("fs");
+  const pathDep = require("path");
+  ipcMain.handle("dyad:listdeps", async () => {
+    try {
+      const pkgPath = pathDep.join(process.cwd(), "package.json");
+      if (!fsDep.existsSync(pkgPath)) {
+        throw new Error("package.json not found");
+      }
+      const pkg = JSON.parse(fsDep.readFileSync(pkgPath, "utf-8"));
+      const deps = [
+        ...Object.keys(pkg.dependencies || {}),
+        ...Object.keys(pkg.devDependencies || {}),
+      ];
+      return { success: true, deps };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:updatedep", async (_event, { package: pkg }) => {
+    try {
+      if (!pkg) throw new Error("No package specified");
+      const { exec } = require("child_process");
+      await new Promise((resolve, reject) => {
+        exec(`npm install ${pkg}@latest`, { cwd: process.cwd() }, (error, stdout, stderr) => {
+          if (error) {
+            reject(stderr || error.message);
+          } else {
+            resolve(stdout);
+          }
+        });
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  // Dyad code intelligence tools
+  const fsCI = require("fs");
+  const pathCI = require("path");
+  function getAllSourceFiles(exts = [".ts", ".tsx", ".js", ".jsx"]) {
+    function walk(dir) {
+      let results = [];
+      const list = fsCI.readdirSync(dir);
+      for (const file of list) {
+        const filePath = pathCI.join(dir, file);
+        const stat = fsCI.statSync(filePath);
+        if (stat && stat.isDirectory()) {
+          results = results.concat(walk(filePath));
+        } else if (exts.includes(pathCI.extname(file))) {
+          results.push(filePath);
+        }
+      }
+      return results;
+    }
+    return walk(process.cwd());
+  }
+  ipcMain.handle("dyad:findrefs", async (_event, { symbol }) => {
+    try {
+      if (!symbol) throw new Error("No symbol specified");
+      const files = getAllSourceFiles();
+      const refs = [];
+      for (const file of files) {
+        const content = fsCI.readFileSync(file, "utf-8");
+        const lines = content.split("\n");
+        lines.forEach((line, idx) => {
+          if (line.includes(symbol)) {
+            refs.push(`${file}:${idx + 1}: ${line.trim()}`);
+          }
+        });
+      }
+      return { success: true, refs };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:finddef", async (_event, { symbol }) => {
+    try {
+      if (!symbol) throw new Error("No symbol specified");
+      const files = getAllSourceFiles();
+      for (const file of files) {
+        const content = fsCI.readFileSync(file, "utf-8");
+        const lines = content.split("\n");
+        for (let idx = 0; idx < lines.length; idx++) {
+          const line = lines[idx];
+          if (line.match(new RegExp(`(function|class|const|let|var)\\s+${symbol}\\b`))) {
+            return { success: true, def: `${file}:${idx + 1}: ${line.trim()}` };
+          }
+        }
+      }
+      return { success: false, error: "Definition not found" };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:showexports", async (_event, { path }) => {
+    try {
+      if (!path) throw new Error("No file path specified");
+      const fullPath = pathCI.resolve(process.cwd(), path);
+      if (!fsCI.existsSync(fullPath)) throw new Error("File not found");
+      const content = fsCI.readFileSync(fullPath, "utf-8");
+      const exportRegex = /export\s+(?:const|function|class|let|var|default|type|interface|enum)\s+([\w$]+)/g;
+      const exports = [];
+      let match;
+      while ((match = exportRegex.exec(content)) !== null) {
+        exports.push(match[1]);
+      }
+      return { success: true, exports };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("dyad:showimports", async (_event, { path }) => {
+    try {
+      if (!path) throw new Error("No file path specified");
+      const fullPath = pathCI.resolve(process.cwd(), path);
+      if (!fsCI.existsSync(fullPath)) throw new Error("File not found");
+      const content = fsCI.readFileSync(fullPath, "utf-8");
+      const importRegex = /import\s+(?:[\w${},* ]+\s+from\s+)?["']([^"']+)["']/g;
+      const imports = [];
+      let match;
+      while ((match = importRegex.exec(content)) !== null) {
+        imports.push(match[1]);
+      }
+      return { success: true, imports };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
 }

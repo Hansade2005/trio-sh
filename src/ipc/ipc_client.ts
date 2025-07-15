@@ -967,4 +967,53 @@ export class IpcClient {
   public async moveFile(from: string, to: string): Promise<void> {
     return this.ipcRenderer.invoke("move-file", { from, to });
   }
+
+  public async copyFile(from: string, to: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:copyfile", { from, to });
+  }
+  public async copyDir(from: string, to: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:copydir", { from, to });
+  }
+  public async mkdir(path: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:mkdir", { path });
+  }
+  public async deleteDir(path: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:deletedir", { path });
+  }
+  public async appendFile(path: string, content: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:appendfile", { path, content });
+  }
+  public async prependFile(path: string, content: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:prependfile", { path, content });
+  }
+  public async replaceFile(path: string, search: string, replace: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:replacefile", { path, search, replace });
+  }
+  public async gitStatus(): Promise<{ success: boolean; status?: string; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:gitstatus");
+  }
+  public async gitDiff(path?: string): Promise<{ success: boolean; diff?: string; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:gitdiff", { path });
+  }
+  public async gitLog(count: number = 5): Promise<{ success: boolean; log?: string; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:gitlog", { count });
+  }
+  public async listDeps(): Promise<{ success: boolean; deps?: string[]; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:listdeps");
+  }
+  public async updateDep(pkg: string): Promise<{ success: boolean; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:updatedep", { package: pkg });
+  }
+  public async findRefs(symbol: string): Promise<{ success: boolean; refs?: string[]; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:findrefs", { symbol });
+  }
+  public async findDef(symbol: string): Promise<{ success: boolean; def?: string; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:finddef", { symbol });
+  }
+  public async showExports(path: string): Promise<{ success: boolean; exports?: string[]; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:showexports", { path });
+  }
+  public async showImports(path: string): Promise<{ success: boolean; imports?: string[]; error?: string }> {
+    return this.ipcRenderer.invoke("dyad:showimports", { path });
+  }
 }

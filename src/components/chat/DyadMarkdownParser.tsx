@@ -23,6 +23,22 @@ import { DyadSearchFiles } from "./DyadSearchFiles";
 import { DyadListFiles } from "./DyadListFiles";
 import { DyadSearchFileContent } from "./DyadSearchFileContent";
 import { DyadMoveFile } from "./DyadMoveFile";
+import { DyadCopyFile } from "./DyadCopyFile";
+import { DyadCopyDir } from "./DyadCopyDir";
+import { DyadMkdir } from "./DyadMkdir";
+import { DyadDeleteDir } from "./DyadDeleteDir";
+import { DyadAppendFile } from "./DyadAppendFile";
+import { DyadPrependFile } from "./DyadPrependFile";
+import { DyadReplaceFile } from "./DyadReplaceFile";
+import { DyadGitStatus } from "./DyadGitStatus";
+import { DyadGitDiff } from "./DyadGitDiff";
+import { DyadGitLog } from "./DyadGitLog";
+import { DyadListDeps } from "./DyadListDeps";
+import { DyadUpdateDep } from "./DyadUpdateDep";
+import { DyadFindRefs } from "./DyadFindRefs";
+import { DyadFindDef } from "./DyadFindDef";
+import { DyadShowExports } from "./DyadShowExports";
+import { DyadShowImports } from "./DyadShowImports";
 
 interface DyadMarkdownParserProps {
   content: string;
@@ -135,6 +151,22 @@ function preprocessUnclosedTags(content: string): {
     "dyad-searchfilecontent",
     "think",
     "dyad-movefile",
+    "dyad-copyfile",
+    "dyad-copydir",
+    "dyad-mkdir",
+    "dyad-deletedir",
+    "dyad-appendfile",
+    "dyad-prependfile",
+    "dyad-replacefile",
+    "dyad-gitstatus",
+    "dyad-gitdiff",
+    "dyad-gitlog",
+    "dyad-listdeps",
+    "dyad-updatedep",
+    "dyad-findrefs",
+    "dyad-finddef",
+    "dyad-showexports",
+    "dyad-showimports",
   ];
 
   let processedContent = content;
@@ -207,6 +239,22 @@ function parseCustomTags(content: string): ContentPiece[] {
     "dyad-searchfilecontent",
     "think",
     "dyad-movefile",
+    "dyad-copyfile",
+    "dyad-copydir",
+    "dyad-mkdir",
+    "dyad-deletedir",
+    "dyad-appendfile",
+    "dyad-prependfile",
+    "dyad-replacefile",
+    "dyad-gitstatus",
+    "dyad-gitdiff",
+    "dyad-gitlog",
+    "dyad-listdeps",
+    "dyad-updatedep",
+    "dyad-findrefs",
+    "dyad-finddef",
+    "dyad-showexports",
+    "dyad-showimports",
   ];
 
   const tagPattern = new RegExp(
@@ -517,6 +565,210 @@ function renderCustomTag(
         >
           {content}
         </DyadMoveFile>
+      );
+
+    case "dyad-copyfile":
+      return (
+        <DyadCopyFile
+          node={{
+            properties: {
+              from: attributes.from || "",
+              to: attributes.to || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadCopyFile>
+      );
+    case "dyad-copydir":
+      return (
+        <DyadCopyDir
+          node={{
+            properties: {
+              from: attributes.from || "",
+              to: attributes.to || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadCopyDir>
+      );
+    case "dyad-mkdir":
+      return (
+        <DyadMkdir
+          node={{
+            properties: {
+              path: attributes.path || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadMkdir>
+      );
+    case "dyad-deletedir":
+      return (
+        <DyadDeleteDir
+          node={{
+            properties: {
+              path: attributes.path || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadDeleteDir>
+      );
+
+    case "dyad-appendfile":
+      return (
+        <DyadAppendFile
+          node={{
+            properties: {
+              path: attributes.path || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadAppendFile>
+      );
+    case "dyad-prependfile":
+      return (
+        <DyadPrependFile
+          node={{
+            properties: {
+              path: attributes.path || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadPrependFile>
+      );
+    case "dyad-replacefile":
+      return (
+        <DyadReplaceFile
+          node={{
+            properties: {
+              path: attributes.path || "",
+              search: attributes.search || "",
+              replace: attributes.replace || "",
+              state: getState({ isStreaming, inProgress }),
+            },
+          }}
+        >
+          {content}
+        </DyadReplaceFile>
+      );
+
+    case "dyad-gitstatus":
+      return (
+        <DyadGitStatus
+          node={{
+            properties: {},
+          }}
+        >
+          {content}
+        </DyadGitStatus>
+      );
+    case "dyad-gitdiff":
+      return (
+        <DyadGitDiff
+          node={{
+            properties: {
+              path: attributes.path || "",
+            },
+          }}
+        >
+          {content}
+        </DyadGitDiff>
+      );
+    case "dyad-gitlog":
+      return (
+        <DyadGitLog
+          node={{
+            properties: {
+              count: attributes.count || "5",
+            },
+          }}
+        >
+          {content}
+        </DyadGitLog>
+      );
+
+    case "dyad-listdeps":
+      return (
+        <DyadListDeps
+          node={{
+            properties: {},
+          }}
+        >
+          {content}
+        </DyadListDeps>
+      );
+    case "dyad-updatedep":
+      return (
+        <DyadUpdateDep
+          node={{
+            properties: {
+              package: attributes.package || "",
+            },
+          }}
+        >
+          {content}
+        </DyadUpdateDep>
+      );
+
+    case "dyad-findrefs":
+      return (
+        <DyadFindRefs
+          node={{
+            properties: {
+              symbol: attributes.symbol || "",
+            },
+          }}
+        >
+          {content}
+        </DyadFindRefs>
+      );
+    case "dyad-finddef":
+      return (
+        <DyadFindDef
+          node={{
+            properties: {
+              symbol: attributes.symbol || "",
+            },
+          }}
+        >
+          {content}
+        </DyadFindDef>
+      );
+    case "dyad-showexports":
+      return (
+        <DyadShowExports
+          node={{
+            properties: {
+              path: attributes.path || "",
+            },
+          }}
+        >
+          {content}
+        </DyadShowExports>
+      );
+    case "dyad-showimports":
+      return (
+        <DyadShowImports
+          node={{
+            properties: {
+              path: attributes.path || "",
+            },
+          }}
+        >
+          {content}
+        </DyadShowImports>
       );
 
     default:
