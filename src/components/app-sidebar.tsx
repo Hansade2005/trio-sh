@@ -1,4 +1,12 @@
-import { Home, Inbox, Settings, HelpCircle, Store } from "lucide-react";
+import {
+  Home,
+  Inbox,
+  Settings,
+  HelpCircle,
+  Store,
+  PanelLeft,
+  LifeBuoy,
+} from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/components/ui/sidebar"; // import useSidebar hook
 import { useEffect, useState, useRef } from "react";
@@ -42,6 +50,11 @@ const items = [
     title: "Hub",
     to: "/hub",
     icon: Store,
+  },
+  {
+    title: "Support",
+    to: "/support",
+    icon: LifeBuoy,
   },
 ];
 
@@ -107,7 +120,10 @@ export function AppSidebar() {
         }
       }}
       className="bg-gradient-to-b from-pink-500 via-pink-400 to-pink-300/80 shadow-xl backdrop-blur-xl border-r-0 !rounded-r-3xl !border-none !overflow-visible relative"
-      style={{ boxShadow: "0 8px 32px 0 rgba(255, 95, 143, 0.25)", borderRight: "none" }}
+      style={{
+        boxShadow: "0 8px 32px 0 rgba(255, 95, 143, 0.25)",
+        borderRight: "none",
+      }}
     >
       <SidebarContent className="overflow-hidden">
         <div className="flex mt-8">
@@ -117,8 +133,10 @@ export function AppSidebar() {
               onMouseEnter={() => {
                 setHoverState("clear-hover");
               }}
-              className="bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg rounded-2xl border-none"
-            />
+              className="bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg rounded-2xl border-none flex items-center justify-center h-14 w-14 mb-2"
+            >
+              <PanelLeft className="h-6 w-6" />
+            </SidebarTrigger>
             <AppIcons onHoverChange={setHoverState} />
           </div>
           {/* Right Column: Chat List Section */}
@@ -135,10 +153,10 @@ export function AppSidebar() {
             {/* Change button to open dialog instead of linking */}
             <SidebarMenuButton
               size="sm"
-              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg border-none"
+              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl transition-all duration-200 text-white hover:bg-pink-500/40 shadow-lg border-none bg-pink-400/30 drop-shadow-lg focus:ring-2 focus:ring-pink-400 focus:outline-none active:scale-95"
               onClick={() => setIsHelpDialogOpen(true)} // Open dialog on click
             >
-              <HelpCircle className="h-5 w-5 drop-shadow-pink" />
+              <HelpCircle className="h-5 w-5 drop-shadow-pink transition-all duration-200 group-hover:scale-110" />
               <span className={"text-xs"}>Help</span>
             </SidebarMenuButton>
             <HelpDialog
@@ -151,7 +169,10 @@ export function AppSidebar() {
 
       <SidebarRail />
       {/* Pink glow effect */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-[-1] rounded-r-3xl" style={{ boxShadow: "0 0 80px 10px #ff5f8f55, 0 8px 32px 0 #ff5f8f33" }} />
+      <div
+        className="absolute top-0 left-0 w-full h-full pointer-events-none z-[-1] rounded-r-3xl"
+        style={{ boxShadow: "0 0 80px 10px #ff5f8f55, 0 8px 32px 0 #ff5f8f33" }}
+      />
     </Sidebar>
   );
 }
@@ -165,10 +186,7 @@ function AppIcons({
   const pathname = routerState.location.pathname;
 
   return (
-    // When collapsed: only show the main menu
     <SidebarGroup className="pr-0">
-      {/* <SidebarGroupLabel>Dyad</SidebarGroupLabel> */}
-
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
@@ -185,9 +203,10 @@ function AppIcons({
                 >
                   <Link
                     to={item.to}
-                    className={`flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl ${
-                      isActive ? "bg-sidebar-accent" : ""
-                    }`}
+                    className={`flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl transition-colors duration-200
+                      text-white hover:bg-pink-500/40 shadow-lg border-none
+                      ${isActive ? "bg-pink-400/60" : "bg-pink-400/30"}
+                    `}
                     onMouseEnter={() => {
                       if (item.title === "Apps") {
                         onHoverChange("start-hover:app");

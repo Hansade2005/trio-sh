@@ -104,11 +104,16 @@ export function SetupBanner() {
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-center">
           Build something everyone will
           <span className="inline-block mx-2 align-middle text-5xl">
-            <span className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent">❤️</span>
+            <span className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent">
+              ❤️
+            </span>
           </span>
           <span
             className="ml-2 font-trio-script bg-gradient-to-r from-indigo-500 via-pink-500 to-purple-500 bg-clip-text text-transparent drop-shadow-lg"
-            style={{ WebkitTextStroke: '2px white', textShadow: '2px 2px 8px rgba(0,0,0,0.15)' }}
+            style={{
+              WebkitTextStroke: "2px white",
+              textShadow: "2px 2px 8px rgba(0,0,0,0.15)",
+            }}
           >
             Trio AI
           </span>
@@ -139,7 +144,7 @@ export function SetupBanner() {
   return (
     <>
       <p className="text-xl text-zinc-700 dark:text-zinc-300 p-4">
-        Follow these steps and you'll be ready to start building with Dyad...
+        Follow these steps and you'll be ready to start building with Trio AI...
       </p>
       <div className={bannerClasses}>
         <Accordion

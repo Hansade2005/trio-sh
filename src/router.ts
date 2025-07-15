@@ -6,6 +6,7 @@ import { settingsRoute } from "./routes/settings";
 import { providerSettingsRoute } from "./routes/settings/providers/$provider";
 import { appDetailsRoute } from "./routes/app-details";
 import { hubRoute } from "./routes/hub";
+import SupportPage from "./pages/support";
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -13,6 +14,7 @@ const routeTree = rootRoute.addChildren([
   chatRoute,
   appDetailsRoute,
   settingsRoute.addChildren([providerSettingsRoute]),
+  supportRoute,
 ]);
 
 // src/components/NotFoundRedirect.tsx
@@ -39,6 +41,12 @@ export const router = createRouter({
   routeTree,
   defaultNotFoundComponent: NotFoundRedirect,
   defaultErrorComponent: ErrorBoundary,
+});
+
+export const supportRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/support",
+  component: SupportPage,
 });
 
 declare module "@tanstack/react-router" {
