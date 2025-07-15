@@ -21,6 +21,7 @@ import { useAtomValue } from "jotai";
 import { selectedChatIdAtom } from "@/atoms/chatAtoms";
 import { ChatLogsData } from "@/ipc/ipc_types";
 import { showError } from "@/lib/toast";
+import { DialogFooter } from "@/components/ui/dialog";
 
 interface HelpDialogProps {
   isOpen: boolean;

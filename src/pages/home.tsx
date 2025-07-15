@@ -48,9 +48,7 @@ export default function HomePage() {
   const appVersion = useAppVersion();
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const [releaseUrl, setReleaseUrl] = useState("");
-  const {
-    /* theme */
-  } = useTheme(); // Removed unused variable to fix lint error
+  const { theme } = useTheme();
   const queryClient = useQueryClient();
   useEffect(() => {
     const updateLastVersionLaunched = async () => {
