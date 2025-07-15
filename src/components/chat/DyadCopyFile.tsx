@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { FileCopy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useCopyFile } from "@/hooks/useCopyFile";
 
 interface DyadCopyFileProps {
@@ -25,7 +25,7 @@ export const DyadCopyFile: React.FC<DyadCopyFileProps> = ({ node, from: fromProp
   return (
     <Card className="my-2">
       <CardHeader className="flex flex-row items-center gap-2 p-4 pb-2">
-        <FileCopy className="text-blue-500" size={18} />
+        <Copy className="text-blue-500" size={18} />
         <CardTitle className="text-base">Copy File</CardTitle>
         <span className="ml-2 text-xs text-gray-500">{from} → {to}</span>
       </CardHeader>
