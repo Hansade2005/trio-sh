@@ -73,6 +73,13 @@ const config: ForgeConfig = {
     //     },
     asar: true,
     ignore,
+    win32metadata: {
+      CompanyName: "Pixelways.inc (Hans Ade)",
+      FileDescription: "Trio AI",
+      OriginalFilename: "trio.exe",
+      ProductName: "Trio AI",
+      InternalName: "trio",
+    },
     // ignore: [/node_modules\/(?!(better-sqlite3|bindings|file-uri-to-path)\/)/],
   },
   rebuildConfig: {
