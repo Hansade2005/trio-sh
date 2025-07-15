@@ -6,6 +6,8 @@ import {
   Store,
   PanelLeft,
   LifeBuoy,
+  BookOpen,
+  MessageCircle,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/components/ui/sidebar"; // import useSidebar hook
@@ -55,6 +57,16 @@ const items = [
     title: "Support",
     to: "/support",
     icon: LifeBuoy,
+  },
+  {
+    title: "FAQ",
+    to: "/faq",
+    icon: BookOpen,
+  },
+  {
+    title: "Feedback",
+    to: "/feedback",
+    icon: MessageCircle,
   },
 ];
 
