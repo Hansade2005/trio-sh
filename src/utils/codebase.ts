@@ -8,6 +8,8 @@ import { glob } from "glob";
 import { AppChatContext } from "../lib/schemas";
 import { readSettings } from "@/main/settings";
 import { AsyncVirtualFileSystem } from "./VirtualFilesystem";
+import { estimateTokens } from "@/ipc/utils/token_utils";
+import { readFileSync } from "fs";
 
 const logger = log.scope("utils/codebase");
 
@@ -367,6 +369,37 @@ export type CodebaseFile = {
   force?: boolean;
 };
 
+// Remove getModelPricePerToken and cost logic
+
+function getToolTagsSection(): string {
+  // Hardcoded list of tool tags and their uses (keep in sync with system prompt)
+  return `\n# Available Tool Tags\n• <dyad-write> — create or update files. Only one <dyad-write> block per file. Always close the tag.\n• <dyad-readfile> — read a single file. Example: <dyad-readfile path=\"src/foo.ts\"></dyad-readfile>\n• <dyad-readfiles> — read up to three files at once. Example: <dyad-readfiles paths=\"src/foo.ts,src/bar.ts,src/baz.ts\"></dyad-readfiles>\n• <dyad-searchfiles> — search for files by name. Example: <dyad-searchfiles pattern=\"*.ts\"></dyad-searchfiles>\n• <dyad-listfiles> — list files in a directory. Example: <dyad-listfiles dir=\"src/components\"></dyad-listfiles>\n• <dyad-searchfilecontent> — search for contents or symbols in a file. Example: <dyad-searchfilecontent path=\"src/App.tsx\" query=\"useState\"></dyad-searchfilecontent>\n• <dyad-movefile> — move a file. Example: <dyad-movefile from=\"src/old/path.ts\" to=\"src/new/path.ts\"></dyad-movefile>\n• <dyad-rename> — rename files.\n• <dyad-delete> — remove files.\n• <dyad-add-dependency> — install packages (space-separated, not comma-separated).\n• <dyad-chat-summary> — set the chat summary (one concise sentence, always include exactly one chat title).\n`;
+}
+
+function formatEnvironmentAndFileList({ appPath, files, settings, tokenCount }: { appPath: string; files: string[]; settings: any; tokenCount: number }): string {
+  const now = new Date();
+  const timeString = now.toLocaleString("en-US", { timeZoneName: "short" });
+  // Mode and model
+  const modeSlug = settings.selectedChatMode || "unknown";
+  const modeName = modeSlug === "build" ? "💻 Code" : modeSlug === "ask" ? "💬 Ask" : modeSlug;
+  const model = settings.selectedModel?.name || "unknown";
+  return `
+# Current Time
+${timeString}
+
+# Current Context Size (Tokens)
+${tokenCount}
+
+# Current Mode
+<slug>${modeSlug}</slug>
+<name>${modeName}</name>
+<model>${model}</model>
+
+# Current Workspace Directory (${appPath}) Files
+${files.map(f => f.replace(/\\/g, "/")).join("\n")}
+${getToolTagsSection()}`;
+}
+
 /**
  * Extract and format codebase files as a string to be included in prompts
  * @param appPath - Path to the codebase to extract
@@ -386,8 +419,7 @@ export async function extractCodebase({
   files: CodebaseFile[];
 }> {
   const settings = readSettings();
-  const isSmartContextEnabled =
-    settings?.enableDyadPro && settings?.enableProSmartFilesContextMode;
+  const isSmartContextEnabled = settings?.enableProSmartFilesContextMode;
 
   try {
     await fsAsync.access(appPath);
@@ -471,52 +503,48 @@ export async function extractCodebase({
 
   // Only filter files if contextPaths are provided
   // If only smartContextAutoIncludes are provided, keep all files and just mark auto-includes as forced
+  let filesArray: CodebaseFile[] = [];
+  let formattedOutput = "";
   if (contextPaths && contextPaths.length > 0) {
     files = files.filter((file) => includedFiles.has(path.normalize(file)));
+    // If contextPaths are set, include file contents as before
+    const sortedFiles = await sortFilesByModificationTime([...new Set(files)]);
+    filesArray = [];
+    const formatPromises = sortedFiles.map(async (file) => {
+      const formattedContent = await formatFile(file, appPath, virtualFileSystem);
+      // Get raw content for the files array
+      const relativePath = path
+        .relative(appPath, file)
+        .split(path.sep)
+        .join("/");
+      const isForced = autoIncludedFiles.has(path.normalize(file));
+      const fileContent = isOmittedFile(relativePath)
+        ? OMITTED_FILE_CONTENT
+        : await readFileWithCache(file, virtualFileSystem);
+      if (fileContent != null) {
+        filesArray.push({
+          path: relativePath,
+          content: fileContent,
+          force: isForced,
+        });
+      }
+      return formattedContent;
+    });
+    const formattedFiles = await Promise.all(formatPromises);
+    formattedOutput = formattedFiles.join("");
+  } else {
+    // Default: only send environment and file list
+    const relativeFiles = files.map((file) => path.relative(appPath, file).split(path.sep).join("/"));
+    // Calculate token count
+    const tempOutput = formatEnvironmentAndFileList({ appPath, files: relativeFiles, settings, tokenCount: 0 });
+    const tokenCount = estimateTokens(tempOutput);
+    formattedOutput = formatEnvironmentAndFileList({ appPath, files: relativeFiles, settings, tokenCount });
+    filesArray = [];
   }
-
-  // Sort files by modification time (oldest first)
-  // This is important for cache-ability.
-  const sortedFiles = await sortFilesByModificationTime([...new Set(files)]);
-
-  // Format files and collect individual file contents
-  const filesArray: CodebaseFile[] = [];
-  const formatPromises = sortedFiles.map(async (file) => {
-    const formattedContent = await formatFile(file, appPath, virtualFileSystem);
-
-    // Get raw content for the files array
-    const relativePath = path
-      .relative(appPath, file)
-      // Why? Normalize Windows-style paths which causes lots of weird issues (e.g. Git commit)
-      .split(path.sep)
-      .join("/");
-
-    const isForced = autoIncludedFiles.has(path.normalize(file));
-
-    const fileContent = isOmittedFile(relativePath)
-      ? OMITTED_FILE_CONTENT
-      : await readFileWithCache(file, virtualFileSystem);
-    if (fileContent != null) {
-      filesArray.push({
-        path: relativePath,
-        content: fileContent,
-        force: isForced,
-      });
-    }
-
-    return formattedContent;
-  });
-
-  const formattedFiles = await Promise.all(formatPromises);
-  const formattedOutput = formattedFiles.join("");
 
   const endTime = Date.now();
   logger.log("extractCodebase: time taken", endTime - startTime);
   if (IS_TEST_BUILD) {
-    // Why? For some reason, file ordering is not stable on Windows.
-    // This is a workaround to ensure stable ordering, although
-    // ideally we'd like to sort it by modification time which is
-    // important for cache-ability.
     filesArray.sort((a, b) => a.path.localeCompare(b.path));
   }
   return {

@@ -103,8 +103,8 @@ export function ProModeSelector() {
               id="smart-context"
               label="Smart Context"
               description="Optimizes your AI's code context"
-              tooltip="Improve efficiency and save credits working on large codebases."
-              isTogglable={proModeTogglable}
+              tooltip="Improve efficiency and save credits working on large codebases. Available for all providers."
+              isTogglable={true}
               settingEnabled={Boolean(settings?.enableProSmartFilesContextMode)}
               toggle={toggleSmartContext}
             />

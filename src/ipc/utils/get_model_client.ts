@@ -161,6 +161,7 @@ export async function getModelClient(
       "No API keys available for any model supported by the 'auto' provider.",
     );
   }
+  // For non-Dyad providers, just call getRegularModelClient as before. The context summary is handled in extractCodebase.
   return getRegularModelClient(model, settings, providerConfig);
 }
 
