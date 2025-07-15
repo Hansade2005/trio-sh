@@ -48,7 +48,9 @@ export default function HomePage() {
   const appVersion = useAppVersion();
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const [releaseUrl, setReleaseUrl] = useState("");
-  const { theme } = useTheme();
+  const {
+    /* theme */
+  } = useTheme(); // Removed unused variable to fix lint error
   const queryClient = useQueryClient();
   useEffect(() => {
     const updateLastVersionLaunched = async () => {
@@ -172,7 +174,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center max-w-3xl m-auto p-8 bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl relative">
       <SetupBanner />
 
-      <div className="w-full pb-20">
+      <div className="w-full">
         <ImportAppButton />
         <HomeChatInput onSubmit={handleSubmit} />
 

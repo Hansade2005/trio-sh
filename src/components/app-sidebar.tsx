@@ -1,17 +1,4 @@
-import {
-  Home,
-  Inbox,
-  Settings,
-  HelpCircle,
-  Store,
-  PanelLeft,
-  LifeBuoy,
-  BookOpen,
-  MessageCircle,
-  Milestone,
-  Bot,
-  CheckCircle,
-} from "lucide-react";
+import { Home, Inbox, Settings, HelpCircle, Store } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/components/ui/sidebar"; // import useSidebar hook
 import { useEffect, useState, useRef } from "react";
@@ -47,56 +34,14 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "AI",
-    labelElement: (
-      <span className="flex items-center gap-1">
-        A
-        <span className="relative inline-flex items-center ml-0.5">
-          I
-          <span
-            className="ml-0.5 inline-flex items-center justify-center rounded-full bg-blue-500"
-            style={{ width: 16, height: 16 }}
-          >
-            <CheckCircle className="h-3 w-3 text-white" aria-label="Verified" />
-          </span>
-        </span>
-        <span className="ml-2 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full font-semibold animate-pulse animate-blink">
-          new
-        </span>
-      </span>
-    ),
-    to: "/ai",
-    icon: Bot,
-  },
-  {
-    title: "Hub",
-    to: "/hub",
-    icon: Store,
-  },
-  {
     title: "Settings",
     to: "/settings",
     icon: Settings,
   },
   {
-    title: "Support",
-    to: "/support",
-    icon: LifeBuoy,
-  },
-  {
-    title: "FAQ",
-    to: "/faq",
-    icon: BookOpen,
-  },
-  {
-    title: "Feedback",
-    to: "/feedback",
-    icon: MessageCircle,
-  },
-  {
-    title: "Roadmap",
-    to: "/roadmap",
-    icon: Milestone,
+    title: "Hub",
+    to: "/hub",
+    icon: Store,
   },
 ];
 
@@ -175,10 +120,8 @@ export function AppSidebar() {
               onMouseEnter={() => {
                 setHoverState("clear-hover");
               }}
-              className="bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg rounded-2xl border-none flex items-center justify-center h-14 w-14 mb-2"
-            >
-              <PanelLeft className="h-6 w-6" />
-            </SidebarTrigger>
+              className="bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg rounded-2xl border-none"
+            />
             <AppIcons onHoverChange={setHoverState} />
           </div>
           {/* Right Column: Chat List Section */}
@@ -195,10 +138,10 @@ export function AppSidebar() {
             {/* Change button to open dialog instead of linking */}
             <SidebarMenuButton
               size="sm"
-              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl transition-all duration-200 text-white hover:bg-pink-500/40 shadow-lg border-none bg-pink-400/30 drop-shadow-lg focus:ring-2 focus:ring-pink-400 focus:outline-none active:scale-95"
+              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg border-none"
               onClick={() => setIsHelpDialogOpen(true)} // Open dialog on click
             >
-              <HelpCircle className="h-5 w-5 drop-shadow-pink transition-all duration-200 group-hover:scale-110" />
+              <HelpCircle className="h-5 w-5 drop-shadow-pink" />
               <span className={"text-xs"}>Help</span>
             </SidebarMenuButton>
             <HelpDialog
@@ -228,7 +171,10 @@ function AppIcons({
   const pathname = routerState.location.pathname;
 
   return (
+    // When collapsed: only show the main menu
     <SidebarGroup className="pr-0">
+      {/* <SidebarGroupLabel>Dyad</SidebarGroupLabel> */}
+
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
@@ -245,10 +191,9 @@ function AppIcons({
                 >
                   <Link
                     to={item.to}
-                    className={`flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl transition-colors duration-200
-                      text-white hover:bg-pink-500/40 shadow-lg border-none
-                      ${isActive ? "bg-pink-400/60" : "bg-pink-400/30"}
-                    `}
+                    className={`flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl ${
+                      isActive ? "bg-sidebar-accent" : ""
+                    }`}
                     onMouseEnter={() => {
                       if (item.title === "Apps") {
                         onHoverChange("start-hover:app");
@@ -259,9 +204,7 @@ function AppIcons({
                   >
                     <div className="flex flex-col items-center gap-1">
                       <item.icon className="h-5 w-5" />
-                      <span className={"text-xs"}>
-                        {item.labelElement ? item.labelElement : item.title}
-                      </span>
+                      <span className={"text-xs"}>{item.title}</span>
                     </div>
                   </Link>
                 </SidebarMenuButton>

@@ -109,7 +109,7 @@ const ErrorBanner = ({ error, onDismiss, onAIFix }: ErrorBannerProps) => {
           className="cursor-pointer flex items-center space-x-1 px-2 py-0.5 bg-red-500 dark:bg-red-600 text-white rounded text-sm hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Sparkles size={14} />
-          <span>Fix error with Trio AI</span>
+          <span>Fix error with AI</span>
         </button>
       </div>
     </div>

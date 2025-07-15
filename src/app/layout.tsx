@@ -17,7 +17,13 @@ export default function RootLayout({
           <SidebarProvider>
             <TitleBar />
             <AppSidebar />
-            <div className="flex h-screenish w-full overflow-x-hidden mt-12 mb-4 mr-4 border-t border-l border-border rounded-lg bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 dark:bg-background">
+            <div
+              className="flex h-screenish w-full overflow-x-hidden mt-12 mb-4 mr-4 border-t border-l border-border rounded-lg bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl relative"
+              style={{
+                boxShadow: "0 8px 32px 0 rgba(255, 95, 143, 0.10)",
+                border: "none",
+              }}
+            >
               {children}
             </div>
             <Toaster richColors />
