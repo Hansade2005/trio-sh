@@ -99,7 +99,7 @@ export function ContextFilesPicker() {
         <TooltipContent>Codebase Context</TooltipContent>
       </Tooltip>
 
-      <PopoverContent className="w-96" align="start">
+      <PopoverContent className="w-96 bg-gradient-to-br from-pink-100/90 via-pink-50/90 to-white/90 backdrop-blur-xl shadow-xl rounded-2xl border-none" align="start">
         <div className="relative space-y-4">
           <div>
             <h3 className="font-medium">Codebase Context</h3>
@@ -155,7 +155,7 @@ export function ContextFilesPicker() {
                 {contextPaths.map((p) => (
                   <div
                     key={p.globPath}
-                    className="flex items-center justify-between gap-2 rounded-md border p-2"
+                    className="flex items-center justify-between gap-2 rounded-xl border-none bg-white/60 shadow px-3 py-2 mb-1 hover:bg-pink-100/60 transition-all"
                   >
                     <div className="flex flex-1 flex-col overflow-hidden">
                       <Tooltip>
@@ -186,7 +186,7 @@ export function ContextFilesPicker() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-md border border-dashed p-4 text-center">
+              <div className="rounded-xl border-none bg-white/60 shadow p-4 text-center">
                 <p className="text-sm text-muted-foreground">
                   {isSmartContextEnabled
                     ? "With Smart Context, the most relevant files are used as context."

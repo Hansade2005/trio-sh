@@ -109,14 +109,14 @@ export function ChatList({ show }: { show?: boolean }) {
   };
 
   return (
-    <SidebarGroup className="overflow-y-auto h-[calc(100vh-112px)]">
+    <SidebarGroup className="overflow-y-auto h-[calc(100vh-112px)] bg-gradient-to-br from-pink-100/60 via-pink-50/60 to-white/60 backdrop-blur-xl rounded-2xl shadow-md">
       <SidebarGroupLabel>Recent Chats</SidebarGroupLabel>
       <SidebarGroupContent>
         <div className="flex flex-col space-y-4">
           <Button
             onClick={handleNewChat}
             variant="outline"
-            className="flex items-center justify-start gap-2 mx-2 py-3"
+            className="flex items-center justify-start gap-2 mx-2 py-3 bg-pink-400/30 hover:bg-pink-500/40 text-pink-700 rounded-xl shadow-md"
           >
             <PlusCircle size={16} />
             <span>New Chat</span>
@@ -140,9 +140,9 @@ export function ChatList({ show }: { show?: boolean }) {
                       onClick={() =>
                         handleChatClick({ chatId: chat.id, appId: chat.appId })
                       }
-                      className={`justify-start w-full text-left py-3 pr-1 hover:bg-sidebar-accent/80 ${
+                      className={`justify-start w-full text-left py-3 pr-1 hover:bg-pink-200/80 hover:text-pink-700 rounded-xl transition-all ${
                         selectedChatId === chat.id
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          ? "bg-pink-400/60 text-pink-900 shadow-lg"
                           : ""
                       }`}
                     >

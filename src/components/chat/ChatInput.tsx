@@ -269,8 +269,8 @@ export function ChatInput({ chatId }: { chatId?: number }) {
       )}
       <div className="p-4" data-testid="chat-input-container">
         <div
-          className={`relative flex flex-col border border-border rounded-lg bg-(--background-lighter) shadow-sm ${
-            isDraggingOver ? "ring-2 ring-blue-500 border-blue-500" : ""
+          className={`relative flex flex-col border !border-none rounded-2xl bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-xl ${
+            isDraggingOver ? "ring-2 ring-pink-400 border-pink-400" : ""
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -316,7 +316,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
               onKeyPress={handleKeyPress}
               onPaste={handlePaste}
               placeholder="Ask Dyad to build..."
-              className="flex-1 p-2 focus:outline-none overflow-y-auto min-h-[40px] max-h-[200px]"
+              className="flex-1 p-2 focus:outline-none overflow-y-auto min-h-[40px] max-h-[200px] bg-transparent text-gray-800 rounded-xl focus:ring-2 focus:ring-pink-400"
               style={{ resize: "none" }}
             />
 
@@ -332,7 +332,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
               <button
                 onClick={handleSubmit}
                 disabled={!inputValue.trim() && attachments.length === 0}
-                className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg disabled:opacity-50"
+                className="px-2 py-2 mt-1 mr-1 bg-pink-400/30 hover:bg-pink-500/40 text-pink-700 rounded-xl shadow-md disabled:opacity-50 transition-all"
                 title="Send message"
               >
                 <SendHorizontalIcon size={20} />

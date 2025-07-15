@@ -9,7 +9,7 @@ export function ChatInputControls({
   showContextFilesPicker?: boolean;
 }) {
   return (
-    <div className="flex">
+    <div className="flex bg-white/60 backdrop-blur-md rounded-xl shadow px-2 py-1 gap-2">
       <ChatModeSelector />
       <div className="w-1.5"></div>
       <ModelPicker />

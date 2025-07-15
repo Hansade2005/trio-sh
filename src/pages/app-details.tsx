@@ -223,7 +223,7 @@ export default function AppDetailsPage() {
 
   return (
     <div
-      className="relative min-h-screen p-4 w-full"
+      className="relative min-h-screen p-4 w-full bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl"
       data-testid="app-details-page"
     >
       <Button

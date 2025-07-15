@@ -18,7 +18,7 @@ const HubPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen px-8 py-4">
+    <div className="min-h-screen px-8 py-4 bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl">
       <div className="max-w-5xl mx-auto">
         <Button
           onClick={() => router.history.back()}

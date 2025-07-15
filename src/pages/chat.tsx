@@ -40,41 +40,43 @@ export default function ChatPage() {
   const ref = useRef<ImperativePanelHandle>(null);
 
   return (
-    <PanelGroup autoSaveId="persistence" direction="horizontal">
-      <Panel id="chat-panel" minSize={30}>
-        <div className="h-full w-full">
-          <ChatPanel
-            chatId={chatId}
-            isPreviewOpen={isPreviewOpen}
-            onTogglePreview={() => {
-              setIsPreviewOpen(!isPreviewOpen);
-              if (isPreviewOpen) {
-                ref.current?.collapse();
-              } else {
-                ref.current?.expand();
-              }
-            }}
-          />
-        </div>
-      </Panel>
-
-      <>
-        <PanelResizeHandle
-          onDragging={(e) => setIsResizing(e)}
-          className="w-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors cursor-col-resize"
-        />
-        <Panel
-          collapsible
-          ref={ref}
-          id="preview-panel"
-          minSize={20}
-          className={cn(
-            !isResizing && "transition-all duration-100 ease-in-out",
-          )}
-        >
-          <PreviewPanel />
+    <div className="h-full w-full p-4 bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl">
+      <PanelGroup autoSaveId="persistence" direction="horizontal">
+        <Panel id="chat-panel" minSize={30}>
+          <div className="h-full w-full">
+            <ChatPanel
+              chatId={chatId}
+              isPreviewOpen={isPreviewOpen}
+              onTogglePreview={() => {
+                setIsPreviewOpen(!isPreviewOpen);
+                if (isPreviewOpen) {
+                  ref.current?.collapse();
+                } else {
+                  ref.current?.expand();
+                }
+              }}
+            />
+          </div>
         </Panel>
-      </>
-    </PanelGroup>
+
+        <>
+          <PanelResizeHandle
+            onDragging={(e) => setIsResizing(e)}
+            className="w-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors cursor-col-resize"
+          />
+          <Panel
+            collapsible
+            ref={ref}
+            id="preview-panel"
+            minSize={20}
+            className={cn(
+              !isResizing && "transition-all duration-100 ease-in-out",
+            )}
+          >
+            <PreviewPanel />
+          </Panel>
+        </>
+      </PanelGroup>
+    </div>
   );
 }

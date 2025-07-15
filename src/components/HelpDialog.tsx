@@ -356,7 +356,7 @@ Session ID: ${sessionId}
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="bg-gradient-to-br from-pink-100/90 via-pink-50/90 to-white/90 backdrop-blur-xl shadow-2xl rounded-2xl border-none">
         <DialogHeader>
           <DialogTitle>Need help with Dyad?</DialogTitle>
         </DialogHeader>
