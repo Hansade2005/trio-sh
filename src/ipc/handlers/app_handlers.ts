@@ -8,12 +8,12 @@ import type {
   RenameBranchParams,
   CopyAppParams,
 } from "../ipc_types";
+import * as fsPromises from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { getDyadAppPath, getUserDataPath } from "../../paths/paths";
 import { spawn } from "node:child_process";
 import git from "isomorphic-git";
-import { promises as fsPromises } from "node:fs";
 
 // Import our utility modules
 import { withLock } from "../utils/lock_utils";
@@ -41,11 +41,8 @@ import { createFromTemplate } from "./createFromTemplate";
 import { gitCommit } from "../utils/git_utils";
 import { safeSend } from "../utils/safe_sender";
 import { normalizePath } from "../processors/normalizePath";
-
-import fs from "fs/promises";
 import fse from "fs-extra";
-
-const glob = require("glob");
+import { glob } from "glob";
 
 async function copyDir(
   source: string,
@@ -241,7 +238,7 @@ export function registerAppHandlers() {
       // Create initial commit
       const commitHash = await gitCommit({
         path: fullAppPath,
-        message: "Init Dyad app",
+        message: "Init Trio AI ",
       });
 
       // Update chat with initial commit hash
@@ -313,7 +310,7 @@ export function registerAppHandlers() {
         // Create initial commit
         await gitCommit({
           path: newAppPath,
-          message: "Init Dyad app",
+          message: "Init Trio AI",
         });
       }
 
@@ -415,23 +412,22 @@ export function registerAppHandlers() {
     },
   );
 
-  ipcMain.handle(
-    "read-file",
-    async (_event, { path }: { path: string }) => {
-      const workspaceRoot = process.cwd();
-      const fullPath = require("path").resolve(workspaceRoot, path);
-      if (!fullPath.startsWith(workspaceRoot)) {
-        throw new Error("Invalid file path");
-      }
-      try {
-        const contents = require("fs").readFileSync(fullPath, "utf-8");
-        return contents.split("\n").map((content, idx) => ({ line: idx + 1, content }));
-      } catch (error) {
-        logger.error(`Error reading file ${path}:`, error);
-        throw new Error("Failed to read file");
-      }
+  ipcMain.handle("read-file", async (_event, { path }: { path: string }) => {
+    const workspaceRoot = process.cwd();
+    const fullPath = require("path").resolve(workspaceRoot, path);
+    if (!fullPath.startsWith(workspaceRoot)) {
+      throw new Error("Invalid file path");
     }
-  );
+    try {
+      const contents = require("fs").readFileSync(fullPath, "utf-8");
+      return contents
+        .split("\n")
+        .map((content: string, idx: number) => ({ line: idx + 1, content }));
+    } catch (error) {
+      logger.error(`Error reading file ${path}:`, error);
+      throw new Error("Failed to read file");
+    }
+  });
 
   ipcMain.handle(
     "read-files",
@@ -439,7 +435,7 @@ export function registerAppHandlers() {
       const workspaceRoot = process.cwd();
       const fs = require("fs");
       const pathMod = require("path");
-      const contents: Record<string, { line: number, content: string }[]> = {};
+      const contents: Record<string, { line: number; content: string }[]> = {};
       const error: Record<string, string> = {};
       for (const relPath of (paths || []).slice(0, 3)) {
         const fullPath = pathMod.resolve(workspaceRoot, relPath);
@@ -449,13 +445,18 @@ export function registerAppHandlers() {
         }
         try {
           const fileContent = fs.readFileSync(fullPath, "utf-8");
-          contents[relPath] = fileContent.split("\n").map((content, idx) => ({ line: idx + 1, content }));
-        } catch (err) {
+          contents[relPath] = fileContent
+            .split("\n")
+            .map((content: string, idx: number) => ({
+              line: idx + 1,
+              content,
+            }));
+        } catch {
           error[relPath] = "Failed to read file";
         }
       }
       return { contents, error };
-    }
+    },
   );
 
   // Do NOT use handle for this, it contains sensitive information.
@@ -992,26 +993,23 @@ export function registerAppHandlers() {
       const workspaceRoot = process.cwd();
       // Use glob to find files matching the pattern
       return glob.sync(pattern, { cwd: workspaceRoot, nodir: true });
-    }
+    },
   );
 
-  ipcMain.handle(
-    "list-files",
-    async (_event, { dir }: { dir: string }) => {
-      const workspaceRoot = process.cwd();
-      const pathMod = require("path");
-      const fs = require("fs");
-      const fullDir = pathMod.resolve(workspaceRoot, dir);
-      if (!fullDir.startsWith(workspaceRoot)) {
-        throw new Error("Invalid directory path");
-      }
-      try {
-        return fs.readdirSync(fullDir);
-      } catch (err) {
-        throw new Error("Failed to list files");
-      }
+  ipcMain.handle("list-files", async (_event, { dir }: { dir: string }) => {
+    const workspaceRoot = process.cwd();
+    const pathMod = require("path");
+    const fs = require("fs");
+    const fullDir = pathMod.resolve(workspaceRoot, dir);
+    if (!fullDir.startsWith(workspaceRoot)) {
+      throw new Error("Invalid directory path");
     }
-  );
+    try {
+      return fs.readdirSync(fullDir);
+    } catch {
+      throw new Error("Failed to list files");
+    }
+  });
 
   ipcMain.handle(
     "search-file-content",
@@ -1028,12 +1026,17 @@ export function registerAppHandlers() {
         const lines = content.split("\n");
         const lowerQuery = query.toLowerCase();
         return lines
-          .map((lineContent, idx) => ({ line: idx + 1, content: lineContent }))
-          .filter(obj => obj.content.toLowerCase().includes(lowerQuery));
-      } catch (err) {
+          .map((lineContent: string, idx: number) => ({
+            line: idx + 1,
+            content: lineContent,
+          }))
+          .filter((obj: { line: number; content: string }) =>
+            obj.content.toLowerCase().includes(lowerQuery),
+          );
+      } catch {
         throw new Error("Failed to search file content");
       }
-    }
+    },
   );
 
   ipcMain.handle(
@@ -1044,7 +1047,10 @@ export function registerAppHandlers() {
       const fs = require("fs");
       const fromPath = pathMod.resolve(workspaceRoot, from);
       const toPath = pathMod.resolve(workspaceRoot, to);
-      if (!fromPath.startsWith(workspaceRoot) || !toPath.startsWith(workspaceRoot)) {
+      if (
+        !fromPath.startsWith(workspaceRoot) ||
+        !toPath.startsWith(workspaceRoot)
+      ) {
         throw new Error("Invalid file path");
       }
       try {
@@ -1053,51 +1059,50 @@ export function registerAppHandlers() {
         fs.mkdirSync(dirPath, { recursive: true });
         fs.renameSync(fromPath, toPath);
         return;
-      } catch (err) {
+      } catch {
         throw new Error("Failed to move file");
       }
-    }
+    },
   );
 
-  ipcMain.handle(
-    "open-in-vscode",
-    async () => {
-      const workspaceRoot = process.cwd();
-      let command, args;
-      if (process.platform === "win32") {
-        command = "cmd";
-        args = ["/c", "code", "."];
-      } else if (process.platform === "darwin") {
-        // Try CLI first, fallback to open -a
-        command = "code";
-        args = ["."];
-      } else {
-        command = "code";
-        args = ["."];
-      }
-      try {
-        const child = spawn(command, args, {
-          cwd: workspaceRoot,
-          detached: true,
-          stdio: "ignore",
-        });
-        child.unref();
-        return;
-      } catch (err) {
-        // Try fallback for macOS if CLI fails
-        if (process.platform === "darwin") {
-          try {
-            spawn("open", ["-a", "Visual Studio Code", workspaceRoot], {
-              detached: true,
-              stdio: "ignore",
-            }).unref();
-            return;
-          } catch (e) {}
-        }
-        throw new Error("Failed to open VSCode. Is it installed and on your PATH?");
-      }
+  ipcMain.handle("open-in-vscode", async () => {
+    const workspaceRoot = process.cwd();
+    let command, args;
+    if (process.platform === "win32") {
+      command = "cmd";
+      args = ["/c", "code", "."];
+    } else if (process.platform === "darwin") {
+      // Try CLI first, fallback to open -a
+      command = "code";
+      args = ["."];
+    } else {
+      command = "code";
+      args = ["."];
     }
-  );
+    try {
+      const child = spawn(command, args, {
+        cwd: workspaceRoot,
+        detached: true,
+        stdio: "ignore",
+      });
+      child.unref();
+      return;
+    } catch {
+      // Try fallback for macOS if CLI fails
+      if (process.platform === "darwin") {
+        try {
+          spawn("open", ["-a", "Visual Studio Code", workspaceRoot], {
+            detached: true,
+            stdio: "ignore",
+          }).unref();
+          return;
+        } catch {}
+      }
+      throw new Error(
+        "Failed to open VSCode. Is it installed and on your PATH?",
+      );
+    }
+  });
 
   // Register Dyad file/dir operation handlers
   ipcMain.handle("dyad:copyfile", async (_event, { from, to }) => {
@@ -1105,7 +1110,10 @@ export function registerAppHandlers() {
       await fse.copy(from, to, { overwrite: true, errorOnExist: false });
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:copydir", async (_event, { from, to }) => {
@@ -1113,15 +1121,21 @@ export function registerAppHandlers() {
       await fse.copy(from, to, { overwrite: true, errorOnExist: false });
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:mkdir", async (_event, { path }) => {
     try {
-      await fs.mkdir(path, { recursive: true });
+      await fsPromises.mkdir(path, { recursive: true });
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:deletedir", async (_event, { path }) => {
@@ -1129,7 +1143,10 @@ export function registerAppHandlers() {
       await fse.remove(path);
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   // Dyad file content tools
@@ -1140,10 +1157,13 @@ export function registerAppHandlers() {
       if (!fullPath.startsWith(workspaceRoot)) {
         throw new Error("Invalid file path");
       }
-      await fs.appendFile(fullPath, content, "utf-8");
+      await fsPromises.appendFile(fullPath, content, "utf-8");
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:prependfile", async (_event, { path, content }) => {
@@ -1155,43 +1175,59 @@ export function registerAppHandlers() {
       }
       let original = "";
       try {
-        original = await fs.readFile(fullPath, "utf-8");
-      } catch (e) {
+        original = await fsPromises.readFile(fullPath, "utf-8");
+      } catch {
         // If file does not exist, treat as empty
       }
-      await fs.writeFile(fullPath, content + original, "utf-8");
+      await fsPromises.writeFile(fullPath, content + original, "utf-8");
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
-  ipcMain.handle("dyad:replacefile", async (_event, { path, search, replace }) => {
-    try {
-      const workspaceRoot = process.cwd();
-      const fullPath = require("path").resolve(workspaceRoot, path);
-      if (!fullPath.startsWith(workspaceRoot)) {
-        throw new Error("Invalid file path");
+  ipcMain.handle(
+    "dyad:replacefile",
+    async (_event, { path, search, replace }) => {
+      try {
+        const workspaceRoot = process.cwd();
+        const fullPath = require("path").resolve(workspaceRoot, path);
+        if (!fullPath.startsWith(workspaceRoot)) {
+          throw new Error("Invalid file path");
+        }
+        let original = await fsPromises.readFile(fullPath, "utf-8");
+        // Replace all occurrences (simple global string replace)
+        const replaced = original.split(search).join(replace);
+        await fsPromises.writeFile(fullPath, replaced, "utf-8");
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      let original = await fs.readFile(fullPath, "utf-8");
-      // Replace all occurrences (simple global string replace)
-      const replaced = original.split(search).join(replace);
-      await fs.writeFile(fullPath, replaced, "utf-8");
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  });
+    },
+  );
   // Dyad git tools
   const { exec } = require("child_process");
-  function runGitCommand(args, opts = {}) {
+  function runGitCommand(
+    args: string,
+    opts: Record<string, any> = {},
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
-      exec(args, { cwd: process.cwd(), ...opts }, (error, stdout, stderr) => {
-        if (error) {
-          reject(stderr || error.message);
-        } else {
-          resolve(stdout);
-        }
-      });
+      exec(
+        args,
+        { cwd: process.cwd(), ...opts },
+        (error: any, stdout: string, stderr: string) => {
+          if (error) {
+            reject(stderr || error.message);
+          } else {
+            resolve(stdout);
+          }
+        },
+      );
     });
   }
   ipcMain.handle("dyad:gitstatus", async () => {
@@ -1199,27 +1235,36 @@ export function registerAppHandlers() {
       const status = await runGitCommand("git status --short --branch");
       return { success: true, status };
     } catch (error) {
-      return { success: false, error };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:gitdiff", async (_event, { path }) => {
     try {
       const diff = await runGitCommand(
-        path ? `git diff -- ${path}` : "git diff"
+        path ? `git diff -- ${path}` : "git diff",
       );
       return { success: true, diff };
     } catch (error) {
-      return { success: false, error };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:gitlog", async (_event, { count }) => {
     try {
       const log = await runGitCommand(
-        `git log -n ${parseInt(count, 10) || 5} --oneline --decorate --graph --all`
+        `git log -n ${parseInt(count, 10) || 5} --oneline --decorate --graph --all`,
       );
       return { success: true, log };
     } catch (error) {
-      return { success: false, error };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   // Dyad dependency management tools
@@ -1238,7 +1283,10 @@ export function registerAppHandlers() {
       ];
       return { success: true, deps };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:updatedep", async (_event, { package: pkg }) => {
@@ -1246,25 +1294,34 @@ export function registerAppHandlers() {
       if (!pkg) throw new Error("No package specified");
       const { exec } = require("child_process");
       await new Promise((resolve, reject) => {
-        exec(`npm install ${pkg}@latest`, { cwd: process.cwd() }, (error, stdout, stderr) => {
-          if (error) {
-            reject(stderr || error.message);
-          } else {
-            resolve(stdout);
-          }
-        });
+        exec(
+          `npm install ${pkg}@latest`,
+          { cwd: process.cwd() },
+          (error: any, stdout: string, stderr: string) => {
+            if (error) {
+              reject(stderr || error.message);
+            } else {
+              resolve(stdout);
+            }
+          },
+        );
       });
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   // Dyad code intelligence tools
   const fsCI = require("fs");
   const pathCI = require("path");
-  function getAllSourceFiles(exts = [".ts", ".tsx", ".js", ".jsx"]) {
-    function walk(dir) {
-      let results = [];
+  function getAllSourceFiles(
+    exts: string[] = [".ts", ".tsx", ".js", ".jsx"],
+  ): string[] {
+    function walk(dir: string): string[] {
+      let results: string[] = [];
       const list = fsCI.readdirSync(dir);
       for (const file of list) {
         const filePath = pathCI.join(dir, file);
@@ -1279,51 +1336,71 @@ export function registerAppHandlers() {
     }
     return walk(process.cwd());
   }
-  ipcMain.handle("dyad:findrefs", async (_event, { symbol }) => {
-    try {
-      if (!symbol) throw new Error("No symbol specified");
-      const files = getAllSourceFiles();
-      const refs = [];
-      for (const file of files) {
-        const content = fsCI.readFileSync(file, "utf-8");
-        const lines = content.split("\n");
-        lines.forEach((line, idx) => {
-          if (line.includes(symbol)) {
-            refs.push(`${file}:${idx + 1}: ${line.trim()}`);
-          }
-        });
+  ipcMain.handle(
+    "dyad:findrefs",
+    async (_event, { symbol }: { symbol: string }) => {
+      try {
+        if (!symbol) throw new Error("No symbol specified");
+        const files = getAllSourceFiles();
+        const refs: string[] = [];
+        for (const file of files) {
+          const content = fsCI.readFileSync(file, "utf-8");
+          const lines = content.split("\n");
+          lines.forEach((line: string, idx: number) => {
+            if (line.includes(symbol)) {
+              refs.push(`${file}:${idx + 1}: ${line.trim()}`);
+            }
+          });
+        }
+        return { success: true, refs };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return { success: true, refs };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  });
-  ipcMain.handle("dyad:finddef", async (_event, { symbol }) => {
-    try {
-      if (!symbol) throw new Error("No symbol specified");
-      const files = getAllSourceFiles();
-      for (const file of files) {
-        const content = fsCI.readFileSync(file, "utf-8");
-        const lines = content.split("\n");
-        for (let idx = 0; idx < lines.length; idx++) {
-          const line = lines[idx];
-          if (line.match(new RegExp(`(function|class|const|let|var)\\s+${symbol}\\b`))) {
-            return { success: true, def: `${file}:${idx + 1}: ${line.trim()}` };
+    },
+  );
+  ipcMain.handle(
+    "dyad:finddef",
+    async (_event, { symbol }: { symbol: string }) => {
+      try {
+        if (!symbol) throw new Error("No symbol specified");
+        const files = getAllSourceFiles();
+        for (const file of files) {
+          const content = fsCI.readFileSync(file, "utf-8");
+          const lines = content.split("\n");
+          for (let idx = 0; idx < lines.length; idx++) {
+            const line = lines[idx];
+            if (
+              line.match(
+                new RegExp(`(function|class|const|let|var)\\s+${symbol}\\b`),
+              )
+            ) {
+              return {
+                success: true,
+                def: `${file}:${idx + 1}: ${line.trim()}`,
+              };
+            }
           }
         }
+        return { success: false, error: "Definition not found" };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
       }
-      return { success: false, error: "Definition not found" };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  });
+    },
+  );
   ipcMain.handle("dyad:showexports", async (_event, { path }) => {
     try {
       if (!path) throw new Error("No file path specified");
       const fullPath = pathCI.resolve(process.cwd(), path);
       if (!fsCI.existsSync(fullPath)) throw new Error("File not found");
       const content = fsCI.readFileSync(fullPath, "utf-8");
-      const exportRegex = /export\s+(?:const|function|class|let|var|default|type|interface|enum)\s+([\w$]+)/g;
+      const exportRegex =
+        /export\s+(?:const|function|class|let|var|default|type|interface|enum)\s+([\w$]+)/g;
       const exports = [];
       let match;
       while ((match = exportRegex.exec(content)) !== null) {
@@ -1331,7 +1408,10 @@ export function registerAppHandlers() {
       }
       return { success: true, exports };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
   ipcMain.handle("dyad:showimports", async (_event, { path }) => {
@@ -1340,7 +1420,8 @@ export function registerAppHandlers() {
       const fullPath = pathCI.resolve(process.cwd(), path);
       if (!fsCI.existsSync(fullPath)) throw new Error("File not found");
       const content = fsCI.readFileSync(fullPath, "utf-8");
-      const importRegex = /import\s+(?:[\w${},* ]+\s+from\s+)?["']([^"']+)["']/g;
+      const importRegex =
+        /import\s+(?:[\w${},* ]+\s+from\s+)?["']([^"']+)["']/g;
       const imports = [];
       let match;
       while ((match = importRegex.exec(content)) !== null) {
@@ -1348,7 +1429,10 @@ export function registerAppHandlers() {
       }
       return { success: true, imports };
     } catch (error) {
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   });
 }
