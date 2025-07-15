@@ -670,9 +670,7 @@ function renderCustomTag(
           node={{
             properties: {},
           }}
-        >
-          {content}
-        </DyadGitStatus>
+        />
       );
     case "dyad-gitdiff":
       return (
@@ -682,9 +680,7 @@ function renderCustomTag(
               path: attributes.path || "",
             },
           }}
-        >
-          {content}
-        </DyadGitDiff>
+        />
       );
     case "dyad-gitlog":
       return (
@@ -694,9 +690,7 @@ function renderCustomTag(
               count: attributes.count || "5",
             },
           }}
-        >
-          {content}
-        </DyadGitLog>
+        />
       );
 
     case "dyad-listdeps":
@@ -705,9 +699,7 @@ function renderCustomTag(
           node={{
             properties: {},
           }}
-        >
-          {content}
-        </DyadListDeps>
+        />
       );
     case "dyad-updatedep":
       return (
@@ -717,9 +709,7 @@ function renderCustomTag(
               package: attributes.package || "",
             },
           }}
-        >
-          {content}
-        </DyadUpdateDep>
+        />
       );
 
     case "dyad-findrefs":
@@ -730,9 +720,7 @@ function renderCustomTag(
               symbol: attributes.symbol || "",
             },
           }}
-        >
-          {content}
-        </DyadFindRefs>
+        />
       );
     case "dyad-finddef":
       return (
@@ -742,9 +730,7 @@ function renderCustomTag(
               symbol: attributes.symbol || "",
             },
           }}
-        >
-          {content}
-        </DyadFindDef>
+        />
       );
     case "dyad-showexports":
       return (
@@ -754,9 +740,7 @@ function renderCustomTag(
               path: attributes.path || "",
             },
           }}
-        >
-          {content}
-        </DyadShowExports>
+        />
       );
     case "dyad-showimports":
       return (
@@ -766,9 +750,7 @@ function renderCustomTag(
               path: attributes.path || "",
             },
           }}
-        >
-          {content}
-        </DyadShowImports>
+        />
       );
 
     default:
