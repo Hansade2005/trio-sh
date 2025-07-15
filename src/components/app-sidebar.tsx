@@ -8,6 +8,9 @@ import {
   LifeBuoy,
   BookOpen,
   MessageCircle,
+  Milestone,
+  Bot,
+  CheckCircle,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/components/ui/sidebar"; // import useSidebar hook
@@ -44,14 +47,36 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "Settings",
-    to: "/settings",
-    icon: Settings,
+    title: "AI",
+    labelElement: (
+      <span className="flex items-center gap-1">
+        A
+        <span className="relative inline-flex items-center ml-0.5">
+          I
+          <span
+            className="ml-0.5 inline-flex items-center justify-center rounded-full bg-blue-500"
+            style={{ width: 16, height: 16 }}
+          >
+            <CheckCircle className="h-3 w-3 text-white" aria-label="Verified" />
+          </span>
+        </span>
+        <span className="ml-2 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full font-semibold animate-pulse animate-blink">
+          new
+        </span>
+      </span>
+    ),
+    to: "/ai",
+    icon: Bot,
   },
   {
     title: "Hub",
     to: "/hub",
     icon: Store,
+  },
+  {
+    title: "Settings",
+    to: "/settings",
+    icon: Settings,
   },
   {
     title: "Support",
@@ -67,6 +92,11 @@ const items = [
     title: "Feedback",
     to: "/feedback",
     icon: MessageCircle,
+  },
+  {
+    title: "Roadmap",
+    to: "/roadmap",
+    icon: Milestone,
   },
 ];
 
@@ -229,7 +259,9 @@ function AppIcons({
                   >
                     <div className="flex flex-col items-center gap-1">
                       <item.icon className="h-5 w-5" />
-                      <span className={"text-xs"}>{item.title}</span>
+                      <span className={"text-xs"}>
+                        {item.labelElement ? item.labelElement : item.title}
+                      </span>
                     </div>
                   </Link>
                 </SidebarMenuButton>

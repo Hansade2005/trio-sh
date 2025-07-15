@@ -9,7 +9,9 @@ import { hubRoute } from "./routes/hub";
 import SupportPage from "./pages/support";
 import FAQPage from "./pages/faq";
 import FeedbackPage from "./pages/feedback";
+import RoadmapPage from "./pages/roadmap";
 import { createRoute } from "@tanstack/react-router";
+import AIPage from "./pages/ai";
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -20,6 +22,8 @@ const routeTree = rootRoute.addChildren([
   supportRoute,
   faqRoute,
   feedbackRoute,
+  roadmapRoute,
+  aiRoute,
 ]);
 
 // src/components/NotFoundRedirect.tsx
@@ -63,6 +67,18 @@ export const feedbackRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/feedback",
   component: FeedbackPage,
+});
+
+export const roadmapRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/roadmap",
+  component: RoadmapPage,
+});
+
+export const aiRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/ai",
+  component: AIPage,
 });
 
 declare module "@tanstack/react-router" {

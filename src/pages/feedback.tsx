@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { MessageCircle } from "lucide-react";
+import {
+  Mail,
+  Linkedin,
+  Globe,
+  Facebook,
+  Twitter,
+  Instagram,
+  MessageCircle,
+  Github,
+} from "lucide-react";
 
 const GITHUB_ISSUE_URL = "https://github.com/Hansade2005/trio-sh/issues/new";
 
@@ -67,9 +76,120 @@ export default function FeedbackPage() {
         </div>
       </div>
       <div className="mt-10">
-        <a href="#" className="text-pink-600 hover:underline font-medium">
-          View Roadmap (coming soon)
+        <a
+          href="/roadmap"
+          className="text-pink-600 hover:underline font-medium"
+        >
+          View Roadmap
         </a>
+      </div>
+      <div className="mt-10 w-full max-w-xl bg-white dark:bg-gray-900 rounded-xl p-6 shadow border">
+        <div className="flex items-center gap-4 mb-6">
+          <img
+            src="/assets/me.png"
+            alt="Hans Ade"
+            className="w-20 h-20 rounded-full border-4 border-pink-200 shadow"
+          />
+          <div>
+            <div className="text-xl font-bold text-pink-700">Hans Ade</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              Founder & AI Engineer
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              Building AI solutions for the future. Passionate about innovation,
+              open source, and helping others succeed with AI.
+            </div>
+          </div>
+        </div>
+        <h2 className="text-lg font-semibold mb-4 text-pink-700">Contact Us</h2>
+        <ul className="space-y-3">
+          <li className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-pink-500" />
+            <a
+              href="mailto:hanscadx8@gmail.com"
+              className="hover:underline text-blue-700"
+            >
+              hanscadx8@gmail.com
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <Linkedin className="h-5 w-5 text-pink-500" />
+            <a
+              href="https://www.linkedin.com/in/hans-ade-a27387264/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              LinkedIn
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-pink-500" />
+            <a
+              href="http://www.optimaai.cc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              www.optimaai.cc
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <Facebook className="h-5 w-5 text-pink-500" />
+            <a
+              href="https://facebook.com/optimaai.cc/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              Facebook
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <Twitter className="h-5 w-5 text-pink-500" />
+            <a
+              href="https://x.com/HansCadx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              X (Twitter)
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <Instagram className="h-5 w-5 text-pink-500" />
+            <a
+              href="https://Instagram.com/anyehappyness"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              Instagram
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5 text-pink-500" />
+            <a
+              href="https://tweetchat.me/admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              TweetChat
+            </a>
+          </li>
+          <li className="flex items-center gap-2">
+            <Github className="h-5 w-5 text-pink-500" />
+            <a
+              href="https://github.com/Hansade2005"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-700"
+            >
+              GitHub
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   );

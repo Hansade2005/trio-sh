@@ -303,6 +303,19 @@
   animation: marquee 2s linear infinite;
 }
 
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+.animate-blink {
+  animation: blink 1s steps(2, start) infinite;
+}
+
 /* In-between text-xs and text-sm */
 .text-xs-sm {
   font-size: 0.82rem;
