@@ -9,6 +9,7 @@ import {
   BookOpen,
   MessageCircle,
   Milestone,
+  PanelLeft,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/components/ui/sidebar"; // import useSidebar hook
@@ -154,7 +155,9 @@ export function AppSidebar() {
                 setHoverState("clear-hover");
               }}
               className="bg-background hover:bg-background text-white shadow-lg rounded-2xl border-none"
-            />
+            >
+              <PanelLeft className="h-5 w-5" />
+            </SidebarTrigger>
             <AppIcons onHoverChange={setHoverState} />
           </div>
           {/* Right Column: Chat List Section */}
