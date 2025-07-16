@@ -1,4 +1,15 @@
-import { Home, Inbox, Settings, HelpCircle, Store } from "lucide-react";
+import {
+  Home,
+  Inbox,
+  Settings,
+  HelpCircle,
+  Store,
+  Bot,
+  LifeBuoy,
+  BookOpen,
+  MessageCircle,
+  Milestone,
+} from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/components/ui/sidebar"; // import useSidebar hook
 import { useEffect, useState, useRef } from "react";
@@ -34,14 +45,39 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "Settings",
-    to: "/settings",
-    icon: Settings,
+    title: "AI",
+    to: "/ai",
+    icon: Bot,
   },
   {
     title: "Hub",
     to: "/hub",
     icon: Store,
+  },
+  {
+    title: "Settings",
+    to: "/settings",
+    icon: Settings,
+  },
+  {
+    title: "Support",
+    to: "/support",
+    icon: LifeBuoy,
+  },
+  {
+    title: "FAQ",
+    to: "/faq",
+    icon: BookOpen,
+  },
+  {
+    title: "Feedback",
+    to: "/feedback",
+    icon: MessageCircle,
+  },
+  {
+    title: "Roadmap",
+    to: "/roadmap",
+    icon: Milestone,
   },
 ];
 

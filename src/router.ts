@@ -6,13 +6,23 @@ import { settingsRoute } from "./routes/settings";
 import { providerSettingsRoute } from "./routes/settings/providers/$provider";
 import { appDetailsRoute } from "./routes/app-details";
 import { hubRoute } from "./routes/hub";
+import { aiRoute } from "./routes/ai";
+import { supportRoute } from "./routes/support";
+import { faqRoute } from "./routes/faq";
+import { feedbackRoute } from "./routes/feedback";
+import { roadmapRoute } from "./routes/roadmap";
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
   hubRoute,
   chatRoute,
+  aiRoute,
   appDetailsRoute,
   settingsRoute.addChildren([providerSettingsRoute]),
+  supportRoute,
+  faqRoute,
+  feedbackRoute,
+  roadmapRoute,
 ]);
 
 // src/components/NotFoundRedirect.tsx
