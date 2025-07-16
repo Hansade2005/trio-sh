@@ -169,7 +169,7 @@ export default function HomePage() {
 
   // Main Home Page Content
   return (
-    <div className="flex flex-col items-center justify-center max-w-3xl m-auto p-8 bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl relative">
+    <div className="flex flex-col items-center justify-center max-w-3xl m-auto p-8 bg-background">
       <SetupBanner />
 
       <div className="w-full">
@@ -235,7 +235,7 @@ export default function HomePage() {
 
       {/* Release Notes Dialog */}
       <Dialog open={releaseNotesOpen} onOpenChange={setReleaseNotesOpen}>
-        <DialogContent className="max-w-4xl bg-gradient-to-br from-pink-100/90 via-pink-50/90 to-white/90 backdrop-blur-xl shadow-2xl rounded-2xl border-none pr-0 pt-4 pl-4 gap-1">
+        <DialogContent className="max-w-4xl bg-background">
           <DialogHeader>
             <DialogTitle>What's new in v{appVersion}?</DialogTitle>
             <Button

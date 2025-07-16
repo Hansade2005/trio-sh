@@ -308,7 +308,7 @@ export function ChatInput({ chatId }: { chatId?: number }) {
           {/* Use the DragDropOverlay component */}
           <DragDropOverlay isDraggingOver={isDraggingOver} />
 
-          <div className="flex items-start space-x-2 ">
+          <div className="flex flex-col space-y-2">
             <textarea
               ref={textareaRef}
               value={inputValue}
@@ -319,25 +319,27 @@ export function ChatInput({ chatId }: { chatId?: number }) {
               className="flex-1 p-2 focus:outline-none overflow-y-auto min-h-[40px] max-h-[200px] bg-transparent text-gray-800 rounded-xl focus:ring-2 focus:ring-pink-400"
               style={{ resize: "none" }}
             />
-
-            {isStreaming ? (
-              <button
-                onClick={handleCancel}
-                className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg"
-                title="Cancel generation"
-              >
-                <StopCircleIcon size={20} />
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={!inputValue.trim() && attachments.length === 0}
-                className="px-2 py-2 mt-1 mr-1 bg-pink-400/30 hover:bg-pink-500/40 text-pink-700 rounded-xl shadow-md disabled:opacity-50 transition-all"
-                title="Send message"
-              >
-                <SendHorizontalIcon size={20} />
-              </button>
-            )}
+            <hr className="my-2" />
+            <div className="flex items-center space-x-2">
+              {isStreaming ? (
+                <button
+                  onClick={handleCancel}
+                  className="px-2 py-2 mt-1 mr-1 hover:bg-(--background-darkest) text-(--sidebar-accent-fg) rounded-lg"
+                  title="Cancel generation"
+                >
+                  <StopCircleIcon size={20} />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={!inputValue.trim() && attachments.length === 0}
+                  className="px-2 py-2 mt-1 mr-1 bg-pink-400/30 hover:bg-pink-500/40 text-pink-700 rounded-xl shadow-md disabled:opacity-50 transition-all"
+                  title="Send message"
+                >
+                  <SendHorizontalIcon size={20} />
+                </button>
+              )}
+            </div>
           </div>
           <div className="pl-2 pr-1 flex items-center justify-between pb-2">
             <div className="flex items-center">

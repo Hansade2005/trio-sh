@@ -106,11 +106,8 @@ export function AppSidebar() {
           setHoverState("clear-hover");
         }
       }}
-      className="bg-gradient-to-b from-pink-500 via-pink-400 to-pink-300/80 shadow-xl backdrop-blur-xl border-r-0 !rounded-r-3xl !border-none !overflow-visible relative"
-      style={{
-        boxShadow: "0 8px 32px 0 rgba(255, 95, 143, 0.25)",
-        borderRight: "none",
-      }}
+      className="bg-background shadow-xl backdrop-blur-xl border-r-0 !rounded-r-3xl !border-none !overflow-visible relative"
+      style={{ borderRight: "none" }}
     >
       <SidebarContent className="overflow-hidden">
         <div className="flex mt-8">
@@ -120,7 +117,7 @@ export function AppSidebar() {
               onMouseEnter={() => {
                 setHoverState("clear-hover");
               }}
-              className="bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg rounded-2xl border-none"
+              className="bg-background hover:bg-background text-white shadow-lg rounded-2xl border-none"
             />
             <AppIcons onHoverChange={setHoverState} />
           </div>
@@ -132,13 +129,13 @@ export function AppSidebar() {
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="bg-gradient-to-t from-pink-200/60 to-transparent rounded-b-3xl shadow-inner border-t-0">
+      <SidebarFooter className="bg-background rounded-b-3xl shadow-inner border-t-0">
         <SidebarMenu>
           <SidebarMenuItem>
             {/* Change button to open dialog instead of linking */}
             <SidebarMenuButton
               size="sm"
-              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl bg-pink-400/30 hover:bg-pink-500/40 text-white shadow-lg border-none"
+              className="font-medium w-14 flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl bg-background hover:bg-background text-white shadow-lg border-none"
               onClick={() => setIsHelpDialogOpen(true)} // Open dialog on click
             >
               <HelpCircle className="h-5 w-5 drop-shadow-pink" />
@@ -153,11 +150,7 @@ export function AppSidebar() {
       </SidebarFooter>
 
       <SidebarRail />
-      {/* Pink glow effect */}
-      <div
-        className="absolute top-0 left-0 w-full h-full pointer-events-none z-[-1] rounded-r-3xl"
-        style={{ boxShadow: "0 0 80px 10px #ff5f8f55, 0 8px 32px 0 #ff5f8f33" }}
-      />
+      {/* Removed pink glow effect */}
     </Sidebar>
   );
 }

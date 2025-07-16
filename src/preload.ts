@@ -94,6 +94,34 @@ const validInvokeChannels = [
   // We can't detect with IS_TEST_BUILD in the preload script because
   // it's a separate process from the main process.
   "supabase:fake-connect-and-set-project",
+  // Dyad tool channels (added for AI tool compatibility)
+  "dyad-write",
+  "dyad-readfile",
+  "dyad-readfiles",
+  "dyad-searchfiles",
+  "dyad-listfiles",
+  "dyad-searchfilecontent",
+  "dyad-movefile",
+  "dyad-copyfile",
+  "dyad-copydir",
+  "dyad-mkdir",
+  "dyad-deletedir",
+  "dyad-appendfile",
+  "dyad-prependfile",
+  "dyad-replacefile",
+  "dyad-rename",
+  "dyad-delete",
+  "dyad-add-dependency",
+  "dyad-gitstatus",
+  "dyad-gitdiff",
+  "dyad-gitlog",
+  "dyad-findrefs",
+  "dyad-finddef",
+  "dyad-showexports",
+  "dyad-showimports",
+  "dyad-listdeps",
+  "dyad-updatedep",
+  "dyad-chat-summary",
 ];
 
 // Add valid receive channels

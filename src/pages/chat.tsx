@@ -40,7 +40,7 @@ export default function ChatPage() {
   const ref = useRef<ImperativePanelHandle>(null);
 
   return (
-    <div className="h-full w-full p-4 bg-gradient-to-br from-pink-100/80 via-pink-50/80 to-white/80 backdrop-blur-xl shadow-2xl !border-none !rounded-3xl">
+    <div className="h-full w-full p-4 bg-background">
       <PanelGroup autoSaveId="persistence" direction="horizontal">
         <Panel id="chat-panel" minSize={30}>
           <div className="h-full w-full">

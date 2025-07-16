@@ -56,7 +56,11 @@ export function Message({ spans }: MessageConfig) {
 export const TURBO_EDITS_PROMO_MESSAGE: MessageConfig = {
   spans: [
     { type: "text", content: "Tired of waiting on AI?" },
-    { type: "link", content: " Get Dyad Pro", url: "https://dyad.sh/pro#ai" },
+    {
+      type: "link",
+      content: " Get Trio Pro",
+      url: "https://www.optimaai.cc/pro#ai",
+    },
     { type: "text", content: " for faster edits with Turbo Edits." },
   ],
 };
@@ -66,8 +70,8 @@ export const SMART_CONTEXT_PROMO_MESSAGE: MessageConfig = {
     { type: "text", content: "Save up to 5x on AI costs with " },
     {
       type: "link",
-      content: "Dyad Pro's Smart Context",
-      url: "https://dyad.sh/pro#ai",
+      content: "Trio Pro's Smart Context",
+      url: "https://www.optimaai.cc/pro#ai",
     },
   ],
 };
@@ -90,8 +94,8 @@ export const REDDIT_TIP: MessageConfig = {
     },
     {
       type: "link",
-      content: "Dyad subreddit",
-      url: "https://www.reddit.com/r/dyadbuilders/",
+      content: "Trio subreddit",
+      url: "https://www.reddit.com/r/triobuilders/",
     },
   ],
 };
@@ -124,7 +128,7 @@ export const BUILD_A_BIBLE_APP_TIP: MessageConfig = {
     },
     {
       type: "text",
-      content: " the creator of Dyad build a Bible app step-by-step",
+      content: " the creator of Trio build a Bible app step-by-step",
     },
   ],
 };
@@ -138,7 +142,7 @@ export const DEBUGGING_TIPS_TIP: MessageConfig = {
     {
       type: "link",
       content: "debugging tips",
-      url: "https://www.dyad.sh/docs/guides/debugging",
+      url: "https://www.optimaai.cc/docs/guides/debugging",
     },
   ],
 };
@@ -153,7 +157,7 @@ export const AI_RULES_TIP: MessageConfig = {
     {
       type: "link",
       content: "AI rules",
-      url: "https://www.dyad.sh/docs/guides/ai-rules",
+      url: "https://www.optimaai.cc/docs/guides/ai-rules",
     },
   ],
 };
@@ -177,22 +181,22 @@ export const ROADMAP_TIP: MessageConfig = {
     {
       type: "link",
       content: "roadmap",
-      url: "https://www.dyad.sh/docs/roadmap",
+      url: "https://www.optimaai.cc/docs/roadmap",
     },
   ],
 };
 
-// Like Dyad? Star it on GitHub https://github.com/dyad-sh/dyad/
+// Like Trio? Star it on GitHub https://github.com/trio-ai/trio/
 export const GITHUB_TIP: MessageConfig = {
   spans: [
     {
       type: "text",
-      content: "Like Dyad? Star it on ",
+      content: "Like Trio? Star it on ",
     },
     {
       type: "link",
       content: "GitHub",
-      url: "https://github.com/dyad-sh/dyad",
+      url: "https://github.com/trio-ai/trio",
     },
   ],
 };

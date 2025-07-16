@@ -187,6 +187,7 @@ export async function processFullResponseActions(
   error?: string;
   extraFiles?: string[];
   extraFilesError?: string;
+  readResults?: Record<string, any>; // <-- Added
 }> {
   logger.log("processFullResponseActions for chatId", chatId);
   // Get the app associated with the chat
@@ -445,6 +446,245 @@ export async function processFullResponseActions(
       }
     }
 
+    // --- Begin: New Dyad Tag Batch Processing ---
+    const readResults: Record<string, any> = {};
+    // 1. Read single file
+    for (const tag of getDyadReadFileTags(fullResponse)) {
+      try {
+        const filePath = safeJoin(appPath, tag.path);
+        if (!filePath.startsWith(appPath)) throw new Error("Invalid file path");
+        readResults[`readfile:${tag.path}`] = fs.readFileSync(
+          filePath,
+          "utf-8",
+        );
+      } catch (error) {
+        errors.push({ message: `Failed to read file: ${tag.path}`, error });
+      }
+    }
+    // 2. Read multiple files
+    for (const tag of getDyadReadFilesTags(fullResponse)) {
+      readResults[`readfiles:${tag.paths.join(",")}`] = [];
+      for (const p of tag.paths) {
+        try {
+          const filePath = safeJoin(appPath, p);
+          if (!filePath.startsWith(appPath))
+            throw new Error("Invalid file path");
+          readResults[`readfiles:${tag.paths.join(",")}`].push({
+            path: p,
+            content: fs.readFileSync(filePath, "utf-8"),
+          });
+        } catch (error) {
+          errors.push({ message: `Failed to read file: ${p}`, error });
+        }
+      }
+    }
+    // 3. List files in directory
+    for (const tag of getDyadListFilesTags(fullResponse)) {
+      try {
+        const dirPath = safeJoin(appPath, tag.dir);
+        if (!dirPath.startsWith(appPath)) throw new Error("Invalid dir path");
+        readResults[`listfiles:${tag.dir}`] = fs.readdirSync(dirPath);
+      } catch (error) {
+        errors.push({
+          message: `Failed to list files in dir: ${tag.dir}`,
+          error,
+        });
+      }
+    }
+    // 4. Search files by pattern (simple glob)
+    for (const tag of getDyadSearchFilesTags(fullResponse)) {
+      try {
+        const glob = require("glob");
+        readResults[`searchfiles:${tag.pattern}`] = glob.sync(tag.pattern, {
+          cwd: appPath,
+          absolute: false,
+        });
+      } catch (error) {
+        errors.push({
+          message: `Failed to search files: ${tag.pattern}`,
+          error,
+        });
+      }
+    }
+    // 5. Search file content
+    for (const tag of getDyadSearchFileContentTags(fullResponse)) {
+      try {
+        const filePath = safeJoin(appPath, tag.path);
+        if (!filePath.startsWith(appPath)) throw new Error("Invalid file path");
+        const content = fs.readFileSync(filePath, "utf-8");
+        const lines = content.split("\n");
+        readResults[`searchfilecontent:${tag.path}:${tag.query}`] =
+          lines.filter((l) => l.includes(tag.query));
+      } catch (error) {
+        errors.push({
+          message: `Failed to search file content: ${tag.path}`,
+          error,
+        });
+      }
+    }
+    // 6. Move files
+    for (const tag of getDyadMoveFileTags(fullResponse)) {
+      try {
+        const fromPath = safeJoin(appPath, tag.from);
+        const toPath = safeJoin(appPath, tag.to);
+        if (!fromPath.startsWith(appPath) || !toPath.startsWith(appPath))
+          throw new Error("Invalid file path");
+        fs.renameSync(fromPath, toPath);
+      } catch (error) {
+        errors.push({
+          message: `Failed to move file: ${tag.from} -> ${tag.to}`,
+          error,
+        });
+      }
+    }
+    // 7. Copy files
+    for (const tag of getDyadCopyFileTags(fullResponse)) {
+      try {
+        const fromPath = safeJoin(appPath, tag.from);
+        const toPath = safeJoin(appPath, tag.to);
+        if (!fromPath.startsWith(appPath) || !toPath.startsWith(appPath))
+          throw new Error("Invalid file path");
+        fs.copyFileSync(fromPath, toPath);
+      } catch (error) {
+        errors.push({
+          message: `Failed to copy file: ${tag.from} -> ${tag.to}`,
+          error,
+        });
+      }
+    }
+    // 8. Copy directories
+    for (const tag of getDyadCopyDirTags(fullResponse)) {
+      try {
+        const fse = require("fs-extra");
+        const fromPath = safeJoin(appPath, tag.from);
+        const toPath = safeJoin(appPath, tag.to);
+        if (!fromPath.startsWith(appPath) || !toPath.startsWith(appPath))
+          throw new Error("Invalid dir path");
+        fse.copySync(fromPath, toPath);
+      } catch (error) {
+        errors.push({
+          message: `Failed to copy dir: ${tag.from} -> ${tag.to}`,
+          error,
+        });
+      }
+    }
+    // 9. Make directories
+    for (const tag of getDyadMkdirTags(fullResponse)) {
+      try {
+        const dirPath = safeJoin(appPath, tag.path);
+        if (!dirPath.startsWith(appPath)) throw new Error("Invalid dir path");
+        fs.mkdirSync(dirPath, { recursive: true });
+      } catch (error) {
+        errors.push({ message: `Failed to mkdir: ${tag.path}`, error });
+      }
+    }
+    // 10. Append to files
+    for (const tag of getDyadAppendFileTags(fullResponse)) {
+      try {
+        const filePath = safeJoin(appPath, tag.path);
+        if (!filePath.startsWith(appPath)) throw new Error("Invalid file path");
+        fs.appendFileSync(filePath, tag.content, "utf-8");
+      } catch (error) {
+        errors.push({ message: `Failed to append file: ${tag.path}`, error });
+      }
+    }
+    // 11. Prepend to files
+    for (const tag of getDyadPrependFileTags(fullResponse)) {
+      try {
+        const filePath = safeJoin(appPath, tag.path);
+        if (!filePath.startsWith(appPath)) throw new Error("Invalid file path");
+        let original = "";
+        try {
+          original = fs.readFileSync(filePath, "utf-8");
+        } catch {}
+        fs.writeFileSync(filePath, tag.content + original, "utf-8");
+      } catch (error) {
+        errors.push({ message: `Failed to prepend file: ${tag.path}`, error });
+      }
+    }
+    // 12. Replace in files
+    for (const tag of getDyadReplaceFileTags(fullResponse)) {
+      try {
+        const filePath = safeJoin(appPath, tag.path);
+        if (!filePath.startsWith(appPath)) throw new Error("Invalid file path");
+        let original = fs.readFileSync(filePath, "utf-8");
+        const replaced = original.split(tag.search).join(tag.replace);
+        fs.writeFileSync(filePath, replaced, "utf-8");
+      } catch (error) {
+        errors.push({
+          message: `Failed to replace in file: ${tag.path}`,
+          error,
+        });
+      }
+    }
+    // 13. Git status
+    if (getDyadGitStatusTags(fullResponse)) {
+      try {
+        const { execSync } = require("child_process");
+        readResults["gitstatus"] = execSync("git status --short --branch", {
+          cwd: appPath,
+        }).toString();
+      } catch (error) {
+        errors.push({ message: `Failed to get git status`, error });
+      }
+    }
+    // 14. Git diff
+    for (const tag of getDyadGitDiffTags(fullResponse)) {
+      try {
+        const { execSync } = require("child_process");
+        const cmd = tag.path ? `git diff -- ${tag.path}` : "git diff";
+        readResults[`gitdiff${tag.path ? ":" + tag.path : ""}`] = execSync(
+          cmd,
+          { cwd: appPath },
+        ).toString();
+      } catch (error) {
+        errors.push({
+          message: `Failed to get git diff${tag.path ? ": " + tag.path : ""}`,
+          error,
+        });
+      }
+    }
+    // 15. Git log
+    for (const tag of getDyadGitLogTags(fullResponse)) {
+      try {
+        const { execSync } = require("child_process");
+        const count = tag.count || 5;
+        readResults[`gitlog:${count}`] = execSync(
+          `git log -n ${count} --oneline --decorate --graph --all`,
+          { cwd: appPath },
+        ).toString();
+      } catch (error) {
+        errors.push({ message: `Failed to get git log`, error });
+      }
+    }
+    // 16. List dependencies
+    if (getDyadListDepsTags(fullResponse)) {
+      try {
+        const pkgPath = path.join(appPath, "package.json");
+        if (!fs.existsSync(pkgPath)) throw new Error("package.json not found");
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+        readResults["listdeps"] = [
+          ...Object.keys(pkg.dependencies || {}),
+          ...Object.keys(pkg.devDependencies || {}),
+        ];
+      } catch (error) {
+        errors.push({ message: `Failed to list dependencies`, error });
+      }
+    }
+    // 17. Update dependency
+    for (const tag of getDyadUpdateDepTags(fullResponse)) {
+      try {
+        const { execSync } = require("child_process");
+        execSync(`npm install ${tag.package}@latest`, { cwd: appPath });
+      } catch (error) {
+        errors.push({
+          message: `Failed to update dependency: ${tag.package}`,
+          error,
+        });
+      }
+    }
+    // --- End: New Dyad Tag Batch Processing ---
+
     // If we have any file changes, commit them all at once
     hasChanges =
       writtenFiles.length > 0 ||
@@ -546,6 +786,7 @@ export async function processFullResponseActions(
       updatedFiles: hasChanges,
       extraFiles: uncommittedFiles.length > 0 ? uncommittedFiles : undefined,
       extraFilesError,
+      readResults, // <-- Added
     };
   } catch (error: unknown) {
     logger.error("Error processing files:", error);
@@ -574,4 +815,240 @@ export async function processFullResponseActions(
         .where(eq(messages.id, messageId));
     }
   }
+}
+
+// --- New Dyad Tag Extraction Utilities ---
+
+export function getDyadReadFileTags(fullResponse: string): { path: string }[] {
+  const regex = /<dyad-readfile path="([^"]+)"><\/dyad-readfile>/g;
+  let match;
+  const tags: { path: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]) });
+  }
+  return tags;
+}
+
+export function getDyadReadFilesTags(
+  fullResponse: string,
+): { paths: string[] }[] {
+  const regex = /<dyad-readfiles paths="([^"]+)"><\/dyad-readfiles>/g;
+  let match;
+  const tags: { paths: string[] }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({
+      paths: match[1].split(",").map((p) => normalizePath(p.trim())),
+    });
+  }
+  return tags;
+}
+
+export function getDyadSearchFilesTags(
+  fullResponse: string,
+): { pattern: string }[] {
+  const regex = /<dyad-searchfiles pattern="([^"]+)"><\/dyad-searchfiles>/g;
+  let match;
+  const tags: { pattern: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ pattern: match[1] });
+  }
+  return tags;
+}
+
+export function getDyadListFilesTags(fullResponse: string): { dir: string }[] {
+  const regex = /<dyad-listfiles dir="([^"]+)"><\/dyad-listfiles>/g;
+  let match;
+  const tags: { dir: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ dir: normalizePath(match[1]) });
+  }
+  return tags;
+}
+
+export function getDyadSearchFileContentTags(
+  fullResponse: string,
+): { path: string; query: string }[] {
+  const regex =
+    /<dyad-searchfilecontent path="([^"]+)" query="([^"]+)"><\/dyad-searchfilecontent>/g;
+  let match;
+  const tags: { path: string; query: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]), query: match[2] });
+  }
+  return tags;
+}
+
+export function getDyadMoveFileTags(
+  fullResponse: string,
+): { from: string; to: string }[] {
+  const regex = /<dyad-movefile from="([^"]+)" to="([^"]+)"><\/dyad-movefile>/g;
+  let match;
+  const tags: { from: string; to: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ from: normalizePath(match[1]), to: normalizePath(match[2]) });
+  }
+  return tags;
+}
+
+export function getDyadCopyFileTags(
+  fullResponse: string,
+): { from: string; to: string }[] {
+  const regex = /<dyad-copyfile from="([^"]+)" to="([^"]+)"><\/dyad-copyfile>/g;
+  let match;
+  const tags: { from: string; to: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ from: normalizePath(match[1]), to: normalizePath(match[2]) });
+  }
+  return tags;
+}
+
+export function getDyadCopyDirTags(
+  fullResponse: string,
+): { from: string; to: string }[] {
+  const regex = /<dyad-copydir from="([^"]+)" to="([^"]+)"><\/dyad-copydir>/g;
+  let match;
+  const tags: { from: string; to: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ from: normalizePath(match[1]), to: normalizePath(match[2]) });
+  }
+  return tags;
+}
+
+export function getDyadMkdirTags(fullResponse: string): { path: string }[] {
+  const regex = /<dyad-mkdir path="([^"]+)"><\/dyad-mkdir>/g;
+  let match;
+  const tags: { path: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]) });
+  }
+  return tags;
+}
+
+export function getDyadAppendFileTags(
+  fullResponse: string,
+): { path: string; content: string }[] {
+  const regex =
+    /<dyad-appendfile path="([^"]+)">([\s\S]*?)<\/dyad-appendfile>/g;
+  let match;
+  const tags: { path: string; content: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]), content: match[2] });
+  }
+  return tags;
+}
+
+export function getDyadPrependFileTags(
+  fullResponse: string,
+): { path: string; content: string }[] {
+  const regex =
+    /<dyad-prependfile path="([^"]+)">([\s\S]*?)<\/dyad-prependfile>/g;
+  let match;
+  const tags: { path: string; content: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]), content: match[2] });
+  }
+  return tags;
+}
+
+export function getDyadReplaceFileTags(
+  fullResponse: string,
+): { path: string; search: string; replace: string }[] {
+  const regex =
+    /<dyad-replacefile path="([^"]+)" search="([^"]+)" replace="([^"]+)"><\/dyad-replacefile>/g;
+  let match;
+  const tags: { path: string; search: string; replace: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({
+      path: normalizePath(match[1]),
+      search: match[2],
+      replace: match[3],
+    });
+  }
+  return tags;
+}
+
+export function getDyadGitStatusTags(fullResponse: string): boolean {
+  return /<dyad-gitstatus><\/dyad-gitstatus>/g.test(fullResponse);
+}
+
+export function getDyadGitDiffTags(fullResponse: string): { path?: string }[] {
+  const regex = /<dyad-gitdiff(?: path="([^"]+)")?><\/dyad-gitdiff>/g;
+  let match;
+  const tags: { path?: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: match[1] ? normalizePath(match[1]) : undefined });
+  }
+  return tags;
+}
+
+export function getDyadGitLogTags(fullResponse: string): { count?: number }[] {
+  const regex = /<dyad-gitlog(?: count="(\d+)")?><\/dyad-gitlog>/g;
+  let match;
+  const tags: { count?: number }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ count: match[1] ? parseInt(match[1], 10) : undefined });
+  }
+  return tags;
+}
+
+export function getDyadFindRefsTags(
+  fullResponse: string,
+): { symbol: string }[] {
+  const regex = /<dyad-findrefs symbol="([^"]+)"><\/dyad-findrefs>/g;
+  let match;
+  const tags: { symbol: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ symbol: match[1] });
+  }
+  return tags;
+}
+
+export function getDyadFindDefTags(fullResponse: string): { symbol: string }[] {
+  const regex = /<dyad-finddef symbol="([^"]+)"><\/dyad-finddef>/g;
+  let match;
+  const tags: { symbol: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ symbol: match[1] });
+  }
+  return tags;
+}
+
+export function getDyadShowExportsTags(
+  fullResponse: string,
+): { path: string }[] {
+  const regex = /<dyad-showexports path="([^"]+)"><\/dyad-showexports>/g;
+  let match;
+  const tags: { path: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]) });
+  }
+  return tags;
+}
+
+export function getDyadShowImportsTags(
+  fullResponse: string,
+): { path: string }[] {
+  const regex = /<dyad-showimports path="([^"]+)"><\/dyad-showimports>/g;
+  let match;
+  const tags: { path: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ path: normalizePath(match[1]) });
+  }
+  return tags;
+}
+
+export function getDyadListDepsTags(fullResponse: string): boolean {
+  return /<dyad-listdeps><\/dyad-listdeps>/g.test(fullResponse);
+}
+
+export function getDyadUpdateDepTags(
+  fullResponse: string,
+): { package: string }[] {
+  const regex = /<dyad-updatedep package="([^"]+)"><\/dyad-updatedep>/g;
+  let match;
+  const tags: { package: string }[] = [];
+  while ((match = regex.exec(fullResponse)) !== null) {
+    tags.push({ package: match[1] });
+  }
+  return tags;
 }
