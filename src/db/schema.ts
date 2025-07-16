@@ -120,3 +120,5 @@ export const languageModelsRelations = relations(
     }),
   }),
 );
+
+export * from "./schema_ai_chat";

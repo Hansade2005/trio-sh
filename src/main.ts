@@ -115,6 +115,7 @@ const createWindow = () => {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
+      webviewTag: true, // Enable Electron <webview> support
       // transparent: true,
     },
     // backgroundColor: "#00000001",

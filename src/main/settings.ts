@@ -12,7 +12,14 @@ const DEFAULT_SETTINGS: UserSettings = {
     name: "auto",
     provider: "auto",
   },
-  providerSettings: {},
+  providerSettings: {
+    togetherai: {
+      apiKey: {
+        value:
+          "db212cc1337465a60ea3f1c9dc8a7087285de36eefdee8c792c7942a13588f91",
+      },
+    },
+  },
   telemetryConsent: "unset",
   telemetryUserId: uuidv4(),
   hasRunBefore: false,

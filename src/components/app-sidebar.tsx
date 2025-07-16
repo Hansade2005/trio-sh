@@ -5,10 +5,7 @@ import {
   HelpCircle,
   Store,
   Bot,
-  LifeBuoy,
   BookOpen,
-  MessageCircle,
-  Milestone,
   PanelLeft,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -61,24 +58,9 @@ const items = [
     icon: Settings,
   },
   {
-    title: "Support",
-    to: "/support",
-    icon: LifeBuoy,
-  },
-  {
-    title: "FAQ",
-    to: "/faq",
-    icon: BookOpen,
-  },
-  {
-    title: "Feedback",
-    to: "/feedback",
-    icon: MessageCircle,
-  },
-  {
-    title: "Roadmap",
-    to: "/roadmap",
-    icon: Milestone,
+    title: "Help & Roadmap",
+    to: "/help",
+    icon: BookOpen, // or another suitable icon
   },
 ];
 

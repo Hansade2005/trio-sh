@@ -1,9 +1,9 @@
 import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "./root";
-import AIPage from "../pages/ai";
+import AIChatPage from "../pages/chat-ai";
 
 export const aiRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/ai",
-  component: AIPage,
+  component: AIChatPage,
 });
