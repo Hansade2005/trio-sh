@@ -58,7 +58,7 @@ const items = [
     icon: Settings,
   },
   {
-    title: "Help & Roadmap",
+    title: "Support",
     to: "/help",
     icon: BookOpen, // or another suitable icon
   },

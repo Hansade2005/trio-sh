@@ -33,10 +33,14 @@ jobs:
     steps:
       - name: Github checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Install Linux packaging dependencies
+        if: contains(matrix.os.name, 'linux')
+        run: sudo apt-get update && sudo apt-get install -y fakeroot dpkg rpm  
       - name: Use Node.js
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: 20
+      
       - run: npm ci
       - name: Publish app
         env:
@@ -110,6 +114,13 @@ jobs:
           # Uploads all contents of the detected directory
           path: ${{ steps.find_linux_output.outputs.artifact_path }}/*
           retention-days: 7
+      - name: Upload Linux DEB Installer Artifact
+        if: contains(matrix.os.name, 'linux')
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-deb-installer
+          path: out/make/deb/x64/*.deb
+          retention-days: 7
       - name: Upload Windows Installer Artifact
         if: contains(matrix.os.name, 'windows')
         uses: actions/upload-artifact@v4
@@ -133,6 +144,34 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts # Downloads all artifacts into this directory
+      - name: Upload Windows Installer to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/windows-installer/**/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows App to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/windows-app/**/*  # Adjust as needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux App to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/linux-app/**/*  # Adjust as needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux DEB Installer to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/linux-deb-installer/**/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -276,3 +315,4 @@ jobs:
             artifacts/windows-app/**/* # Adjust to include all contents, including subdirectories
             artifacts/windows-installer/*.exe # Include the Windows installer
             artifacts/linux-app/**/* # Adjust to include all contents, including subdirectories
+            artifacts/linux-deb-installer/**/*.deb # Include the Linux DEB installer

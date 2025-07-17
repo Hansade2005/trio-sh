@@ -245,8 +245,8 @@ export default function HelpPage() {
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow border">
             <div className="flex items-center gap-4 mb-6">
               <img
-                src="assets/me.png"
-                alt="Hans Ade"
+                src="https://openapi.aiu.edu/submissions/PhotoGalleryThumbnail/UB82014SY91231/679686_downloadresizehood.com.png"
+                alt="User profile picture"
                 className="w-20 h-20 rounded-full border-4 border-pink-200 shadow"
               />
               <div>
