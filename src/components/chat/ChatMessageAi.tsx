@@ -4,8 +4,8 @@ import {
   DyadMarkdownParser,
   VanillaMarkdownParser,
 } from "./DyadMarkdownParser";
-// Use require for Electron/React asset compatibility
-const logo = require("@/assets/icon/logo.png");
+// Import logo as ES6 module for renderer process compatibility
+import logo from "@/assets/icon/logo.png";
 
 interface ChatMessageAiProps {
   message: Message;
