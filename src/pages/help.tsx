@@ -11,6 +11,13 @@ import {
   Instagram,
   Github,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 const FAQS = [
   {
@@ -67,6 +74,7 @@ export default function HelpPage() {
   const [releases, setReleases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [releasesOpen, setReleasesOpen] = useState(false);
 
   useEffect(() => {
     fetch("https://api.github.com/repos/Hansade2005/trio-sh/releases")
@@ -196,51 +204,57 @@ export default function HelpPage() {
         </div>
         {/* Right: Roadmap & Contact */}
         <div className="flex-1 min-w-0">
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow border mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Milestone className="h-6 w-6 text-pink-500" />
-              <h2 className="text-lg font-semibold text-pink-700">
-                Roadmap & Changelog
-              </h2>
-            </div>
-            {loading && (
-              <div className="text-gray-500">Loading releases...</div>
-            )}
-            {error && <div className="text-red-500">{error}</div>}
-            <div className="w-full space-y-8">
-              {releases.map((release) => (
-                <div
-                  key={release.id}
-                  className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow border"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-pink-700 font-semibold text-lg">
-                      {release.name || release.tag_name}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(release.published_at).toLocaleDateString()}
-                    </span>
-                    <a
-                      href={release.html_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-auto text-pink-500 hover:underline text-xs"
-                    >
-                      View on GitHub
-                    </a>
-                  </div>
-                  <div
-                    className="prose prose-p:my-1 max-w-none text-gray-800 dark:text-gray-200"
-                    dangerouslySetInnerHTML={{
-                      __html: release.body
-                        ? release.body.replace(/\n/g, "<br/>")
-                        : "",
-                    }}
-                  />
+          <Accordion
+            type="single"
+            collapsible
+            value={releasesOpen ? "releases" : undefined}
+            onValueChange={(v) => setReleasesOpen(v === "releases")}
+          >
+            <AccordionItem value="releases">
+              <AccordionTrigger>
+                <div className="flex items-center gap-2 mb-4">
+                  <Milestone className="h-6 w-6 text-pink-500" />
+                  <h2 className="text-lg font-semibold text-pink-700">
+                    Roadmap & Changelog
+                  </h2>
                 </div>
-              ))}
-            </div>
-          </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                {loading && (
+                  <div className="text-gray-500">Loading releases...</div>
+                )}
+                {error && <div className="text-red-500">{error}</div>}
+                <div className="w-full space-y-8 max-h-[400px] overflow-y-auto pr-2">
+                  {releases.map((release) => (
+                    <div
+                      key={release.id}
+                      className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 shadow border"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-pink-700 font-semibold text-lg">
+                          {release.name || release.tag_name}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(release.published_at).toLocaleDateString()}
+                        </span>
+                        <a
+                          href={release.html_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-auto text-pink-500 hover:underline text-xs"
+                        >
+                          View on GitHub
+                        </a>
+                      </div>
+                      <div className="prose prose-p:my-1 max-w-none text-gray-800 dark:text-gray-200">
+                        <ReactMarkdown>{release.body || ""}</ReactMarkdown>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
           {/* Contact & Social Links */}
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow border">
             <div className="flex items-center gap-4 mb-6">
