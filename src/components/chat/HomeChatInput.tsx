@@ -105,7 +105,7 @@ export function HomeChatInput({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               onPaste={handlePaste}
-              placeholder="Ask Dyad to build..."
+              placeholder="Ask Trio AI to build..."
               className="flex-1 p-2 focus:outline-none overflow-y-auto min-h-[40px] max-h-[200px] bg-transparent text-gray-800 rounded-xl focus:ring-2 focus:ring-pink-400"
               style={{ resize: "none" }}
               disabled={isStreaming}
