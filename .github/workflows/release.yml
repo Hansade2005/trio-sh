@@ -287,34 +287,115 @@ jobs:
           prerelease: false # Set to true for pre-releases
           files: "" # No files yet
 
+      # Delete and upload Windows Installer
+      - name: Delete existing Windows Installer asset
+        run: |
+          ASSET_PATTERN=".exe"
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/latest | jq '.id')
+          for asset in $(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/${RELEASE_ID}/assets | jq -r ".[] | select(.name | endswith(\"${ASSET_PATTERN}\")) | .id"); do
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -w "%{http_code}" -o /dev/null https://api.github.com/repos/${{ github.repository }}/releases/assets/${asset} | grep -qE '^(204|404)$' || true
+          done
+        continue-on-error: true
+
+      # Check and upload Windows Installer
+      - name: Check if Windows Installer exists
+        id: check_windows_installer
+        run: |
+          if ls artifacts/windows-installer/**/*.exe 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Upload Windows Installer to Release
+        if: steps.check_windows_installer.outputs.exists == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
           files: artifacts/windows-installer/**/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
+      # Delete and upload Windows App
+      - name: Delete existing Windows App asset
+        run: |
+          ASSET_PATTERN="windows-app"
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/latest | jq '.id')
+          for asset in $(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/${RELEASE_ID}/assets | jq -r ".[] | select(.name | contains(\"${ASSET_PATTERN}\")) | .id"); do
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -w "%{http_code}" -o /dev/null https://api.github.com/repos/${{ github.repository }}/releases/assets/${asset} | grep -qE '^(204|404)$' || true
+          done
+        continue-on-error: true
+      # Check and upload Windows App
+      - name: Check if Windows App exists
+        id: check_windows_app
+        run: |
+          if ls artifacts/windows-app/**/* 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Upload Windows App to Release
+        if: steps.check_windows_app.outputs.exists == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
-          files: artifacts/windows-app/**/*  # Adjust as needed
+          files: artifacts/windows-app/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
+      # Delete and upload Linux App
+      - name: Delete existing Linux App asset
+        run: |
+          ASSET_PATTERN="linux-app"
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/latest | jq '.id')
+          for asset in $(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/${RELEASE_ID}/assets | jq -r ".[] | select(.name | contains(\"${ASSET_PATTERN}\")) | .id"); do
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -w "%{http_code}" -o /dev/null https://api.github.com/repos/${{ github.repository }}/releases/assets/${asset} | grep -qE '^(204|404)$' || true
+          done
+        continue-on-error: true
+      # Check and upload Linux App
+      - name: Check if Linux App exists
+        id: check_linux_app
+        run: |
+          if ls artifacts/linux-app/**/* 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Upload Linux App to Release
+        if: steps.check_linux_app.outputs.exists == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
-          files: artifacts/linux-app/**/*  # Adjust as needed
+          files: artifacts/linux-app/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
+      # Delete and upload Linux DEB Installer
+      - name: Delete existing Linux DEB Installer asset
+        run: |
+          ASSET_PATTERN=".deb"
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/latest | jq '.id')
+          for asset in $(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/releases/${RELEASE_ID}/assets | jq -r ".[] | select(.name | endswith(\"${ASSET_PATTERN}\")) | .id"); do
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -w "%{http_code}" -o /dev/null https://api.github.com/repos/${{ github.repository }}/releases/assets/${asset} | grep -qE '^(204|404)$' || true
+          done
+        continue-on-error: true
+      # Check and upload Linux DEB Installer
+      - name: Check if Linux DEB Installer exists
+        id: check_linux_deb
+        run: |
+          if ls artifacts/linux-deb-installer/**/*.deb 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Upload Linux DEB Installer to Release
+        if: steps.check_linux_deb.outputs.exists == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
           files: artifacts/linux-deb-installer/**/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
