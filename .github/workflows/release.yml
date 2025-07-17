@@ -144,41 +144,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts # Downloads all artifacts into this directory
-      - name: Upload Windows Installer to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/windows-installer/**/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Windows App to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/windows-app/**/*  # Adjust as needed
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Linux App to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/linux-app/**/*  # Adjust as needed
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Linux DEB Installer to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/linux-deb-installer/**/*.deb
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+      # Create the release first (no files yet)
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is automatically provided by GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.version }} # Uses the version input from workflow_dispatch
+          tag_name: ${{ github.event.inputs.version }}
           name: Release ${{ github.event.inputs.version }}
           body: |
             ## 🚀 Trio v1.0.0 – The Next Generation AI App Builder
@@ -311,8 +285,36 @@ jobs:
             See attached artifacts.
           draft: false # Set to true to create a draft release
           prerelease: false # Set to true for pre-releases
-          files: |
-            artifacts/windows-app/**/* # Adjust to include all contents, including subdirectories
-            artifacts/windows-installer/*.exe # Include the Windows installer
-            artifacts/linux-app/**/* # Adjust to include all contents, including subdirectories
-            artifacts/linux-deb-installer/**/*.deb # Include the Linux DEB installer
+          files: "" # No files yet
+
+      - name: Upload Windows Installer to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: artifacts/windows-installer/**/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows App to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: artifacts/windows-app/**/*  # Adjust as needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux App to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: artifacts/linux-app/**/*  # Adjust as needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux DEB Installer to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: artifacts/linux-deb-installer/**/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
