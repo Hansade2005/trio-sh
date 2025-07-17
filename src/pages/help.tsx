@@ -125,41 +125,50 @@ export default function HelpPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full mb-6 p-3 rounded-lg border shadow focus:outline-none focus:ring-2 focus:ring-pink-400"
           />
-          {/* FAQ List */}
-          <div className="w-full space-y-8">
+          {/* FAQ List as Accordion */}
+          <Accordion
+            type="multiple"
+            className="w-full max-h-[400px] overflow-y-auto pr-2 mb-8"
+          >
             {FAQS.map((cat) => (
-              <div key={cat.category}>
-                <h2 className="text-lg font-semibold mb-2 text-pink-700">
-                  {cat.category}
-                </h2>
-                <div className="space-y-4">
-                  {cat.qas
-                    .filter(
-                      (qa) =>
-                        qa.question
-                          .toLowerCase()
-                          .includes(search.toLowerCase()) ||
-                        qa.answer.toLowerCase().includes(search.toLowerCase()),
-                    )
-                    .map((qa) => (
-                      <div
-                        key={qa.question}
-                        className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow border"
-                      >
-                        <div className="font-medium text-gray-900 dark:text-gray-100">
-                          Q: {qa.question}
+              <AccordionItem value={cat.category} key={cat.category}>
+                <AccordionTrigger>
+                  <h2 className="text-lg font-semibold mb-2 text-pink-700">
+                    {cat.category}
+                  </h2>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    {cat.qas
+                      .filter(
+                        (qa) =>
+                          qa.question
+                            .toLowerCase()
+                            .includes(search.toLowerCase()) ||
+                          qa.answer
+                            .toLowerCase()
+                            .includes(search.toLowerCase()),
+                      )
+                      .map((qa) => (
+                        <div
+                          key={qa.question}
+                          className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow border"
+                        >
+                          <div className="font-medium text-gray-900 dark:text-gray-100">
+                            Q: {qa.question}
+                          </div>
+                          <div className="mt-1 text-gray-700 dark:text-gray-300">
+                            A: {qa.answer}
+                          </div>
                         </div>
-                        <div className="mt-1 text-gray-700 dark:text-gray-300">
-                          A: {qa.answer}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
+                      ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
           {/* Feedback & Feature Submission */}
-          <div className="mt-10 w-full space-y-8">
+          <div className="mt-10 w-full grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow border">
               <h2 className="text-lg font-semibold mb-2 text-pink-700 flex items-center gap-2">
                 <MessageCircle className="h-5 w-5 text-pink-500" /> Submit
